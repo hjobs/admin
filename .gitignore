@@ -3,5 +3,5 @@ node_modules
 .idea
 dist
 .publish
+*.DS_Store
 .DS_Store
-
