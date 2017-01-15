@@ -1,0 +1,14 @@
+{
+  "extends": "airbnb",
+  "rules": {
+    "comma-dangle": [2, "never"],
+    "indent": 0,
+    "prefer-stateless-function": [0, { "ignorePureComponents": false}],
+    "quotes": "off",
+    "one-var": "off",
+    "max-len":"off",
+    "object-curly-spacing": "off",
+    "react/jsx-closing-bracket-location": "off",
+    "react/jsx-curly-spacing": "off"
+  }
+}

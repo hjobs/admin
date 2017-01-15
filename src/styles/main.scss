@@ -1,0 +1,254 @@
+$bright-bkgd: yellow;
+$dark-bkgd: black;
+$white-bkgd: transparent;
+
+$div-circle-bkgd: $bright-bkgd;
+$div-circle-border: $dark-bkgd;
+
+$jobsBkgd: #EFEFEF;
+$jobContainerBkgd: white;
+$jobContainerBoxShadow: #AAA;
+$applyButtonBorder: white;
+$applyButtonBkgd: #F0CE00;
+$applyButtonColor: white;
+$modalBkgd: $bright-bkgd;
+
+$phoneTall: 544px; /* originally 575 */
+$phoneWide: 767px;
+$tablet: 1023px;
+$desktop: 1024px;
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  color: #333;
+  background-color: #fff;
+  margin: 0;
+  padding: 50px 0px 0px 0px;
+}
+
+section {
+ padding: 20px;
+}
+
+.full-width {width: 100%;}
+.text-center {text-align: center;}
+.inline-block {display: inline-block;}
+
+/*********TEXT*********/
+h1,h2,h3,h4,h5,h6 {
+  font-family: 'Righteous', cursive;
+}
+
+
+/*********FLEX*********/
+.flex-row {
+  display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+  display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+  display: -ms-flexbox;      /* TWEENER - IE 10 */
+  display: -webkit-flex;     /* NEW - Chrome */
+  display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+.flex-col {
+  display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+  display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+  display: -ms-flexbox;      /* TWEENER - IE 10 */
+  display: -webkit-flex;     /* NEW - Chrome */
+  display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: vertical;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+.flex-hCenter {justify-content: center;}
+.flex-vCenter {align-items: center;}
+.flex-vhCenter {justify-content: center; align-items: center;}
+/*
+.flex-row-hCenter {@extend .flex-row; justify-content: center;}
+.flex-col-hCenter {@extend .flex-col; justify-content: center;}
+.flex-vCenter {align-items: center;}
+.flex-row-vCenter {@extend .flex-row; align-items: center;}
+.flex-col-vCenter {@extend .flex-col; align-items: center;}
+.flex-vhCenter {@extend .flex-hCenter; @extend .flex-vCenter;}
+.flex-row-vhCenter {@extend .flex-row; @extend .flex-vhCenter;}
+.flex-col-vhCenter {@extend .flex-col; @extend .flex-vhCenter;}
+*/
+
+.home {
+  padding:0;
+  .about-banner-container {
+    background-color: $bright-bkgd;
+    padding: 20px 5% 20px 5%;
+    .about-banner {
+      color: $dark-bkgd;
+      max-width: 700px;
+      width:100%;
+      padding: 40px;
+      h1,h2,h3,h4,h5,h6,p {color: $dark-bkgd;}
+    }
+  }
+  .about-choice-container {
+    background-color: $white-bkgd;
+    padding: 20px 5% 20px 5%;
+    .about-choice {
+      max-width: 900px;
+      padding: 0px;
+      h1,h2,h3,h4,h5,h6,p {color: black}
+      .container {
+        width:100%;
+        padding:10px;
+        .div-circle {
+          background-color: $div-circle-bkgd;
+          border-radius: 50%;
+          -webkit-box-shadow: 0 0 10px 5px $dark-bkgd;  /* Safari 3-4, iOS 4.0.2 - 4.2, Android 2.3+ */
+          -moz-box-shadow:    0 0 10px 5px $dark-bkgd;  /* Firefox 3.5 - 3.6 */
+          box-shadow:         0 0 10px 5px $dark-bkgd;  /* Opera 10.5, IE 9, Firefox 4+, Chrome 6+, iOS 5 */
+          margin-top:10px;
+          margin-bottom:10px;
+        }
+        .div-circle-big {
+          padding: 10px;
+          width: 40vw; height: 40vw;
+          max-width: 280px; max-height: 280px;
+          min-width: 161px; min-height: 161px;
+        }
+        .div-circle-small {
+          padding: 7px;
+          width: 30vw; height: 30vw;
+          max-width: 200px; max-height: 200px;
+          min-width: 120px; min-height: 120px;
+        }
+      }
+    }
+  }
+  .about-intro-container{
+    background-color: $white-bkgd;
+    padding: 20px 5% 20px 5%;
+    .about-intro {
+      max-width: 900px;
+      padding: 0px;
+      h1,h2,h3,h4,h5,h6,p {color: black}
+    }
+  }
+  .about-feature-container{
+    background-color: $white-bkgd;
+    padding: 20px 5% 20px 5%;
+    .about-feature {
+      max-width: 900px;
+      padding: 0px;
+      h1,h2,h3,h4,h5,h6,p {color: black}
+      h4 {margin-bottom:0px!important;}
+      .column {padding:10px;}
+    }
+  }
+  .about-team-container {
+    background-color: $dark-bkgd;
+    padding: 20px 5% 20px 5%;
+    .about-team {
+      max-width: 700px;
+      width:100%;
+      padding: 40px;
+      h2 {color: $bright-bkgd; margin-bottom:30px;}
+      img {max-width: 100px;}
+      h4,p {color: white;}
+    }
+  }
+  .contact-container {
+    background-color: $bright-bkgd;
+    padding: 20px 5% 20px 5%;
+    .contact {
+      color: $dark-bkgd;
+      max-width: 700px;
+      width:100%;
+      padding: 40px;
+      h1,h2,h3,h4,h5,h6,p {color: $dark-bkgd;}
+    }
+  }
+}
+
+.jobs {
+  background-color: $jobsBkgd;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  h1,h2,h3,h4,h5,h6 {font-family: 'Open Sans', sans-serif; font-weight: bold;}
+  .job-container {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: $jobContainerBkgd;
+    color: $dark-bkgd;
+    -webkit-box-shadow: 0 0 5px 0px $jobContainerBoxShadow;  /* Safari 3-4, iOS 4.0.2 - 4.2, Android 2.3+ */
+    -moz-box-shadow:    0 0 5px 0px $jobContainerBoxShadow;  /* Firefox 3.5 - 3.6 */
+    box-shadow:         0 0 5px 0px $jobContainerBoxShadow;  /* Opera 10.5, IE 9, Firefox 4+, Chrome 6+, iOS 5 */
+    .thumbnail-container {
+      padding: 10px;
+      @media (max-width: $phoneWide) {
+        width: 100%;
+      }
+      @media (min-width: $phoneWide) {
+        width:35%;
+      }
+      .thumbnail {
+        padding: 0px;
+        margin: 0px;
+        @media (max-width: $phoneWide) {
+          width: 130px; height: 130px;
+        }
+        @media (min-width: $phoneWide) {
+          width: auto;
+          height:auto;
+          max-width: 100%;
+          max-height: 100%;
+        }
+      }
+    }
+    .detail-container {
+      overflow-wrap: break-word;
+      padding-left: 15px;
+      padding-right: 15px;
+      @media (max-width: $phoneWide) {
+        width: 100%;
+        display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+        display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+        display: -ms-flexbox;      /* TWEENER - IE 10 */
+        display: -webkit-flex;     /* NEW - Chrome */
+        display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: vertical;
+        -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        -webkit-flex-wrap: wrap;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
+      @media (min-width: $phoneWide) {
+        width: 64%;
+      }
+      .apply-button {
+        background-color: $applyButtonBkgd;
+        border: 1px solid $applyButtonBorder;
+        color: $applyButtonColor;
+      }
+    }
+  }
+  .apply-modal {
+    background-color: $modalBkgd;
+  }
+}
