@@ -1,10 +1,9 @@
 import React from 'react';
 import 'whatwg-fetch';
+let Loading = require('react-loading');
 
 import Job from './Job';
 import ApplyModal from './ApplyModal';
-
-
 
 const data = [
   {
@@ -45,28 +44,14 @@ const data = [
   }
 ];
 
-class Jobs extends React.Component {
+class Panel extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       modalShown: false,
-      data: null
+      jobs: {},
+      projects: {}
     };
-  }
-
-  componentDidMount() {
-    fetch('http://localhost:3003/jobs', {
-      method: 'GET',
-      headers: {
-        "Content-Type": "application/json"
-      }
-    }).then(res => {
-      console.log(res);
-      return res.json();
-    }).then(d => {
-      console.log(d);
-      this.setState({data: d}, () => { console.log('this.state.data'); console.log(this.state.data); });
-    });
   }
 
   openModal(jobNo) {
@@ -96,18 +81,23 @@ class Jobs extends React.Component {
     });
 
     return (
-      <div className="container-fluid jobs">
-        <p className="text-center">search for you job</p>
-        <div className="row job-row clearfix">
-          {dataArr}
-        </div>
-        <ApplyModal shown={this.state.modalShown} closeModal={ () => {this.closeModal()} } />
+      <div>
+        Let's hack this!
       </div>
     );
   }
 }
 
-export default Jobs;
+Panel.propTypes = {
+  authToken: React.PropTypes.string,
+  baseUrl: React.PropTypes.string,
+  org: React.PropTypes.any,
+  employer: React.PropTypes.any,
+  jobs: React.PropTypes.any,
+  projects: React.PropTypes.any
+};
+
+export default Panel;
 
 // <Job imgSrc={data[i].imgSrc} title={data[i].title} name={data[i].name} date={data[i].date} applyJob={this.applyJob.bind((data[i]))} key={i} />
 //
