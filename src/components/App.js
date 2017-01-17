@@ -3,7 +3,7 @@ import { Navbar, Nav, NavItem } from 'react-bootstrap';
 import 'whatwg-fetch';
 let Loading = require('react-loading');
 
-import Panel from './Panel/Panel';
+import Board from './Board/Board';
 import Login from './Login/Login';
 
 class App extends React.Component {
@@ -12,7 +12,7 @@ class App extends React.Component {
     this.state = {
         authToken: window.localStorage.getItem("authToken"),
         // baseUrl: 'http://52.221.40.15:3000/',
-        baseUrl: 'http://localhost:3100/',
+        baseUrl: 'http://localhost:3100/employer/',
         org: null,
         loading: true,
         employer: null,
@@ -41,7 +41,7 @@ class App extends React.Component {
   }
 
   loadData() {
-    let url = this.state.baseUrl + 'employer/orgs/showPostings';
+    let url = this.state.baseUrl + 'orgs/showPostings';
     fetch(url, {
       method: 'GET',
       headers: {
@@ -119,7 +119,7 @@ class App extends React.Component {
                   <Loading type="bubbles" color="#e3e3e3" />
                 </div>
               :
-                <Panel
+                <Board
                   authToken={this.state.authToken}
                   baseUrl={this.state.baseUrl}
                   org={this.state.org}

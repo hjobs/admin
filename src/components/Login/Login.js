@@ -21,7 +21,7 @@ class Login extends React.Component {
       data.email = document.getElementById("in-email").value;
       data.password = document.getElementById("in-password").value;
 
-      const url = this.props.baseUrl + 'employer/authenticate';
+      const url = this.props.baseUrl + 'authenticate';
       fetch(url, {
         method: 'POST',
         headers: {

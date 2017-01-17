@@ -2,6 +2,7 @@
   "extends": "airbnb",
   "rules": {
     "comma-dangle": [2, "never"],
+    "comma-spacing": "off",
     "indent": 0,
     "prefer-stateless-function": [0, { "ignorePureComponents": false}],
     "quotes": "off",

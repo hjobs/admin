@@ -77,6 +77,10 @@ h1,h2,h3,h4,h5,h6 {
 .flex-hCenter {justify-content: center;}
 .flex-vCenter {align-items: center;}
 .flex-vhCenter {justify-content: center; align-items: center;}
+
+.inline {
+  display: inline-block;
+}
 /*
 .flex-row-hCenter {@extend .flex-row; justify-content: center;}
 .flex-col-hCenter {@extend .flex-col; justify-content: center;}
@@ -91,4 +95,31 @@ h1,h2,h3,h4,h5,h6 {
 .sign {
   .toggle-link {color: blue;}
   .logo-button {margin-left: 10px;}
+}
+
+.board {
+  .add {
+    border-radius: 50% !important;
+    margin-bottom: 5px;
+  }
+  .toggle-div {
+    padding: 15px 10px 2px 10px;
+    background-color: #EEE;
+    h3 {
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+    button {
+      font-size: 14px;
+      margin-left: 10px !important;
+    }
+  }
+}
+
+.addItemModal {
+  .job {
+    textarea {
+      max-width: 100% !important;
+    }
+  }
 }
