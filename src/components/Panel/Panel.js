@@ -1,10 +1,53 @@
 import React from 'react';
 import 'whatwg-fetch';
-let Loading = require('react-loading');
+// let Loading = require('react-loading');
 
 import Job from './Job';
 import ApplyModal from './ApplyModal';
 
+class Panel extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      modalShown: false
+    };
+  }
+
+  openModal(jobNo) {
+    console.log('openModal, jobNo parameter is: ' + jobNo);
+    this.setState({
+      modalShown: true
+    });
+  }
+
+  closeModal() {
+    console.log("closeModal");
+    this.setState({
+      modalShown: false
+    });
+  }
+
+  render() {
+    return (
+      <div>
+        <p>You have posted {this.props.jobs.length} jobs and {this.props.projects.length} projects.</p>
+      </div>
+    );
+  }
+}
+
+Panel.propTypes = {
+  authToken: React.PropTypes.string,
+  baseUrl: React.PropTypes.string,
+  org: React.PropTypes.any,
+  employer: React.PropTypes.any,
+  jobs: React.PropTypes.any,
+  projects: React.PropTypes.any
+};
+
+export default Panel;
+
+/*
 const data = [
   {
     imgSrc: 'http://placehold.it/150x150',
@@ -43,61 +86,18 @@ const data = [
     date: new Date(1479095519606)
   }
 ];
+*/
 
-class Panel extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      modalShown: false,
-      jobs: {},
-      projects: {}
-    };
-  }
-
-  openModal(jobNo) {
-    console.log('openModal, jobNo parameter is: ' + jobNo);
-    this.setState({
-      modalShown: true
-    });
-  }
-
-  closeModal() {
-    console.log("closeModal");
-    this.setState({
-      modalShown: false
-    });
-  }
-
-  render() {
-    let dataArr = data.map((datum, i) => {
-      return (
-        <div className="col-xs-24 col-sm-12" key={i}>
-          <Job
-            imgSrc={datum.imgSrc} title={datum.title}
-            name={datum.name} date={datum.date}
-            applyJob={ (jobNo) => { this.openModal(jobNo); } } jobNo={i} />
-        </div>
-      );
-    });
-
-    return (
-      <div>
-        Let's hack this!
-      </div>
-    );
-  }
-}
-
-Panel.propTypes = {
-  authToken: React.PropTypes.string,
-  baseUrl: React.PropTypes.string,
-  org: React.PropTypes.any,
-  employer: React.PropTypes.any,
-  jobs: React.PropTypes.any,
-  projects: React.PropTypes.any
-};
-
-export default Panel;
+    // let dataArr = data.map((datum, i) => {
+    //   return (
+    //     <div className="col-xs-24 col-sm-12" key={i}>
+    //       <Job
+    //         imgSrc={datum.imgSrc} title={datum.title}
+    //         name={datum.name} date={datum.date}
+    //         applyJob={ (jobNo) => { this.openModal(jobNo); } } jobNo={i} />
+    //     </div>
+    //   );
+    // });
 
 // <Job imgSrc={data[i].imgSrc} title={data[i].title} name={data[i].name} date={data[i].date} applyJob={this.applyJob.bind((data[i]))} key={i} />
 //

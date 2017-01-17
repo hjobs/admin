@@ -33,6 +33,7 @@ class App extends React.Component {
 
   onLogin(org, employer, token) {
     const data = {};
+    data.loading = true;
     data.org = org;
     data.employer = employer;
     if (token) data.authToken = token;
@@ -79,21 +80,32 @@ class App extends React.Component {
     localStorage.removeItem("authToken");
   }
 
+  handleMenuSelect(eventKey) {
+    switch (eventKey) {
+      case 0: this.signOut(); break;
+      default: break;
+    }
+  }
+
   render() {
     return (
       <div>
-        <Navbar fluid inverse collapseOnSelect fixedTop>
+        <Navbar
+          fluid inverse
+          collapseOnSelect fixedTop
+          onSelect={(eventKey) => this.handleMenuSelect(eventKey)}
+        >
           <Navbar.Header>
             <Navbar.Brand>
               <a href="#">HJobs Admin</a>
             </Navbar.Brand>
-            <Navbar.Toggle />
+            {this.state.authToken ? <Navbar.Toggle /> : null}
           </Navbar.Header>
           {
             this.state.authToken ?
               <Navbar.Collapse>
                 <Nav pullRight>
-                  <NavItem eventKey={1} href="#" onClick={() => { this.signOut(); }}>Logout</NavItem>
+                  <NavItem eventKey={0} href="#">Logout</NavItem>
                 </Nav>
               </Navbar.Collapse>
               : null
