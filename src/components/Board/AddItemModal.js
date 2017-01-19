@@ -37,7 +37,7 @@ class AddItemModal extends React.Component {
           "Content-Type": "application/json",
           Authorization: this.props.authToken
         },
-        body: {job: data}
+        body: JSON.stringify({job: data})
       })
         .then(res => {
           console.log(res);

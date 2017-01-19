@@ -41,12 +41,13 @@ class Board extends React.Component {
 
   render() {
     let jobsTable = this.props.jobs.map(data => {
+      const createdAt = (new Date(data.created_at).toUTCString().slice(5,16));
+      const deadline = (new Date(data.deadline)).toUTCString().slice(5,16);
       return (
         <tr>
           <td>{data.title}</td>
-          <td>{data.created_at.toUTCString().slice(5,16)}</td>
-          <td>{data.deadline.toUTCString().slice(5,16)}</td>
-          <td></td>
+          <td>{createdAt}</td>
+          <td>{deadline}</td>
           <td>
             <Button
               bsSize="small"
@@ -74,7 +75,7 @@ class Board extends React.Component {
         <p>You have posted {this.props.jobs.length} jobs and {this.props.projects.length} projects.</p>
         <div className="toggle-div">
           <h3 className="inline">Jobs</h3>
-          <Button bsStyle="link" onClick={() => this.showAddItemModal('job') }>
+          <Button bsStyle="link" onClick={() => this.setState({openJobPanel: !this.state.openJobPanel}) }>
             {this.state.openJobPanel ? "collapse jobs" : "show jobs" } ({this.props.jobs.length})
           </Button>
         </div>
@@ -92,7 +93,6 @@ class Board extends React.Component {
                 <th>Title</th>
                 <th>Post Date</th>
                 <th>End Date</th>
-                <th>.toUTCString().slice(5,16)</th>
                 <th>Show Description</th>
                 <th>Delete</th>
               </tr>
