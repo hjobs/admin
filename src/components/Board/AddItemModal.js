@@ -49,6 +49,11 @@ class AddItemModal extends React.Component {
         })
         .then(d => {
           console.log(d);
+          if (d === "error") {
+            console.log('we caught an error');
+          } else {
+            this.props.closeModal();
+          }
         });
 
     } else { // Post Project
@@ -151,8 +156,37 @@ class AddItemModal extends React.Component {
               )
               :
               (
-                <div>
+                <div className="project">
+                  <FieldGroup
+                    id="project-title"
+                    label="Project Title"
+                    type="text"
+                    help="Give it a catchy title that captures the gist of the project"
+                  />
 
+                  <FormGroup controlId="project-description">
+                    <ControlLabel>Description</ControlLabel>
+                    <FormControl componentClass="textarea" />
+                    <HelpBlock>This will be shown on the website showing details and important information about the job that you think potential canditdates should know.</HelpBlock>
+                  </FormGroup>
+
+                  <FormGroup>
+                    <ControlLabel>Salary Type</ControlLabel>
+                    <select onChange={() => { this.changeSalaryType(); }} className="form-control" id="job-salary_type" >
+                      <option value="specific">Specific</option>
+                      <option value="range">Range</option>
+                      <option value="negotiable">Negotiable</option>
+                    </select>
+                  </FormGroup>
+
+                  {jobSalaryValue()}
+
+                  <FieldGroup
+                    id="job-attachment_url"
+                    label="Attachment Link (Dropbox)"
+                    type="text"
+                    help="Feel free to attach a dropbox link to showcase further information in beautiful PDFs and documents!"
+                  />
                 </div>
               )
           }
@@ -161,12 +195,12 @@ class AddItemModal extends React.Component {
           <Button
             bsStyle="danger"
             onClick={() => { this.props.closeModal(); }} >
-            Close
+            Cancel
           </Button>
           <Button
             bsStyle="success"
             onClick={() => { this.save(); }} >
-            Save
+            Submit
           </Button>
         </Modal.Footer>
       </Modal>

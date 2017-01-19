@@ -41,13 +41,26 @@ class Board extends React.Component {
 
   render() {
     let jobsTable = this.props.jobs.map(data => {
-      const createdAt = (new Date(data.created_at).toUTCString().slice(5,16));
-      const deadline = (new Date(data.deadline)).toUTCString().slice(5,16);
+      const createdAt = (new Date(data.created_at).toLocaleDateString());
+      // .toUTCString().slice(5,16));
+      // const deadline = (new Date(data.deadline)).toUTCString().slice(5,16);
+      let salaryDescription = "";
+      switch (data.salary_type) {
+        case "range":
+          salaryDescription = "range = $" + data.salary_high + " to $" + data.salary_low;
+          break;
+        case "specific":
+          salaryDescription = "specific: $" + data.salary_value;
+          break;
+        case "negotiable": default:
+          salaryDescription = "negotiable";
+          break;
+      }
       return (
         <tr>
           <td>{data.title}</td>
           <td>{createdAt}</td>
-          <td>{deadline}</td>
+          <td>{salaryDescription}</td>
           <td>
             <Button
               bsSize="small"
@@ -92,7 +105,7 @@ class Board extends React.Component {
               <tr>
                 <th>Title</th>
                 <th>Post Date</th>
-                <th>End Date</th>
+                <th>Salary</th>
                 <th>Show Description</th>
                 <th>Delete</th>
               </tr>
