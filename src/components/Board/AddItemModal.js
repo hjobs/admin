@@ -1,12 +1,14 @@
 import React from 'react';
-import { Modal, Button, FormGroup, ControlLabel, HelpBlock, FormControl } from 'react-bootstrap';
+import { Modal, Button, FormGroup, ControlLabel, HelpBlock, FormControl, Checkbox } from 'react-bootstrap';
 import 'whatwg-fetch';
 
 class AddItemModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      jobSalaryType: 'specific'
+      jobSalaryType: 'specific',
+      employmentTypeArr: [],
+      errorMessage: ''
     };
   }
 
@@ -17,6 +19,7 @@ class AddItemModal extends React.Component {
       data.description = document.getElementById("job-description").value;
       data.salary_type = document.getElementById("job-salary_type").value;
       data.attachment_url = document.getElementById("job-attachment_url").value;
+      data.employment_types = this.state.employmentTypeArr;
       switch (data.salary_type) {
         case 'specific':
           data.salary_value = document.getElementById("job-salary_value").value;
@@ -42,6 +45,7 @@ class AddItemModal extends React.Component {
         .then(res => {
           console.log(res);
           if (res.status > 300) {
+            this.setState({errorMessage: res.statusText});
             return "error";
           } else {
             return res.json();
@@ -64,6 +68,18 @@ class AddItemModal extends React.Component {
   changeSalaryType() {
     const option = document.getElementById('job-salary_type').value;
     this.setState({jobSalaryType: option});
+  }
+
+  changeEmploymentType(value) {
+    const arr = this.state.employmentTypeArr;
+    const index = arr.indexOf(value);
+    if (index === -1) {
+      arr.push(value);
+    } else {
+      arr.splice(index,1);
+    }
+    this.setState({employmentTypeArr: arr}, () => { console.log(this.state); });
+    // console.log(document.getElementById('job-employment_type').value);
   }
 
   render() {
@@ -145,6 +161,17 @@ class AddItemModal extends React.Component {
                   </FormGroup>
 
                   {jobSalaryValue()}
+
+                  <FormGroup>
+                    <ControlLabel>Employment Type</ControlLabel>
+                    <div>
+                      <Checkbox onClick={() => { this.changeEmploymentType("fulltime"); }} inline> Full-time </Checkbox>
+                      {' '}
+                      <Checkbox onClick={() => { this.changeEmploymentType("parttime"); }} inline>  Part-time </Checkbox>
+                      {' '}
+                      <Checkbox onClick={() => { this.changeEmploymentType("freelance"); }} inline> Free-lance </Checkbox>
+                    </div>
+                  </FormGroup>
 
                   <FieldGroup
                     id="job-attachment_url"

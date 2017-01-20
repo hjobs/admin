@@ -22,6 +22,14 @@ class Board extends React.Component {
   }
 
   delete(dataType, id) {
+    const url = this.props.baseUrl + 'jobs/' + id;
+    fetch(url, {
+      method: 'DELETE',
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: this.props.authToken
+      }
+    });
     return "job" || "project";
   }
 
