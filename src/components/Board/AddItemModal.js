@@ -6,30 +6,35 @@ class AddItemModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      jobSalaryType: 'specific',
-      employmentTypeArr: [],
-      errorMessage: ''
+      job: {
+        title: "",
+        description: "",
+        attachment_url: "",
+        employment_type: [],
+        salary_type: "",
+        salary: {
+          salary_value: "",
+          salary_high: "",
+          salary_low: ""
+        }
+      }
     };
   }
 
   save() {
     if (this.props.modalType === 'job') { // Post Job
-      let data = {};
-      data.title = document.getElementById("job-title").value;
-      data.description = document.getElementById("job-description").value;
-      data.salary_type = document.getElementById("job-salary_type").value;
-      data.attachment_url = document.getElementById("job-attachment_url").value;
-      data.employment_types = this.state.employmentTypeArr;
+      let data = this.state[this.props.modalType];
       switch (data.salary_type) {
         case 'specific':
-          data.salary_value = document.getElementById("job-salary_value").value;
+          data.salary_value = data.salary.salary_value;
           break;
         case 'range':
-          data.salary_high = document.getElementById("job-salary_high").value;
-          data.salary_low = document.getElementById("job-salary_low").value;
+          data.salary_low = data.salary.salary_low;
+          data.salary_high = data.salary.salary_high;
           break;
         case 'negotiable': default: break;
       }
+      data.salary = null;
       console.log(data);
 
       const url = this.props.baseUrl + 'jobs';
@@ -56,73 +61,129 @@ class AddItemModal extends React.Component {
           if (d === "error") {
             console.log('we caught an error');
           } else {
-            this.props.closeModal();
+            this.props.closeModal(true);
           }
         });
-
     } else { // Post Project
-
     }
   }
 
-  changeSalaryType() {
-    const option = document.getElementById('job-salary_type').value;
-    this.setState({jobSalaryType: option});
-  }
-
   changeEmploymentType(value) {
-    const arr = this.state.employmentTypeArr;
+    console.log("changeEmploymentType, valu = " + value);
+    const arr =
+      (!this.state[this.props.modalType] || !this.state[this.props.modalType].employment_types) ?
+        [] :
+        this.state[this.props.modalType].employment_types;
     const index = arr.indexOf(value);
     if (index === -1) {
       arr.push(value);
     } else {
       arr.splice(index,1);
     }
-    this.setState({employmentTypeArr: arr}, () => { console.log(this.state); });
+    this.handleFormChange("employment_types", arr);
     // console.log(document.getElementById('job-employment_type').value);
   }
 
+  handleFormChange(id, value) {
+    // console.log('logging ' + id + ' event, and event = ');
+    // console.log(value);
+    const idArr = id.split(":");
+    let data = this.state[this.props.modalType] || {};
+    let ref = data;
+    idArr.forEach((key, index, arr) => {
+      if (index < (arr.length - 1)) ref = data[key];
+    });
+    console.log(ref);
+    ref[idArr[idArr.length - 1]] = value;
+    console.log("logging ref: ");
+    console.log(ref);
+    console.log("logging data: ");
+    console.log(data);
+    
+    // data[this.props.modalType][id] = value;
+    // this.setState(data);
+    const nextState = {};
+    nextState[this.props.modalType] = data;
+    this.setState(nextState, () => { console.log("logging this.state"); console.log(this.state); });
+  }
+
   render() {
-    function FieldGroup({ id, label, help, type, placeholder, props }) {
+    const fieldGroup = ({id, label, help, type, placeholder, props}) => {
+      const idArr = id.split(":");
+      let value = this.state[this.props.modalType];
+      idArr.forEach(key => {
+        value = value[key];
+      });
+      // console.log("fieldGroup logging id of: " + id + ", where value = " + value);
       return (
         <FormGroup controlId={id}>
           {label ? <ControlLabel>{label}</ControlLabel> : null}
-          <FormControl {...props} placeholder={placeholder} type={type} />
+          {
+            type !== "textarea" ?
+              <FormControl
+                value={value}
+                {...props}
+                placeholder={placeholder}
+                type={type}
+                onChange={(event) => { this.handleFormChange(id, event.target.value); }} />
+              :
+              <FormControl
+                componentClass={type}
+                value={value}
+                onChange={(event) => { this.handleFormChange(id, event.target.value); }} />
+          }
           {help && <HelpBlock>{help}</HelpBlock>}
         </FormGroup>
       );
-    }
-
+    };
     const jobSalaryValue = () => {
-      switch (this.state.jobSalaryType) {
+      switch (this.state[this.props.modalType].salary_type) {
         case 'specific': default:
           return (
-            <FieldGroup
-              id="job-salary_value"
-              type="number"
-              label="Salary Value ($)"
-            />
+            fieldGroup({
+              id: "salary:salary_value",
+              type: "number",
+              label: "Salary Value ($)"
+            })
           );
         case 'range':
           return (
             <div>
-              <FieldGroup
-                id="job-salary_low"
-                type="number"
-                label="From($)"
-              />
-              <FieldGroup
-                id="job-salary_high"
-                type="number"
-                label="To($$$)"
-              />
+              { fieldGroup({
+                id: "salary:salary_low",
+                type: "number",
+                label: "From($)"
+              })}
+              { fieldGroup({
+                id: "salary:salary_high",
+                type: "number",
+                label: "To($$$)"
+              })}
             </div>
           );
         case 'negotiable':
           return null;
       }
     };
-    // console.log("ApplyModal this.props.shown = " + this.props.shown);
+    const checkbox = ({id, label, help, itemArr}) => {
+      return (
+        <FormGroup>
+          { label ? <ControlLabel>{label}</ControlLabel> : null }
+          {' '}
+          {
+            itemArr.map(item =>
+              <Checkbox
+                key={this.props.modalType + "_" + id + "_" + item.value}
+                onClick={() => { this.changeEmploymentType(item.value); }} inline>
+                {item.name} {' '}
+              </Checkbox>
+            )
+          }
+          {help}
+        </FormGroup>
+      );
+    };
+
     return (
       <Modal
         show={this.props.show}
@@ -138,90 +199,58 @@ class AddItemModal extends React.Component {
             this.props.modalType === 'job' ?
               (
                 <div className="job">
-                  <FieldGroup
-                    id="job-title"
-                    label="Job Title"
-                    type="text"
-                    help="Recommended to specify position here to capture attention"
-                  />
+                  { fieldGroup({
+                    id: "title",
+                    label: "Job Title",
+                    type: "text",
+                    help: "Recommended to specify position here to capture attention"
+                  })}
 
-                  <FormGroup controlId="job-description">
-                    <ControlLabel>Description</ControlLabel>
-                    <FormControl componentClass="textarea" />
-                    <HelpBlock>This will be shown on the website showing details and important information about the job that you think potential canditdates should know.</HelpBlock>
-                  </FormGroup>
+                  { fieldGroup({
+                    id: "description",
+                    label: "Description",
+                    type: "textarea",
+                    help: "This will be shown on the website showing details and important information about the job that you think potential canditdates should know."
+                  })}
 
                   <FormGroup>
                     <ControlLabel>Salary Type</ControlLabel>
-                    <select onChange={() => { this.changeSalaryType(); }} className="form-control" id="job-salary_type" >
+                    <select onChange={(event) => { this.handleFormChange('salary_type', event.target.value); }} className="form-control" id="salary_type" >
                       <option value="specific">Specific</option>
                       <option value="range">Range</option>
                       <option value="negotiable">Negotiable</option>
                     </select>
                   </FormGroup>
 
-                  {jobSalaryValue()}
+                  { jobSalaryValue() }
 
-                  <FormGroup>
-                    <ControlLabel>Employment Type</ControlLabel>
-                    <div>
-                      <Checkbox onClick={() => { this.changeEmploymentType("fulltime"); }} inline> Full-time </Checkbox>
-                      {' '}
-                      <Checkbox onClick={() => { this.changeEmploymentType("parttime"); }} inline>  Part-time </Checkbox>
-                      {' '}
-                      <Checkbox onClick={() => { this.changeEmploymentType("freelance"); }} inline> Free-lance </Checkbox>
-                    </div>
-                  </FormGroup>
+                  {checkbox({
+                    id: "employmentType",
+                    label: "Employment Type",
+                    itemArr: [
+                      {value: "fulltime", name: "Full-Time"},
+                      {value: "parttime", name: "Part-Time"}
+                    ]
+                  })}
 
-                  <FieldGroup
-                    id="job-attachment_url"
-                    label="Attachment Link (Dropbox)"
-                    type="text"
-                    help="Feel free to attach a dropbox link to showcase further information in beautiful PDFs and documents!"
-                  />
+                  { fieldGroup({
+                    id: "attachment_url",
+                    label: "Attachment Link (Dropbox)",
+                    type: "text",
+                    help: "Feel free to attach a dropbox link to showcase further information in beautiful PDFs and documents!"
+                  })}
                 </div>
               )
               :
               (
-                <div className="project">
-                  <FieldGroup
-                    id="project-title"
-                    label="Project Title"
-                    type="text"
-                    help="Give it a catchy title that captures the gist of the project"
-                  />
-
-                  <FormGroup controlId="project-description">
-                    <ControlLabel>Description</ControlLabel>
-                    <FormControl componentClass="textarea" />
-                    <HelpBlock>This will be shown on the website showing details and important information about the job that you think potential canditdates should know.</HelpBlock>
-                  </FormGroup>
-
-                  <FormGroup>
-                    <ControlLabel>Salary Type</ControlLabel>
-                    <select onChange={() => { this.changeSalaryType(); }} className="form-control" id="job-salary_type" >
-                      <option value="specific">Specific</option>
-                      <option value="range">Range</option>
-                      <option value="negotiable">Negotiable</option>
-                    </select>
-                  </FormGroup>
-
-                  {jobSalaryValue()}
-
-                  <FieldGroup
-                    id="job-attachment_url"
-                    label="Attachment Link (Dropbox)"
-                    type="text"
-                    help="Feel free to attach a dropbox link to showcase further information in beautiful PDFs and documents!"
-                  />
-                </div>
+                null
               )
           }
         </Modal.Body>
         <Modal.Footer>
           <Button
             bsStyle="danger"
-            onClick={() => { this.props.closeModal(); }} >
+            onClick={() => { this.props.closeModal(false); }} >
             Cancel
           </Button>
           <Button

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Panel, Table } from 'react-bootstrap';
-// import 'whatwg-fetch';
+import 'whatwg-fetch';
 // let Loading = require('react-loading');
 
 // import Job from './Job';
@@ -29,6 +29,12 @@ class Board extends React.Component {
         "Content-Type": "application/json",
         Authorization: this.props.authToken
       }
+    }).then(res => {
+      if (res.ok) return res.json();
+      return {error: true};
+    }).then(d => {
+      if (d.error) console.log(d.error);
+      this.props.refresh();
     });
     return "job" || "project";
   }
@@ -40,14 +46,23 @@ class Board extends React.Component {
     });
   }
 
-  closeAddItemModal() {
+  closeAddItemModal(refresh) {
     this.setState({
       showAddItemModal: false,
       addItemModalType: null
+    }, () => {
+      console.log("refresh is " + refresh);
+      if (refresh) this.props.refresh();
     });
   }
 
+  edit(data) {
+    console.log("inside board.js edit(), and logging data...")
+    console.log(data);
+  }
+
   render() {
+    
     let jobsTable = this.props.jobs.map(data => {
       const createdAt = (new Date(data.created_at).toLocaleDateString());
       // .toUTCString().slice(5,16));
@@ -65,7 +80,7 @@ class Board extends React.Component {
           break;
       }
       return (
-        <tr>
+        <tr key={"jobs_long_" + data.id} >
           <td>{data.title}</td>
           <td>{createdAt}</td>
           <td>{salaryDescription}</td>
@@ -73,9 +88,9 @@ class Board extends React.Component {
             <Button
               bsSize="small"
               bsStyle="link"
-              onClick={() => { this.showDescription(data.description); }}
+              onClick={() => { this.edit(data); }}
             >
-              Show
+              Edit
             </Button>
           </td>
           <td>
@@ -130,7 +145,7 @@ class Board extends React.Component {
               baseUrl={this.props.baseUrl}
               show={this.state.showAddItemModal}
               modalType={this.state.addItemModalType}
-              closeModal={() => { this.closeAddItemModal(); }}
+              closeModal={ (refresh) => { this.closeAddItemModal(refresh); }}
             />
             : null
         }
@@ -145,7 +160,8 @@ Board.propTypes = {
   org: React.PropTypes.any,
   employer: React.PropTypes.any,
   jobs: React.PropTypes.any,
-  projects: React.PropTypes.any
+  projects: React.PropTypes.any,
+  refresh: React.PropTypes.func
 };
 
 export default Board;

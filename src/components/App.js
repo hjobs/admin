@@ -11,13 +11,13 @@ class App extends React.Component {
     super();
     this.state = {
         authToken: window.localStorage.getItem("authToken"),
-        // baseUrl: 'http://52.221.40.15:3000/',
-        baseUrl: 'http://localhost:3100/employer/',
+        baseUrl: 'http://52.221.40.15:3000/employer/',
+        // baseUrl: 'http://localhost:3100/employer/',
         org: null,
         loading: true,
         employer: null,
         jobs: [],
-        objects: []
+        projects: []
     };
   }
 
@@ -51,11 +51,11 @@ class App extends React.Component {
     })
       .then(res => {
         console.log(res);
-        if (res.status > 300) {
+        if (res.ok) {
+          return res.json();
+        } else {
           localStorage.removeItem("authToken");
           this.setState({authToken: null, loading: false});
-        } else {
-          return res.json();
         }
       })
       .then(d => {
@@ -67,7 +67,11 @@ class App extends React.Component {
           obj.jobs = d.jobs;
           obj.projects = d.projects;
           obj.loading = false;
-          this.setState(obj, () => { console.log(this.state); });
+          this.setState(obj, () => {
+            // console.log("app.js called loadData() and have setState");
+            console.log("app.js loadData is called, setState, will log this.state");
+            console.log(this.state);
+          });
         } else {
           localStorage.removeItem("authToken");
           this.setState({authToken: null, loading: false});
@@ -125,7 +129,8 @@ class App extends React.Component {
                   org={this.state.org}
                   employer={this.state.employer}
                   jobs={this.state.jobs}
-                  projects={this.state.projects} />
+                  projects={this.state.projects}
+                  refresh={ () => { this.loadData(); }} />
             )
           :
             <Login

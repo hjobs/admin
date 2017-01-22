@@ -3,6 +3,7 @@
   "rules": {
     "comma-dangle": [2, "never"],
     "comma-spacing": "off",
+    "prefer-template": "off",
     "indent": 0,
     "prefer-stateless-function": [0, { "ignorePureComponents": false}],
     "quotes": "off",
