@@ -225,7 +225,7 @@ class AddItemModal extends React.Component {
       >
         <Modal.Header>
           <Modal.Title id="contained-modal-title-lg">
-            Add a {this.props.jobType === "casual" ? "Casual" : "Stable"} {this.props.modalType === 'job' ? 'Job' : 'Project'}
+            Add a {this.props.jobType ? this.props.jobType : null} {this.props.modalType === 'job' ? 'job' : 'project'}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -258,7 +258,7 @@ class AddItemModal extends React.Component {
 
                   { jobSalaryValue() }
 
-                  {checkbox({
+                  { this.props.jobType === 'casual' ? null : checkbox({
                     id: "employmentType",
                     label: "Employment Type",
                     itemArr: [
