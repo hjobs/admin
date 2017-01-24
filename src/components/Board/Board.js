@@ -10,19 +10,32 @@ class Board extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      openJobPanel: false,
       openProjectPanel: false,
       showAddItemModal: false,
-      addItemModalType: null
+      addItemModalType: null,
+      addItemJobType: null,
+      panelOpen: {
+        casual: false,
+        stable: false,
+        projects: false
+      }
     };
   }
 
-  showDescription(value) {
-    console.log(value);
+  showDescription(object) {
+    console.log(object);
+    window.alert(object.description);
+  }
+
+  togglePanel(type) {
+    const obj = {};
+    obj.panelOpen = this.state.panelOpen;
+    obj.panelOpen[type] = !obj.panelOpen[type];
+    this.setState(obj);
   }
 
   delete(dataType, id) {
-    const url = this.props.baseUrl + 'jobs/' + id;
+    const url = this.props.baseUrl + dataType + 's/' + id;
     fetch(url, {
       method: 'DELETE',
       headers: {
@@ -33,15 +46,16 @@ class Board extends React.Component {
       if (res.ok) return res.json();
       return {error: true};
     }).then(d => {
-      if (d.error) console.log(d.error);
-      this.props.refresh();
+      console.log("logging res.json or res.error");
+      console.log(d);
+      if (!d.error) this.props.refresh();
     });
-    return "job" || "project";
   }
 
-  showAddItemModal(modalType) {
+  showAddItemModal(modalType, jobType) {
     this.setState({
       addItemModalType: modalType,
+      addItemJobType: jobType,
       showAddItemModal: true
     });
   }
@@ -63,10 +77,8 @@ class Board extends React.Component {
 
   render() {
     
-    let jobsTable = this.props.jobs.map(data => {
-      const createdAt = (new Date(data.created_at).toLocaleDateString());
-      // .toUTCString().slice(5,16));
-      // const deadline = (new Date(data.deadline)).toUTCString().slice(5,16);
+    let casualJobsTable = this.props.casualJobs.map(data => {
+      const updatedAt = (new Date(data.updated_at).toLocaleDateString());
       let salaryDescription = "";
       switch (data.salary_type) {
         case "range":
@@ -82,7 +94,7 @@ class Board extends React.Component {
       return (
         <tr key={"jobs_long_" + data.id} >
           <td>{data.title}</td>
-          <td>{createdAt}</td>
+          <td>{updatedAt}</td>
           <td>{salaryDescription}</td>
           <td>
             <Button
@@ -106,38 +118,171 @@ class Board extends React.Component {
       );
     });
 
+    let stableJobsTable = this.props.stableJobs.map(data => {
+      const updatedAt = (new Date(data.updated_at).toLocaleDateString());
+      let salaryDescription = "";
+      switch (data.salary_type) {
+        case "range":
+          salaryDescription = "range = $" + data.salary_high + " to $" + data.salary_low;
+          break;
+        case "specific":
+          salaryDescription = "specific: $" + data.salary_value;
+          break;
+        case "negotiable": default:
+          salaryDescription = "negotiable";
+          break;
+      }
+      return (
+        <tr key={"jobs_long_" + data.id} >
+          <td>{data.title}</td>
+          <td>{updatedAt}</td>
+          <td>{salaryDescription}</td>
+          <td>
+            <Button
+              bsSize="small"
+              bsStyle="link"
+              onClick={() => { this.edit(data); }}
+            >
+              Edit
+            </Button>
+          </td>
+          <td>
+            <Button
+              bsSize="small"
+              bsStyle="link"
+              onClick={() => { this.delete('job', data.id); }}
+            >
+              X
+            </Button>
+          </td>
+        </tr>
+      );
+    });
+
+    let projectsTable = this.props.projects.map(data => {
+      const updatedAt = (new Date(data.updated_at).toLocaleDateString());
+      return (
+        <tr key={"jobs_long_" + data.id} >
+          <td>{data.title}</td>
+          <td>{updatedAt}</td>
+          <td>{data.reward_value}</td>
+          <td>
+            <Button
+              bsSize="small"
+              bsStyle="link"
+              onClick={() => { this.edit(data); }}
+            >
+              Edit
+            </Button>
+          </td>
+          <td>
+            <Button
+              bsSize="small"
+              bsStyle="link"
+              onClick={() => { this.delete('project', data.id); }}
+            >
+              X
+            </Button>
+          </td>
+        </tr>
+      );
+    });
+
+
     return (
       <section className="board">
-        <p>You have posted {this.props.jobs.length} jobs and {this.props.projects.length} projects.</p>
+        <p>You have posted {this.props.casualJobs.length} casual jobs, {this.props.stableJobs.length} stable jobs, and {this.props.projects.length} projects.</p>
+        
         <div className="toggle-div">
-          <h3 className="inline">Jobs</h3>
-          <Button bsStyle="link" onClick={() => this.setState({openJobPanel: !this.state.openJobPanel}) }>
-            {this.state.openJobPanel ? "collapse jobs" : "show jobs" } ({this.props.jobs.length})
+          <h4 className="inline">Casual Jobs</h4>
+          <Button bsStyle="link" onClick={() => { this.togglePanel('casual'); }}>
+            {this.state.panelOpen.casual ? "collapse" : "show" } ({this.props.casualJobs.length})
           </Button>
-        </div>
-        <Panel collapsible expanded={this.state.openJobPanel}>
           <div className="flex-col flex-vhCenter">
             <Button
               bsStyle="primary"
               bsSize="small"
               className="add"
-              onClick={() => { this.showAddItemModal('job'); }}> + </Button>
+              onClick={() => { this.showAddItemModal('job','casual'); }}> + </Button>
           </div>
+        </div>
+        <Panel collapsible expanded={this.state.panelOpen.casual}>
           <Table responsive striped>
             <thead>
               <tr>
                 <th>Title</th>
-                <th>Post Date</th>
+                <th>Updated At</th>
                 <th>Salary</th>
                 <th>Show Description</th>
                 <th>Delete</th>
               </tr>
             </thead>
             <tbody>
-              {jobsTable}
+              {casualJobsTable}
             </tbody>
           </Table>
         </Panel>
+
+        <div className="toggle-div">
+          <h4 className="inline">Stable Jobs</h4>
+          <Button bsStyle="link" onClick={() => { this.togglePanel('stable') }}>
+            {this.state.panelOpen.stable ? "collapse" : "show" } ({this.props.stableJobs.length})
+          </Button>
+          <div className="flex-col flex-vhCenter">
+            <Button
+              bsStyle="primary"
+              bsSize="small"
+              className="add"
+              onClick={() => { this.showAddItemModal('job','stable'); }}> + </Button>
+          </div>
+        </div>
+        <Panel collapsible expanded={this.state.panelOpen.stable}>
+          <Table responsive striped>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Updated At</th>
+                <th>Salary</th>
+                <th>Show Description</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stableJobsTable}
+            </tbody>
+          </Table>
+        </Panel>
+
+        <div className="toggle-div">
+          <h4 className="inline">Projects</h4>
+          <Button bsStyle="link" onClick={() => { this.togglePanel('projects') }}>
+            {this.state.panelOpen.projects ? "collapse" : "show" } ({this.props.projects.length})
+          </Button>
+          <div className="flex-col flex-vhCenter">
+            <Button
+              bsStyle="primary"
+              bsSize="small"
+              className="add"
+              onClick={() => { this.showAddItemModal('project'); }}> + </Button>
+          </div>
+        </div>
+        <Panel collapsible expanded={this.state.panelOpen.projects}>
+          <Table responsive striped>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Updated at</th>
+                <th>Reward</th>
+                <th>Show Description</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              {projectsTable}
+            </tbody>
+          </Table>
+        </Panel>
+
         {
           this.state.showAddItemModal ?
             <AddItemModal
@@ -145,6 +290,7 @@ class Board extends React.Component {
               baseUrl={this.props.baseUrl}
               show={this.state.showAddItemModal}
               modalType={this.state.addItemModalType}
+              jobType={this.state.addItemJobType}
               closeModal={ (refresh) => { this.closeAddItemModal(refresh); }}
             />
             : null
@@ -159,7 +305,8 @@ Board.propTypes = {
   baseUrl: React.PropTypes.string,
   org: React.PropTypes.any,
   employer: React.PropTypes.any,
-  jobs: React.PropTypes.any,
+  casualJobs: React.PropTypes.any,
+  stableJobs: React.PropTypes.any,
   projects: React.PropTypes.any,
   refresh: React.PropTypes.func
 };

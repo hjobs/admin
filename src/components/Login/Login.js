@@ -9,7 +9,18 @@ class Login extends React.Component {
       signInLoading: false,
       signUpLoading: false,
       logoUnderstood: false,
-      errorMsg: null
+      errorMsg: null,
+      up: {
+        name: "",
+        description: "",
+        logo: "",
+        email: "",
+        password: ""
+      },
+      in: {
+        email: "",
+        password: ""
+      }
     };
   }
 
@@ -48,12 +59,13 @@ class Login extends React.Component {
           }
         });
     } else if (this.state.signInUp === 'up') {
-      const data = {};
-      data.name = document.getElementById("up-name").value;
-      data.description = document.getElementById("up-desc").value;
-      data.logo = document.getElementById("up-logo").value;
-      data.email = document.getElementById("up-email").value;
-      data.password = document.getElementById("up-password").value;
+      let data = {};
+      data = this.state.up;
+      for (let key in this.state.up) {
+        if (key !== "logo" && key !== "description" && !this.state.up[key]) {
+          this.errorMsg = "Please fill in " + key;
+        }
+      }
 
       const url = this.props.baseUrl + 'orgs';
       fetch(url, {
@@ -97,16 +109,42 @@ class Login extends React.Component {
     this.setState(data);
   }
 
+  handleFormChange(id, value) {
+    // console.log('logging ' + id + ' event, and event = ');
+    // console.log(value);
+    const idArr = id.split("-");
+    const data = this.state[idArr[0]];
+    data[idArr[1]] = value;
+    
+    this.setState(data, () => { console.log("logging this.state"); console.log(this.state); });
+  }
+
   render() {
-    function FieldGroup({ id, label, help, type, placeholder, props }) {
+    const fieldGroup = ({id, label, help, type, placeholder, props}) => {
+      const idArr = id.split("-");
+      let value = this.state[idArr[0]][idArr[1]];
+      // console.log("fieldGroup logging id of: " + id + ", where value = " + value);
       return (
         <FormGroup controlId={id}>
           {label ? <ControlLabel>{label}</ControlLabel> : null}
-          <FormControl {...props} placeholder={placeholder} type={type} />
+          {
+            type !== "textarea" ?
+              <FormControl
+                value={value}
+                {...props}
+                placeholder={placeholder}
+                type={type}
+                onChange={(event) => { this.handleFormChange(id, event.target.value); }} />
+              :
+              <FormControl
+                componentClass={type}
+                value={value}
+                onChange={(event) => { this.handleFormChange(id, event.target.value); }} />
+          }
           {help && <HelpBlock>{help}</HelpBlock>}
         </FormGroup>
       );
-    }
+    };
 
     return (
       <div className="sign">
@@ -116,16 +154,16 @@ class Login extends React.Component {
           <p className="toggle-link text-right" onClick={() => { this.toggleInUp(); }}>Sign Up here!</p>
           <h2 className="text-center">Login</h2>
           <form onSubmit={() => { this.submit(); }}>
-            <FieldGroup
-              id="in-email"
-              type="username"
-              placeholder="email"
-            />
-            <FieldGroup
-              id="in-password"
-              type="password"
-              placeholder="password"
-            />
+            { fieldGroup({
+              id: "in-email",
+              type: "username",
+              placeholder: "email"
+            })}
+            { fieldGroup({
+              id: "in-password",
+              type: "password",
+              placeholder: "password"
+            })}
             <p className="error">{this.state.errorMsg}</p>
             <div className="flex-row flex-vhCenter">
               <Button type="submit" bsStyle="primary">Submit</Button>
@@ -139,24 +177,25 @@ class Login extends React.Component {
           <p className="toggle-link text-right" onClick={() => { this.toggleInUp(); }}>Already have an account? Log In here!</p>
           <h2 className="text-center">SignUp</h2>
           <form onSubmit={() => { this.submit(); }}>
-            <FieldGroup
-              id="up-name"
-              label="Organisation name"
-              type="text"
-            />
-            <FieldGroup
-              id="up-desc"
-              label="Description (optional)"
-              help="Let people know what your organisation is about in a short description"
-              type="text"
-            />
+            { fieldGroup({
+              id: "up-name",
+              type: "text",
+              label: "Organisation name"
+            })}
+            { fieldGroup({
+              id: "up-description",
+              type: "textarea",
+              label: "Description (optional)",
+              help: "Let people know what your organisation is about in a short description"
+            })}
             {
               this.state.logoUnderstood ?
-                <FieldGroup
-                  id="up-logo"
-                  label="Logo (Dropbox Link)"
-                  help="Please upload your company's logo, in a square, to your desired cloud service, and attach a download link here."
-                  type="text" />
+                fieldGroup({
+                  id: "up-logo",
+                  type: "text",
+                  label: "Logo (Dropbox Link)",
+                  help: "Please upload your company's logo, in a square, to your desired cloud service, and attach a download link here."
+                })
                 :
                 <FormGroup>
                   <ControlLabel>Logo (Dropbox Link)</ControlLabel>
@@ -166,16 +205,16 @@ class Login extends React.Component {
                   </HelpBlock>
                 </FormGroup>
             }
-            <FieldGroup
-              id="up-email"
-              label="Enter your email"
-              type="username"
-            />
-            <FieldGroup
-              id="up-password"
-              label="Enter a password"
-              type="password"
-            />
+            { fieldGroup({
+              id: "up-email",
+              type: "username",
+              label: "Enter your email"
+            })}
+            { fieldGroup({
+              id: "up-password",
+              type: "password",
+              label: "Enter a password"
+            })}
             <p className="error">{this.state.errorMsg}</p>
             <div className="flex-row flex-vhCenter">
               <Button type="submit" bsStyle="primary">Submit</Button>

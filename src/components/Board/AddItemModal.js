@@ -12,18 +12,26 @@ class AddItemModal extends React.Component {
         attachment_url: "",
         employment_type: [],
         salary_type: "",
+        job_type: props.jobType,
         salary: {
           salary_value: "",
           salary_high: "",
           salary_low: ""
         }
+      },
+      project: {
+        title: "",
+        description: "",
+        attachment_url: "",
+        reward_value: ""
       }
     };
   }
 
   save() {
+    let data = this.state[this.props.modalType];
+    let url = this.props.baseUrl + this.props.modalType + 's';
     if (this.props.modalType === 'job') { // Post Job
-      let data = this.state[this.props.modalType];
       switch (data.salary_type) {
         case 'specific':
           data.salary_value = data.salary.salary_value;
@@ -37,35 +45,61 @@ class AddItemModal extends React.Component {
       data.salary = null;
       console.log(data);
 
-      const url = this.props.baseUrl + 'jobs';
-
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: this.props.authToken
-        },
-        body: JSON.stringify({job: data})
-      })
-        .then(res => {
-          console.log(res);
-          if (res.status > 300) {
-            this.setState({errorMessage: res.statusText});
-            return "error";
-          } else {
-            return res.json();
-          }
-        })
-        .then(d => {
-          console.log(d);
-          if (d === "error") {
-            console.log('we caught an error');
-          } else {
-            this.props.closeModal(true);
-          }
-        });
+      // fetch(url, {
+      //   method: 'POST',
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     Authorization: this.props.authToken
+      //   },
+      //   body: JSON.stringify({job: data})
+      // })
+      //   .then(res => {
+      //     console.log(res);
+      //     if (res.status > 300) {
+      //       this.setState({errorMessage: res.statusText});
+      //       return "error";
+      //     } else {
+      //       return res.json();
+      //     }
+      //   })
+      //   .then(d => {
+      //     console.log(d);
+      //     if (d === "error") {
+      //       console.log('we caught an error');
+      //     } else {
+      //       this.props.closeModal(true);
+      //     }
+      //   });
     } else { // Post Project
+
     }
+    const body = {};
+    body[this.props.modalType] = data;
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: this.props.authToken
+      },
+      body: JSON.stringify(body)
+    })
+      .then(res => {
+        console.log(res);
+        if (res.status > 300) {
+          this.setState({errorMessage: res.statusText});
+          return "error";
+        } else {
+          return res.json();
+        }
+      })
+      .then(d => {
+        console.log(d);
+        if (d === "error") {
+          console.log('we caught an error');
+        } else {
+          this.props.closeModal(true);
+        }
+      });
   }
 
   changeEmploymentType(value) {
@@ -88,17 +122,17 @@ class AddItemModal extends React.Component {
     // console.log('logging ' + id + ' event, and event = ');
     // console.log(value);
     const idArr = id.split(":");
-    let data = this.state[this.props.modalType] || {};
+    let data = this.state[this.props.modalType];
     let ref = data;
     idArr.forEach((key, index, arr) => {
       if (index < (arr.length - 1)) ref = data[key];
     });
-    console.log(ref);
+    // console.log(ref);
     ref[idArr[idArr.length - 1]] = value;
-    console.log("logging ref: ");
-    console.log(ref);
-    console.log("logging data: ");
-    console.log(data);
+    // console.log("logging ref: ");
+    // console.log(ref);
+    // console.log("logging data: ");
+    // console.log(data);
     
     // data[this.props.modalType][id] = value;
     // this.setState(data);
@@ -184,14 +218,14 @@ class AddItemModal extends React.Component {
       );
     };
 
-    return (
+    return this.props.show ? (
       <Modal
         show={this.props.show}
         dialogClassName="addItemModal"
       >
         <Modal.Header>
           <Modal.Title id="contained-modal-title-lg">
-            Add a {this.props.modalType === 'job' ? 'Job' : 'Project'}
+            Add a {this.props.jobType === "casual" ? "Casual" : "Stable"} {this.props.modalType === 'job' ? 'Job' : 'Project'}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -243,7 +277,35 @@ class AddItemModal extends React.Component {
               )
               :
               (
-                null
+                <div className="job">
+                  { fieldGroup({
+                    id: "title",
+                    label: "Project Title",
+                    type: "text",
+                    help: "Recommended to specify position here to capture attention"
+                  })}
+
+                  { fieldGroup({
+                    id: "description",
+                    label: "Description",
+                    type: "textarea",
+                    help: "This will be shown on the website showing details and important information about the job that you think potential canditdates should know."
+                  })}
+
+                  { fieldGroup({
+                    id: "reward",
+                    label: "Reward",
+                    type: "text",
+                    help: "Let potential talents know what kind of reward you offer. Is it cash, certification or some other reward?"
+                  })}
+
+                  { fieldGroup({
+                    id: "attachment_url",
+                    label: "Attachment Link (Dropbox)",
+                    type: "text",
+                    help: "Feel free to attach a dropbox link to showcase further information in beautiful PDFs and documents!"
+                  })}
+                </div>
               )
           }
         </Modal.Body>
@@ -260,7 +322,7 @@ class AddItemModal extends React.Component {
           </Button>
         </Modal.Footer>
       </Modal>
-    );
+    ) : null;
   }
 }
 
@@ -269,7 +331,8 @@ AddItemModal.propTypes = {
   baseUrl: React.PropTypes.string.isRequired,
   closeModal: React.PropTypes.func.isRequired,
   show: React.PropTypes.bool.isRequired,
-  modalType: React.PropTypes.string.isRequired
+  modalType: React.PropTypes.string.isRequired,
+  jobType: React.PropTypes.string
 };
 
 export default AddItemModal;

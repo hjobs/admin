@@ -41,7 +41,7 @@ class App extends React.Component {
   }
 
   loadData() {
-    let url = this.state.baseUrl + 'orgs/showPostings';
+    const url = this.state.baseUrl + 'orgs/showPostings';
     fetch(url, {
       method: 'GET',
       headers: {
@@ -64,7 +64,8 @@ class App extends React.Component {
           let obj = {};
           obj.employer = d.employer;
           obj.org = d.org;
-          obj.jobs = d.jobs;
+          obj.stableJobs = d.stable_jobs;
+          obj.casualJobs = d.casual_jobs;
           obj.projects = d.projects;
           obj.loading = false;
           this.setState(obj, () => {
@@ -128,7 +129,8 @@ class App extends React.Component {
                   baseUrl={this.state.baseUrl}
                   org={this.state.org}
                   employer={this.state.employer}
-                  jobs={this.state.jobs}
+                  casualJobs={this.state.casualJobs}
+                  stableJobs={this.state.stableJobs}
                   projects={this.state.projects}
                   refresh={ () => { this.loadData(); }} />
             )
