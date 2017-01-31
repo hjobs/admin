@@ -11,8 +11,8 @@ class App extends React.Component {
     super();
     this.state = {
         authToken: window.localStorage.getItem("authToken"),
-        baseUrl: 'http://52.221.40.15:3000/employer/',
-        // baseUrl: 'http://localhost:3100/employer/',
+        // baseUrl: 'http://52.221.40.15:3000/employer/',
+        baseUrl: 'http://localhost:3100/employer/',
         org: null,
         loading: true,
         employer: null,
