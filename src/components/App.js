@@ -11,7 +11,7 @@ class App extends React.Component {
   constructor() {
     super();
     this.state = {
-        currentTab: 'profile',
+        currentTab: 'board',
         authToken: null,
         // baseUrl: 'http://52.221.40.15:3000/employer/',
         baseUrl: 'http://localhost:3100/employer/'
@@ -84,7 +84,7 @@ class App extends React.Component {
         >
           <Navbar.Header>
             <Navbar.Brand>
-              <a href="#">HJobs Admin</a>
+              <a href="#" onClick={() => { this.handleMenuSelect('board'); }}>HJobs Admin</a>
             </Navbar.Brand>
             {this.state.authToken ? <Navbar.Toggle /> : null}
           </Navbar.Header>
