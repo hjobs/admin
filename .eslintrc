@@ -11,6 +11,7 @@
     "max-len":"off",
     "object-curly-spacing": "off",
     "react/jsx-closing-bracket-location": "off",
-    "react/jsx-curly-spacing": "off"
+    "react/jsx-curly-spacing": "off",
+    "no-restricted-syntax": "off"
   }
 }

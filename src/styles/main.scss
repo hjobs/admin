@@ -1,5 +1,6 @@
 $bright-bkgd: yellow;
 $dark-bkgd: black;
+$red: red;
 $white-bkgd: transparent;
 
 $div-circle-bkgd: $bright-bkgd;
@@ -36,11 +37,14 @@ section {
 
 .padding {padding: 20px;}
 
+.cursor {cursor: pointer !important;}
+
 /*********TEXT*********/
 h1,h2,h3,h4,h5,h6 {
   font-family: 'Righteous', cursive;
 }
-
+.red-text {color: $red;}
+.help-text {font-size: 11px;}
 
 /*********FLEX*********/
 .flex-row {
@@ -77,20 +81,11 @@ h1,h2,h3,h4,h5,h6 {
 .flex-hCenter {justify-content: center;}
 .flex-vCenter {align-items: center;}
 .flex-vhCenter {justify-content: center; align-items: center;}
+.flex-spacedBetween {justify-content: space-around;}
 
 .inline {
   display: inline-block;
 }
-/*
-.flex-row-hCenter {@extend .flex-row; justify-content: center;}
-.flex-col-hCenter {@extend .flex-col; justify-content: center;}
-.flex-vCenter {align-items: center;}
-.flex-row-vCenter {@extend .flex-row; align-items: center;}
-.flex-col-vCenter {@extend .flex-col; align-items: center;}
-.flex-vhCenter {@extend .flex-hCenter; @extend .flex-vCenter;}
-.flex-row-vhCenter {@extend .flex-row; @extend .flex-vhCenter;}
-.flex-col-vhCenter {@extend .flex-col; @extend .flex-vhCenter;}
-*/
 
 .sign {
   .toggle-link {color: blue;}
@@ -121,4 +116,19 @@ h1,h2,h3,h4,h5,h6 {
   }
 }
 
+.editable {
+  .fa {cursor: pointer; color: #337ab7;}
+  textarea {width: 100%; resize: none;}
+  .button-group {margin-top: 5px;}
+}
 
+section.profile {
+  .fade {
+    margin-left: -20px !important;
+  }
+  .employers-list-group {
+    .list-group {
+      margin-bottom: 0px !important;
+    }
+  }
+}
