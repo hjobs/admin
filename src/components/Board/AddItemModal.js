@@ -44,34 +44,6 @@ class AddItemModal extends React.Component {
       }
       data.salary = null;
       console.log(data);
-
-      // fetch(url, {
-      //   method: 'POST',
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     Authorization: this.props.authToken
-      //   },
-      //   body: JSON.stringify({job: data})
-      // })
-      //   .then(res => {
-      //     console.log(res);
-      //     if (res.status > 300) {
-      //       this.setState({errorMessage: res.statusText});
-      //       return "error";
-      //     } else {
-      //       return res.json();
-      //     }
-      //   })
-      //   .then(d => {
-      //     console.log(d);
-      //     if (d === "error") {
-      //       console.log('we caught an error');
-      //     } else {
-      //       this.props.closeModal(true);
-      //     }
-      //   });
-    } else { // Post Project
-
     }
     const body = {};
     body[this.props.modalType] = data;

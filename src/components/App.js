@@ -1,83 +1,38 @@
 import React from 'react';
 import { Navbar, Nav, NavItem } from 'react-bootstrap';
 import 'whatwg-fetch';
-let Loading = require('react-loading');
+// let Loading = require('react-loading');
 
 import Board from './Board/Board';
 import Login from './Login/Login';
+import Profile from './Profile/Profile';
 
 class App extends React.Component {
   constructor() {
     super();
     this.state = {
-        authToken: window.localStorage.getItem("authToken"),
+        currentTab: 'profile',
+        authToken: null,
         // baseUrl: 'http://52.221.40.15:3000/employer/',
-        baseUrl: 'http://localhost:3100/employer/',
-        org: null,
-        loading: true,
-        employer: null,
-        jobs: [],
-        projects: []
+        baseUrl: 'http://localhost:3100/employer/'
     };
   }
 
   componentWillMount() {
-    console.log("inside componentWillMount on App.js");
-    console.log(this.state);
-    if (this.state.authToken && (!this.state.org || !this.state.employer)) {
-      this.loadData();
-    } else if (!this.state.authToken || this.state.authToken === null) {
-      this.setState({loading: false});
+    // console.log("inside componentWillMount on App.js");
+    // console.log(this.state);
+    let token = window.localStorage.getItem("authToken");
+    if (token) {
+      this.setState({authToken: token});
     }
   }
 
-  onLogin(org, employer, token) {
+  signInUp({org, me, auth_token}) {
     const data = {};
-    data.loading = true;
     data.org = org;
-    data.employer = employer;
-    if (token) data.authToken = token;
-    this.setState(data, () => { this.loadData(); });
-  }
-
-  loadData() {
-    const url = this.state.baseUrl + 'orgs/showPostings';
-    fetch(url, {
-      method: 'GET',
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: this.state.authToken
-      }
-    })
-      .then(res => {
-        console.log(res);
-        if (res.ok) {
-          return res.json();
-        } else {
-          localStorage.removeItem("authToken");
-          this.setState({authToken: null, loading: false});
-        }
-      })
-      .then(d => {
-        console.log(d);
-        if (d.org) {
-          let obj = {};
-          obj.employer = d.employer;
-          obj.org = d.org;
-          obj.stableJobs = d.stable_jobs;
-          obj.casualJobs = d.casual_jobs;
-          obj.projects = d.projects;
-          obj.loading = false;
-          this.setState(obj, () => {
-            // console.log("app.js called loadData() and have setState");
-            console.log("app.js loadData is called, setState, will log this.state");
-            console.log(this.state);
-          });
-        } else {
-          localStorage.removeItem("authToken");
-          this.setState({authToken: null, loading: false});
-        }
-      });
+    data.me = me;
+    if (auth_token) data.authToken = auth_token;
+    this.setState(data, console.log(this.state));
   }
 
   signOut() {
@@ -86,13 +41,40 @@ class App extends React.Component {
   }
 
   handleMenuSelect(eventKey) {
-    switch (eventKey) {
-      case 0: this.signOut(); break;
-      default: break;
-    }
+    if (eventKey === 0) this.signOut();
+    this.setState({currentTab: eventKey});
   }
 
   render() {
+    let content;
+    if (this.state.authToken) {
+      switch (this.state.currentTab) {
+        case 'board': default:
+          content = (
+            <Board
+              authToken={this.state.authToken}
+              baseUrl={this.state.baseUrl}
+              org={this.state.org}
+              me={this.state.me} />
+          );
+          break;
+        case 'profile':
+          content = (
+            <Profile
+              authToken={this.state.authToken}
+              baseUrl={this.state.baseUrl}
+            />
+          );
+          break;
+      }
+    } else {
+      content = (
+        <Login
+          baseUrl={this.state.baseUrl}
+          signInUp={({org, me, auth_token}) => { this.signInUp({org: org, me: me, auth_token: auth_token}); }} />
+      );
+    }
+
     return (
       <div>
         <Navbar
@@ -110,35 +92,15 @@ class App extends React.Component {
             this.state.authToken ?
               <Navbar.Collapse>
                 <Nav pullRight>
+                  <NavItem eventKey={'board'} href="#">Board</NavItem>
+                  <NavItem eventKey={'profile'} href="#">Profile</NavItem>
                   <NavItem eventKey={0} href="#">Logout</NavItem>
                 </Nav>
               </Navbar.Collapse>
               : null
           }
         </Navbar>
-        {
-          this.state.authToken ?
-            (
-              this.state.loading ?
-                <div className="flex-row flex-vhCenter">
-                  <Loading type="bubbles" color="#e3e3e3" />
-                </div>
-              :
-                <Board
-                  authToken={this.state.authToken}
-                  baseUrl={this.state.baseUrl}
-                  org={this.state.org}
-                  employer={this.state.employer}
-                  casualJobs={this.state.casualJobs}
-                  stableJobs={this.state.stableJobs}
-                  projects={this.state.projects}
-                  refresh={ () => { this.loadData(); }} />
-            )
-          :
-            <Login
-              baseUrl={this.state.baseUrl}
-              login={(org, employer, token) => { this.onLogin(org, employer, token); }} />
-        }
+        {content}
       </div>
     );
   }

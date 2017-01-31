@@ -26,76 +26,62 @@ class Login extends React.Component {
 
   submit() {
     event.preventDefault();
+    const
+      formData = this.state.signInUp === 'in' ? this.state.in : this.state.up,
+      errorArr = [];
+    for (const key in formData) {
+      if ((key !== "logo" && key !== "description") && !formData[key]) {
+        errorArr.push(key);
+      }
+    }
+    if (errorArr.length > 0) {
+      this.setState({errorMsg: "Please fill in " + errorArr.join(', ') + "."});
+    } else {
+      this.setState({loading: true}, () => {
+        this.signInUp(formData);
+      });
+    }
+  }
+
+  signInUp(formData) {
+    const headers = {"Content-Type": "application/json"};
+    let
+      url = this.props.baseUrl,
+      bodyData;
 
     if (this.state.signInUp === 'in') {
-      let data = {};
-      data.email = document.getElementById("in-email").value;
-      data.password = document.getElementById("in-password").value;
-
-      const url = this.props.baseUrl + 'authenticate';
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      })
-        .then(res => {
-          console.log(res);
-          if (res.status > 300) {
-            this.setState({errorMsg: res.statusText});
-          } else {
-            return res.json();
-          }
-        })
-        .then(d => {
-          console.log(d);
-          if (d.auth_token) {
-            localStorage.setItem("authToken", d.auth_token);
-            this.props.login(d.org, d.employer, d.auth_token);
-          } else {
-            localStorage.removeItem("authToken");
-            this.setState({errorMsg: d.error.employer_authentication });
-          }
-        });
+      bodyData = JSON.stringify(formData);
+      url += 'authenticate';
     } else if (this.state.signInUp === 'up') {
-      let data = {};
-      data = this.state.up;
-      for (let key in this.state.up) {
-        if (key !== "logo" && key !== "description" && !this.state.up[key]) {
-          this.errorMsg = "Please fill in " + key;
-        }
-      }
-
-      const url = this.props.baseUrl + 'orgs';
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({org: data})
-      })
-        .then(res => {
-          console.log(res);
-          if (res.status > 300) {
-            this.setState({errorMsg: res.statusText});
-          } else {
-            return res.json();
-          }
-        })
-        .then(d => {
-          console.log(d);
-          if (d.auth_token) {
-            localStorage.setItem("authToken", d.auth_token);
-            this.props.login(d.org, d.employer, d.auth_token);
-          } else {
-            localStorage.removeItem("authToken");
-            this.setState({errorMsg: d.error.employer_authentication });
-          }
-        });
+      bodyData = JSON.stringify({org: formData});
+      url += 'orgs';
     } else {
       window.alert("Sorry, there is an error, please contact admin if problem persists");
     }
+
+    fetch(url, {
+        method: 'POST',
+        headers,
+        body: bodyData
+      })
+        .then(res => {
+          console.log(res);
+          if (res.status > 300) {
+            this.setState({errorMsg: res.statusText});
+          } else {
+            return res.json();
+          }
+        })
+        .then(d => {
+          console.log(d);
+          if (d.auth_token) {
+            localStorage.setItem("authToken", d.auth_token);
+            this.props.signInUp({org: d.org, me: d.me, auth_token: d.auth_token});
+          } else {
+            localStorage.removeItem("authToken");
+            this.setState({errorMsg: d.error.employer_authentication });
+          }
+        });
   }
 
   logoUnderstood() {
@@ -116,7 +102,9 @@ class Login extends React.Component {
     const data = this.state[idArr[0]];
     data[idArr[1]] = value;
     
-    this.setState(data, () => { console.log("logging this.state"); console.log(this.state); });
+    this.setState(data, () => {
+      // console.log("logging this.state"); console.log(this.state);
+    });
   }
 
   render() {
@@ -229,8 +217,8 @@ class Login extends React.Component {
 }
 
 Login.propTypes = {
-  baseUrl: React.PropTypes.string,
-  login: React.PropTypes.func
+  baseUrl: React.PropTypes.string.isRequired,
+  signInUp: React.PropTypes.func.isRequired
 };
 
 export default Login;
