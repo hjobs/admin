@@ -191,7 +191,7 @@ class Profile extends React.Component {
           hideValue={hideValue}
           optional={optional}
           id={data.id}
-          canEdit={this.state.me.admin || keyState[0] === 'me'}
+          canEdit={keyState[0] === 'me' || this.state.me.admin}
           keys={keys}
           handleSubmit={(d) => { this.handleSubmit({key: keyState, data: d}); }}
           toggleEdit={() => { this.toggleEdit(identity); }}
