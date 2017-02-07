@@ -32,11 +32,11 @@ const paths = {
   srcImg: 'src/images/**',
   srcLint: ['src/**/*.js', 'test/**/*.js'],
   srcFontAwesome: 'src/styles/font-awesome/**/*',
-  dist: 'dist',
-  distJs: 'dist/js',
-  distImg: 'dist/images',
-  distDeploy: './dist/**/*',
-  distFontAwesome: 'dist/styles/font-awesome',
+  dist: 'build',
+  distJs: 'build/js',
+  distImg: 'build/images',
+  distDeploy: './build/**/*',
+  distFontAwesome: 'build/styles/font-awesome'
 };
 
 const customOpts = {
@@ -111,7 +111,11 @@ gulp.task('fontAwesome', () => {
 
 gulp.task('htmlReplace', () => {
   gulp.src('index.html')
-  .pipe(htmlReplace({ css: 'styles/main.css', js: 'js/app.js' }))
+  .pipe(htmlReplace({
+    css: 'styles/main.css',
+    fontAwesome: 'styles/font-awesome/css/font-awesome.min.css',
+    js: 'js/app.js'
+  }))
   .pipe(gulp.dest(paths.dist));
 });
 
