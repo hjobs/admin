@@ -22,6 +22,8 @@ import imagemin from 'gulp-imagemin';
 import pngquant from 'imagemin-pngquant';
 import runSequence from 'run-sequence';
 import ghPages from 'gulp-gh-pages';
+import plumber from 'gulp-plumber';
+import sass from 'gulp-sass';
 
 const paths = {
   bundle: 'app.js',
@@ -29,10 +31,12 @@ const paths = {
   srcCss: 'src/**/*.scss',
   srcImg: 'src/images/**',
   srcLint: ['src/**/*.js', 'test/**/*.js'],
+  srcFontAwesome: 'src/styles/font-awesome/**/*',
   dist: 'dist',
   distJs: 'dist/js',
   distImg: 'dist/images',
-  distDeploy: './dist/**/*'
+  distDeploy: './dist/**/*',
+  distFontAwesome: 'dist/styles/font-awesome',
 };
 
 const customOpts = {
@@ -90,6 +94,8 @@ gulp.task('browserify', () => {
 
 gulp.task('styles', () => {
   gulp.src(paths.srcCss)
+  .pipe(plumber())
+  .pipe(sass().on('error', sass.logError))
   .pipe(rename({ extname: '.css' }))
   .pipe(sourcemaps.init())
   .pipe(postcss([vars, extend, nested, autoprefixer, cssnano]))
@@ -97,6 +103,11 @@ gulp.task('styles', () => {
   .pipe(gulp.dest(paths.dist))
   .pipe(reload({ stream: true }));
 });
+
+gulp.task('fontAwesome', () => {
+  gulp.src(paths.srcFontAwesome)
+  .pipe(gulp.dest(paths.distFontAwesome));
+})
 
 gulp.task('htmlReplace', () => {
   gulp.src('index.html')
@@ -131,10 +142,10 @@ gulp.task('deploy', () => {
 });
 
 gulp.task('watch', cb => {
-  runSequence('clean', ['browserSync', 'watchTask', 'watchify', 'styles', 'lint', 'images'], cb);
+  runSequence('clean', ['browserSync', 'watchTask', 'watchify', 'styles', 'fontAwesome', 'lint', 'images'], cb);
 });
 
 gulp.task('build', cb => {
   process.env.NODE_ENV = 'production';
-  runSequence('clean', ['browserify', 'styles', 'htmlReplace', 'images'], cb);
+  runSequence('clean', ['browserify', 'styles', 'htmlReplace', 'fontAwesome', 'images'], cb);
 });
