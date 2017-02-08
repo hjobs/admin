@@ -77,19 +77,17 @@ class App extends React.Component {
 
     return (
       <div>
-        <Navbar
-          fluid inverse
-          collapseOnSelect fixedTop
-          onSelect={(eventKey) => this.handleMenuSelect(eventKey)}
-        >
-          <Navbar.Header>
-            <Navbar.Brand>
-              <a href="#" onClick={() => { this.handleMenuSelect('board'); }}>HJobs Admin</a>
-            </Navbar.Brand>
-            {this.state.authToken ? <Navbar.Toggle /> : null}
-          </Navbar.Header>
-          {
-            this.state.authToken ?
+        {this.state.authToken ?
+          <Navbar
+            fluid inverse
+            collapseOnSelect fixedTop
+            onSelect={(eventKey) => this.handleMenuSelect(eventKey)}>
+            <Navbar.Header>
+              <Navbar.Brand>
+                <a href="#" onClick={() => { this.handleMenuSelect('board'); }}>HJobs Admin</a>
+              </Navbar.Brand>
+              <Navbar.Toggle />
+            </Navbar.Header>
               <Navbar.Collapse>
                 <Nav pullRight>
                   <NavItem eventKey={'board'} href="#">Board</NavItem>
@@ -97,9 +95,9 @@ class App extends React.Component {
                   <NavItem eventKey={0} href="#">Logout</NavItem>
                 </Nav>
               </Navbar.Collapse>
-              : null
-          }
-        </Navbar>
+          </Navbar>
+          : null
+        }
         {content}
       </div>
     );

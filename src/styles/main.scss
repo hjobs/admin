@@ -1,10 +1,12 @@
 @import 'flex';
 @import 'bootstrap';
 
-$bright-bkgd: yellow;
-$dark-bkgd: black;
+$bright-bkgd: #f0ce00;
+$dark-bkgd: #101010;
 $red: red;
 $white-bkgd: transparent;
+$white: white;
+$off-white: #EEE;
 
 $div-circle-bkgd: $bright-bkgd;
 $div-circle-border: $dark-bkgd;
@@ -27,11 +29,11 @@ body {
   color: #333;
   background-color: #fff;
   margin: 0;
-  padding: 50px 0px 0px 0px;
 }
 
 section {
- padding: 20px;
+  margin-top: 50px;
+  padding: 20px;
 }
 
 .full-width {width: 100%;}
@@ -54,6 +56,12 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 .sign {
+  background-color: $bright-bkgd;
+  height: 100vh;
+  margin-top: 0px;
+  section { margin-top: 0px; }
+  h1,h2,h3,h4,h5,h6,p,label { color: $dark-bkgd; }
+  
   .toggle-link {color: blue;}
   .logo-button {margin-left: 10px;}
 }
