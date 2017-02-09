@@ -24,6 +24,7 @@ import runSequence from 'run-sequence';
 import ghPages from 'gulp-gh-pages';
 import plumber from 'gulp-plumber';
 import sass from 'gulp-sass';
+import stripDebug from 'gulp-strip-debug';
 
 const paths = {
   bundle: 'app.js',
@@ -88,6 +89,7 @@ gulp.task('browserify', () => {
   .pipe(buffer())
   .pipe(sourcemaps.init({ loadMaps: true }))
   .pipe(uglify())
+  .pipe(stripDebug())
   .pipe(sourcemaps.write('.'))
   .pipe(gulp.dest(paths.distJs));
 });
@@ -112,9 +114,9 @@ gulp.task('fontAwesome', () => {
 gulp.task('htmlReplace', () => {
   gulp.src('index.html')
   .pipe(htmlReplace({
-    css: 'styles/main.css',
+    css: 'styles/main.css?version=20170208',
     fontAwesome: 'styles/font-awesome/css/font-awesome.min.css',
-    js: 'js/app.js'
+    js: 'js/app.js?version=20170208'
   }))
   .pipe(gulp.dest(paths.dist));
 });

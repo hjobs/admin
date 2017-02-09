@@ -44822,8 +44822,7 @@ var App = function (_React$Component) {
     _this.state = {
       currentTab: 'board',
       authToken: null,
-      // baseUrl: 'http://52.221.40.15:3000/employer/',
-      baseUrl: 'http://localhost:3100/employer/'
+      baseUrl: 'http://52.221.40.15:9080/employer/'
     };
     return _this;
   }
@@ -45419,40 +45418,50 @@ var Board = function (_React$Component) {
   _createClass(Board, [{
     key: 'componentWillMount',
     value: function componentWillMount() {
+      this.refresh();
+    }
+  }, {
+    key: 'refresh',
+    value: function refresh() {
       var _this2 = this;
 
-      var url = this.props.baseUrl + 'orgs/showPostings';
-      fetch(url, {
-        method: 'GET',
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: this.props.authToken
-        }
-      }).then(function (res) {
-        // console.log(res);
-        if (res.ok) {
-          return res.json();
-        } else {
-          localStorage.removeItem("authToken");
-          alert('Thre is an error with the login, if problem persists, please contact administrators.');
-          _this2.setState({ loading: false });
-        }
-      }).then(function (d) {
-        // console.log(d);
-        if (d.org) {
-          var obj = {};
-          obj.stableJobs = d.stable_jobs;
-          obj.casualJobs = d.casual_jobs;
-          obj.projects = d.projects;
-          obj.loading = false;
-          _this2.setState(obj, function () {
-            // console.log("app.js loadData is called, setState, will log this.state");
-            // console.log(this.state);
-          });
-        } else {
-          localStorage.removeItem("authToken");
-          _this2.setState({ loading: false });
-        }
+      this.setState(function (s) {
+        s.loading = true;
+        return s;
+      }, function () {
+        var url = _this2.props.baseUrl + 'orgs/showPostings';
+        fetch(url, {
+          method: 'GET',
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: _this2.props.authToken
+          }
+        }).then(function (res) {
+          // console.log(res);
+          if (res.ok) {
+            return res.json();
+          } else {
+            localStorage.removeItem("authToken");
+            alert('Thre is an error with the login, if problem persists, please contact administrators.');
+            _this2.setState({ loading: false });
+          }
+        }).then(function (d) {
+          // console.log(d);
+          if (d.org) {
+            var obj = {};
+            obj.stableJobs = d.stable_jobs;
+            obj.casualJobs = d.casual_jobs;
+            obj.projects = d.projects;
+            obj.loading = false;
+            _this2.setState(obj, function () {
+              // console.log("app.js loadData is called, setState, will log this.state");
+              // console.log(this.state);
+            });
+          } else {
+            localStorage.removeItem("authToken");
+            _this2.setState({ loading: false });
+          }
+        });
       });
     }
   }, {
@@ -45487,7 +45496,7 @@ var Board = function (_React$Component) {
       }).then(function (d) {
         console.log("logging res.json or res.error");
         console.log(d);
-        if (!d.error) _this3.props.refresh();
+        if (!d.error) _this3.refresh();
       });
     }
   }, {
@@ -45509,7 +45518,7 @@ var Board = function (_React$Component) {
         addItemModalType: null
       }, function () {
         console.log("refresh is " + refresh);
-        if (refresh) _this4.props.refresh();
+        if (refresh) _this4.refresh();
       });
     }
   }, {
@@ -46184,7 +46193,7 @@ var Login = function (_React$Component) {
 
       return _react2.default.createElement(
         'div',
-        { className: 'sign' },
+        { className: 'flex-col flex-vhCenter sign' },
         this.state.signInUp === "in" ? _react2.default.createElement(
           'section',
           { className: 'signin' },

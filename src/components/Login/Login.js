@@ -135,7 +135,7 @@ class Login extends React.Component {
     };
 
     return (
-      <div className="sign">
+      <div className="flex-col flex-vhCenter sign">
       { (this.state.signInUp === "in") ?
         (
         <section className="signin">

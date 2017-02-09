@@ -24,41 +24,50 @@ class Board extends React.Component {
   }
 
   componentWillMount() {
-    const url = this.props.baseUrl + 'orgs/showPostings';
-    fetch(url, {
-      method: 'GET',
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: this.props.authToken
-      }
-    })
-      .then(res => {
-        // console.log(res);
-        if (res.ok) {
-          return res.json();
-        } else {
-          localStorage.removeItem("authToken");
-          alert('Thre is an error with the login, if problem persists, please contact administrators.');
-          this.setState({loading: false});
+    this.refresh();
+  }
+
+  refresh() {
+    this.setState(s => {
+      s.loading = true;
+      return s;
+    }, () => {
+      const url = this.props.baseUrl + 'orgs/showPostings';
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: this.props.authToken
         }
       })
-      .then(d => {
-        // console.log(d);
-        if (d.org) {
-          let obj = {};
-          obj.stableJobs = d.stable_jobs;
-          obj.casualJobs = d.casual_jobs;
-          obj.projects = d.projects;
-          obj.loading = false;
-          this.setState(obj, () => {
-            // console.log("app.js loadData is called, setState, will log this.state");
-            // console.log(this.state);
-          });
-        } else {
-          localStorage.removeItem("authToken");
-          this.setState({loading: false});
-        }
-      });
+        .then(res => {
+          // console.log(res);
+          if (res.ok) {
+            return res.json();
+          } else {
+            localStorage.removeItem("authToken");
+            alert('Thre is an error with the login, if problem persists, please contact administrators.');
+            this.setState({loading: false});
+          }
+        })
+        .then(d => {
+          // console.log(d);
+          if (d.org) {
+            let obj = {};
+            obj.stableJobs = d.stable_jobs;
+            obj.casualJobs = d.casual_jobs;
+            obj.projects = d.projects;
+            obj.loading = false;
+            this.setState(obj, () => {
+              // console.log("app.js loadData is called, setState, will log this.state");
+              // console.log(this.state);
+            });
+          } else {
+            localStorage.removeItem("authToken");
+            this.setState({loading: false});
+          }
+        });
+    })
   }
 
   showDescription(object) {
@@ -87,7 +96,7 @@ class Board extends React.Component {
     }).then(d => {
       console.log("logging res.json or res.error");
       console.log(d);
-      if (!d.error) this.props.refresh();
+      if (!d.error) this.refresh();
     });
   }
 
@@ -105,7 +114,7 @@ class Board extends React.Component {
       addItemModalType: null
     }, () => {
       console.log("refresh is " + refresh);
-      if (refresh) this.props.refresh();
+      if (refresh) this.refresh();
     });
   }
 

@@ -57,9 +57,16 @@ h1,h2,h3,h4,h5,h6 {
 
 .sign {
   background-color: $bright-bkgd;
-  height: 100vh;
+  min-height: 100vh;
+  height: 100%;
   margin-top: 0px;
-  section { margin-top: 0px; }
+  section {
+    background-color: $bright-bkgd;
+    margin-top: 0px;
+    min-width: 200px;
+    max-width: 500px;
+    width: 80%;
+  }
   h1,h2,h3,h4,h5,h6,p,label { color: $dark-bkgd; }
   
   .toggle-link {color: blue;}
