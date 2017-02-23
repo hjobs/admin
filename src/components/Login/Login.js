@@ -170,12 +170,12 @@ class Login extends React.Component {
               type: "text",
               label: "Organisation name"
             })}
-            { fieldGroup({
+            { /* fieldGroup({
               id: "up-description",
               type: "textarea",
               label: "Description (optional)",
               help: "Let people know what your organisation is about in a short description"
-            })}
+            }) */}
             {
               this.state.logoUnderstood ?
                 fieldGroup({
@@ -189,7 +189,7 @@ class Login extends React.Component {
                   <ControlLabel>Logo (Dropbox Link)</ControlLabel>
                   <HelpBlock>
                     Please upload your company's logo, in a square to dropbox, and attach a download link here.
-                    <Button className="logo-button" bsSize="xs" bsStyle="info" onClick={() => { this.logoUnderstood(); }}>I Understand</Button>
+                    <Button className="logo-button" bsSize="xs" bsStyle="primary" onClick={() => { this.logoUnderstood(); }}>I Understand</Button>
                   </HelpBlock>
                 </FormGroup>
             }

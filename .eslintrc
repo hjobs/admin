@@ -12,6 +12,7 @@
     "object-curly-spacing": "off",
     "react/jsx-closing-bracket-location": "off",
     "react/jsx-curly-spacing": "off",
-    "no-restricted-syntax": "off"
+    "no-restricted-syntax": "off",
+    "one-var-declaration-per-line": "off"
   }
 }

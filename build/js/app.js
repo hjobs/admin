@@ -46264,12 +46264,6 @@ var Login = function (_React$Component) {
               type: "text",
               label: "Organisation name"
             }),
-            fieldGroup({
-              id: "up-description",
-              type: "textarea",
-              label: "Description (optional)",
-              help: "Let people know what your organisation is about in a short description"
-            }),
             this.state.logoUnderstood ? fieldGroup({
               id: "up-logo",
               type: "text",
@@ -46289,7 +46283,7 @@ var Login = function (_React$Component) {
                 'Please upload your company\'s logo, in a square to dropbox, and attach a download link here.',
                 _react2.default.createElement(
                   _reactBootstrap.Button,
-                  { className: 'logo-button', bsSize: 'xs', bsStyle: 'info', onClick: function onClick() {
+                  { className: 'logo-button', bsSize: 'xs', bsStyle: 'primary', onClick: function onClick() {
                       _this4.logoUnderstood();
                     } },
                   'I Understand'
