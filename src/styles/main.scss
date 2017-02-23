@@ -43,6 +43,7 @@ section {
 .padding {padding: 20px;}
 
 .cursor {cursor: pointer !important;}
+p.link, span.link {color: blue !important; cursor: pointer;}
 
 /*********TEXT*********/
 h1,h2,h3,h4,h5,h6 {
@@ -68,8 +69,6 @@ h1,h2,h3,h4,h5,h6 {
     width: 80%;
   }
   h1,h2,h3,h4,h5,h6,p,label { color: $dark-bkgd; }
-  
-  .toggle-link {color: blue;}
   .logo-button {margin-left: 10px;}
 }
 

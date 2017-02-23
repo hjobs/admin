@@ -139,7 +139,7 @@ class Login extends React.Component {
       { (this.state.signInUp === "in") ?
         (
         <section className="signin">
-          <p className="toggle-link text-right" onClick={() => { this.toggleInUp(); }}>Sign Up here!</p>
+          <p className="text-right link" onClick={() => { this.toggleInUp(); }}>Sign Up here!</p>
           <h2 className="text-center">Login</h2>
           <form onSubmit={() => { this.submit(); }}>
             { fieldGroup({
@@ -162,7 +162,7 @@ class Login extends React.Component {
         :
         (
         <section className="signup">
-          <p className="toggle-link text-right" onClick={() => { this.toggleInUp(); }}>Already have an account? Log In here!</p>
+          <p className="link text-right" onClick={() => { this.toggleInUp(); }}>Already have an account? Log In here!</p>
           <h2 className="text-center">SignUp</h2>
           <form onSubmit={() => { this.submit(); }}>
             { fieldGroup({

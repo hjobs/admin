@@ -46199,7 +46199,7 @@ var Login = function (_React$Component) {
           { className: 'signin' },
           _react2.default.createElement(
             'p',
-            { className: 'toggle-link text-right', onClick: function onClick() {
+            { className: 'text-right link', onClick: function onClick() {
                 _this4.toggleInUp();
               } },
             'Sign Up here!'
@@ -46244,7 +46244,7 @@ var Login = function (_React$Component) {
           { className: 'signup' },
           _react2.default.createElement(
             'p',
-            { className: 'toggle-link text-right', onClick: function onClick() {
+            { className: 'link text-right', onClick: function onClick() {
                 _this4.toggleInUp();
               } },
             'Already have an account? Log In here!'
