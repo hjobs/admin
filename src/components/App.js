@@ -13,8 +13,9 @@ class App extends React.Component {
     this.state = {
         currentTab: 'board',
         authToken: null,
-        baseUrl: 'http://52.221.40.15:9080/employer/',
-        // baseUrl: 'http://localhost:9080/employer/'
+        // baseUrl: 'http://api.hjobs.hk:9080/employer/'
+        // baseUrl: 'http://dev.hjobs.hk:9080/employer/'
+        baseUrl: 'http://localhost:9080/employer/'
     };
   }
 

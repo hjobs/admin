@@ -74,10 +74,10 @@ class Login extends React.Component {
         })
         .then(d => {
           console.log(d);
-          if (d.auth_token) {
+          if (d && d.auth_token) {
             localStorage.setItem("authToken", d.auth_token);
             this.props.signInUp({org: d.org, me: d.me, auth_token: d.auth_token});
-          } else {
+          } else if (d && d.error) {
             localStorage.removeItem("authToken");
             this.setState({errorMsg: d.error.employer_authentication });
           }
@@ -141,7 +141,7 @@ class Login extends React.Component {
         <section className="signin">
           <p className="text-right link" onClick={() => { this.toggleInUp(); }}>Sign Up here!</p>
           <h2 className="text-center">Login</h2>
-          <form onSubmit={() => { this.submit(); }}>
+          <form onSubmit={(e) => { e.preventDefault(); this.submit(); }}>
             { fieldGroup({
               id: "in-email",
               type: "username",
@@ -164,7 +164,7 @@ class Login extends React.Component {
         <section className="signup">
           <p className="link text-right" onClick={() => { this.toggleInUp(); }}>Already have an account? Log In here!</p>
           <h2 className="text-center">SignUp</h2>
-          <form onSubmit={() => { this.submit(); }}>
+          <form onSubmit={(e) => { e.preventDefault(); this.submit(); }}>
             { fieldGroup({
               id: "up-name",
               type: "text",

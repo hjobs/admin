@@ -15,11 +15,15 @@ class Board extends React.Component {
       addItemModalType: null,
       addItemJobType: null,
       panelOpen: {
-        casual: false,
+        quick: false,
         stable: false,
         projects: false
       },
-      loading: true
+      loading: true,
+      quickJobs: null,
+      stableJobs: null,
+      internships: null,
+      projects: null
     };
   }
 
@@ -53,12 +57,14 @@ class Board extends React.Component {
         .then(d => {
           // console.log(d);
           if (d.org) {
-            let obj = {};
-            obj.stableJobs = d.stable_jobs;
-            obj.casualJobs = d.casual_jobs;
-            obj.projects = d.projects;
-            obj.loading = false;
-            this.setState(obj, () => {
+            this.setState(s => {
+              s.stableJobs = d.stable_jobs;
+              s.quickJobs = d.quick_jobs;
+              s.internships = d.internships;
+              s.projects = d.projects;
+              s.loading = false;
+              return s;
+            }, () => {
               // console.log("app.js loadData is called, setState, will log this.state");
               // console.log(this.state);
             });
@@ -67,7 +73,7 @@ class Board extends React.Component {
             this.setState({loading: false});
           }
         });
-    })
+    });
   }
 
   showDescription(object) {
@@ -124,9 +130,9 @@ class Board extends React.Component {
   }
 
   render() {
-    let casualJobsTable, stableJobsTable, projectsTable;
+    let quickJobsTable, stableJobsTable, projectsTable;
     if (!this.state.loading) {
-      casualJobsTable = this.state.casualJobs.map(data => {
+      quickJobsTable = this.state.quickJobs.map(data => {
         const updatedAt = (new Date(data.updated_at).toLocaleDateString());
         let salaryDescription = "";
         switch (data.salary_type) {
@@ -238,24 +244,24 @@ class Board extends React.Component {
       });
     }
 
-    return this.state.loading ? <div className="flex-row flex-vhCenter"><Loading type='bubbles' color='#337ab7' /></div> : (
+    return this.state.loading ? <div className="flex-row flex-vhCenter"><Loading type="bubbles" color="#337ab7" /></div> : (
       <section className="board">
-        <p>You have posted {this.state.casualJobs.length} casual jobs, {this.state.stableJobs.length} stable jobs, and {this.state.projects.length} projects.</p>
+        <p>You have posted {this.state.quickJobs.length} quick jobs, {this.state.stableJobs.length} stable jobs, and {this.state.projects.length} projects.</p>
         
         <div className="toggle-div">
-          <h4 className="inline">Casual Jobs</h4>
-          <Button bsStyle="link" onClick={() => { this.togglePanel('casual'); }}>
-            {this.state.panelOpen.casual ? "collapse" : "show" } ({this.state.casualJobs.length})
+          <h4 className="inline">Quick Jobs</h4>
+          <Button bsStyle="link" onClick={() => { this.togglePanel('quick'); }}>
+            {this.state.panelOpen.quick ? "collapse" : "show" } ({this.state.quickJobs.length})
           </Button>
           <div className="flex-col flex-vhCenter">
             <Button
               bsStyle="primary"
               bsSize="small"
               className="add"
-              onClick={() => { this.showAddItemModal('job','casual'); }}> + </Button>
+              onClick={() => { this.showAddItemModal('job','quick'); }}> + </Button>
           </div>
         </div>
-        <Panel collapsible expanded={this.state.panelOpen.casual}>
+        <Panel collapsible expanded={this.state.panelOpen.quick}>
           <Table responsive striped>
             <thead>
               <tr>
@@ -267,7 +273,7 @@ class Board extends React.Component {
               </tr>
             </thead>
             <tbody>
-              {casualJobsTable}
+              {quickJobsTable}
             </tbody>
           </Table>
         </Panel>
