@@ -23,7 +23,8 @@ class Board extends React.Component {
       quickJobs: null,
       stableJobs: null,
       internships: null,
-      projects: null
+      projects: null,
+      errorMsg: null
     };
   }
 
@@ -32,6 +33,14 @@ class Board extends React.Component {
   }
 
   refresh() {
+    const onError = (err) => {
+      this.setState(s => {
+        s.loading = false;
+        s.errorMsg = err;
+        return s;
+      });
+    };
+
     this.setState(s => {
       s.loading = true;
       return s;
@@ -48,15 +57,13 @@ class Board extends React.Component {
           // console.log(res);
           if (res.ok) {
             return res.json();
-          } else {
-            localStorage.removeItem("authToken");
-            alert('Thre is an error with the login, if problem persists, please contact administrators.');
-            this.setState({loading: false});
           }
-        })
+          onError(res.statusTExt);
+          throw Error(res.statusText);
+        }, err => onError(err))
         .then(d => {
           // console.log(d);
-          if (d.org) {
+          if (d && d.org) {
             this.setState(s => {
               s.stableJobs = d.stable_jobs;
               s.quickJobs = d.quick_jobs;
@@ -68,11 +75,9 @@ class Board extends React.Component {
               // console.log("app.js loadData is called, setState, will log this.state");
               // console.log(this.state);
             });
-          } else {
-            localStorage.removeItem("authToken");
-            this.setState({loading: false});
           }
-        });
+        })
+        .catch(err => onError(err));
     });
   }
 
@@ -131,7 +136,7 @@ class Board extends React.Component {
 
   render() {
     let quickJobsTable, stableJobsTable, projectsTable;
-    if (!this.state.loading) {
+    if (!this.state.loading && !this.state.errorMsg) {
       quickJobsTable = this.state.quickJobs.map(data => {
         const updatedAt = (new Date(data.updated_at).toLocaleDateString());
         let salaryDescription = "";
@@ -244,113 +249,117 @@ class Board extends React.Component {
       });
     }
 
-    return this.state.loading ? <div className="flex-row flex-vhCenter"><Loading type="bubbles" color="#337ab7" /></div> : (
-      <section className="board">
-        <p>You have posted {this.state.quickJobs.length} quick jobs, {this.state.stableJobs.length} stable jobs, and {this.state.projects.length} projects.</p>
-        
-        <div className="toggle-div">
-          <h4 className="inline">Quick Jobs</h4>
-          <Button bsStyle="link" onClick={() => { this.togglePanel('quick'); }}>
-            {this.state.panelOpen.quick ? "collapse" : "show" } ({this.state.quickJobs.length})
-          </Button>
-          <div className="flex-col flex-vhCenter">
-            <Button
-              bsStyle="primary"
-              bsSize="small"
-              className="add"
-              onClick={() => { this.showAddItemModal('job','quick'); }}> + </Button>
-          </div>
-        </div>
-        <Panel collapsible expanded={this.state.panelOpen.quick}>
-          <Table responsive striped>
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Updated At</th>
-                <th>Salary</th>
-                <th>Show Description</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {quickJobsTable}
-            </tbody>
-          </Table>
-        </Panel>
+    return this.state.loading ? (<div className="flex-row flex-vhCenter"><Loading type="bubbles" color="#337ab7" /></div>) : (
+      this.state.errorMsg ?
+        <div className="flex-row full-width" style={{minHeight: '50px'}}>
+          this.state.errorMsg
+        </div> :
+        <section className="board">
+          <p>You have posted {this.state.quickJobs.length} quick jobs, {this.state.stableJobs.length} stable jobs, and {this.state.projects.length} projects.</p>
 
-        <div className="toggle-div">
-          <h4 className="inline">Stable Jobs</h4>
-          <Button bsStyle="link" onClick={() => { this.togglePanel('stable') }}>
-            {this.state.panelOpen.stable ? "collapse" : "show" } ({this.state.stableJobs.length})
-          </Button>
-          <div className="flex-col flex-vhCenter">
-            <Button
-              bsStyle="primary"
-              bsSize="small"
-              className="add"
-              onClick={() => { this.showAddItemModal('job','stable'); }}> + </Button>
+          <div className="toggle-div">
+            <h4 className="inline">Quick Jobs</h4>
+            <Button bsStyle="link" onClick={() => { this.togglePanel('quick'); }}>
+              {this.state.panelOpen.quick ? "collapse" : "show" } ({this.state.quickJobs.length})
+            </Button>
+            <div className="flex-col flex-vhCenter">
+              <Button
+                bsStyle="primary"
+                bsSize="small"
+                className="add"
+                onClick={() => { this.showAddItemModal('job','quick'); }}> + </Button>
+            </div>
           </div>
-        </div>
-        <Panel collapsible expanded={this.state.panelOpen.stable}>
-          <Table responsive striped>
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Updated At</th>
-                <th>Salary</th>
-                <th>Show Description</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {stableJobsTable}
-            </tbody>
-          </Table>
-        </Panel>
+          <Panel collapsible expanded={this.state.panelOpen.quick}>
+            <Table responsive striped>
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Updated At</th>
+                  <th>Salary</th>
+                  <th>Show Description</th>
+                  <th>Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                {quickJobsTable}
+              </tbody>
+            </Table>
+          </Panel>
 
-        <div className="toggle-div">
-          <h4 className="inline">Projects</h4>
-          <Button bsStyle="link" onClick={() => { this.togglePanel('projects') }}>
-            {this.state.panelOpen.projects ? "collapse" : "show" } ({this.state.projects.length})
-          </Button>
-          <div className="flex-col flex-vhCenter">
-            <Button
-              bsStyle="primary"
-              bsSize="small"
-              className="add"
-              onClick={() => { this.showAddItemModal('project'); }}> + </Button>
+          <div className="toggle-div">
+            <h4 className="inline">Stable Jobs</h4>
+            <Button bsStyle="link" onClick={() => { this.togglePanel('stable') }}>
+              {this.state.panelOpen.stable ? "collapse" : "show" } ({this.state.stableJobs.length})
+            </Button>
+            <div className="flex-col flex-vhCenter">
+              <Button
+                bsStyle="primary"
+                bsSize="small"
+                className="add"
+                onClick={() => { this.showAddItemModal('job','stable'); }}> + </Button>
+            </div>
           </div>
-        </div>
-        <Panel collapsible expanded={this.state.panelOpen.projects}>
-          <Table responsive striped>
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Updated at</th>
-                <th>Reward</th>
-                <th>Show Description</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projectsTable}
-            </tbody>
-          </Table>
-        </Panel>
+          <Panel collapsible expanded={this.state.panelOpen.stable}>
+            <Table responsive striped>
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Updated At</th>
+                  <th>Salary</th>
+                  <th>Show Description</th>
+                  <th>Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stableJobsTable}
+              </tbody>
+            </Table>
+          </Panel>
 
-        {
-          this.state.showAddItemModal ?
-            <AddItemModal
-              authToken={this.props.authToken}
-              baseUrl={this.props.baseUrl}
-              show={this.state.showAddItemModal}
-              modalType={this.state.addItemModalType}
-              jobType={this.state.addItemJobType}
-              closeModal={ (refresh) => { this.closeAddItemModal(refresh); }}
-            />
-            : null
-        }
-      </section>
+          <div className="toggle-div">
+            <h4 className="inline">Projects</h4>
+            <Button bsStyle="link" onClick={() => { this.togglePanel('projects'); }}>
+              {this.state.panelOpen.projects ? "collapse" : "show" } ({this.state.projects.length})
+            </Button>
+            <div className="flex-col flex-vhCenter">
+              <Button
+                bsStyle="primary"
+                bsSize="small"
+                className="add"
+                onClick={() => { this.showAddItemModal('project'); }}> + </Button>
+            </div>
+          </div>
+          <Panel collapsible expanded={this.state.panelOpen.projects}>
+            <Table responsive striped>
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Updated at</th>
+                  <th>Reward</th>
+                  <th>Show Description</th>
+                  <th>Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projectsTable}
+              </tbody>
+            </Table>
+          </Panel>
+
+          {
+            this.state.showAddItemModal ?
+              <AddItemModal
+                authToken={this.props.authToken}
+                baseUrl={this.props.baseUrl}
+                show={this.state.showAddItemModal}
+                modalType={this.state.addItemModalType}
+                jobType={this.state.addItemJobType}
+                closeModal={ (refresh) => { this.closeAddItemModal(refresh); }}
+              />
+              : null
+          }
+        </section>
     );
   }
 }

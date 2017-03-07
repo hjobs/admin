@@ -39941,7 +39941,8 @@ var Board = function (_React$Component) {
       quickJobs: null,
       stableJobs: null,
       internships: null,
-      projects: null
+      projects: null,
+      errorMsg: null
     };
     return _this;
   }
@@ -39955,6 +39956,14 @@ var Board = function (_React$Component) {
     key: 'refresh',
     value: function refresh() {
       var _this2 = this;
+
+      var onError = function onError(err) {
+        _this2.setState(function (s) {
+          s.loading = false;
+          s.errorMsg = err;
+          return s;
+        });
+      };
 
       this.setState(function (s) {
         s.loading = true;
@@ -39971,14 +39980,14 @@ var Board = function (_React$Component) {
           // console.log(res);
           if (res.ok) {
             return res.json();
-          } else {
-            localStorage.removeItem("authToken");
-            alert('Thre is an error with the login, if problem persists, please contact administrators.');
-            _this2.setState({ loading: false });
           }
+          onError(res.statusTExt);
+          throw Error(res.statusText);
+        }, function (err) {
+          return onError(err);
         }).then(function (d) {
           // console.log(d);
-          if (d.org) {
+          if (d && d.org) {
             _this2.setState(function (s) {
               s.stableJobs = d.stable_jobs;
               s.quickJobs = d.quick_jobs;
@@ -39990,10 +39999,9 @@ var Board = function (_React$Component) {
               // console.log("app.js loadData is called, setState, will log this.state");
               // console.log(this.state);
             });
-          } else {
-            localStorage.removeItem("authToken");
-            _this2.setState({ loading: false });
           }
+        }).catch(function (err) {
+          return onError(err);
         });
       });
     }
@@ -40068,7 +40076,7 @@ var Board = function (_React$Component) {
       var quickJobsTable = void 0,
           stableJobsTable = void 0,
           projectsTable = void 0;
-      if (!this.state.loading) {
+      if (!this.state.loading && !this.state.errorMsg) {
         quickJobsTable = this.state.quickJobs.map(function (data) {
           var updatedAt = new Date(data.updated_at).toLocaleDateString();
           var salaryDescription = "";
@@ -40257,6 +40265,10 @@ var Board = function (_React$Component) {
         'div',
         { className: 'flex-row flex-vhCenter' },
         _react2.default.createElement(Loading, { type: 'bubbles', color: '#337ab7' })
+      ) : this.state.errorMsg ? _react2.default.createElement(
+        'div',
+        { className: 'flex-row full-width', style: { minHeight: '50px' } },
+        'this.state.errorMsg'
       ) : _react2.default.createElement(
         'section',
         { className: 'board' },
