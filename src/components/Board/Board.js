@@ -130,7 +130,7 @@ class Board extends React.Component {
   }
 
   edit(data) {
-    console.log("inside board.js edit(), and logging data...")
+    console.log("inside board.js edit(), and logging data...");
     console.log(data);
   }
 
