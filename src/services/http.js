@@ -17,7 +17,7 @@ class Http {
       headers: {"Content-Type": "application/json"}
     };
     if (vars.token) { obj.headers.Authorization = vars.token; }
-    if (data) { obj.data = data; }
+    if (data) { obj.body = JSON.stringify(data); }
     console.log(["inside http.js, url, obj", url, obj, data]);
 
     return fetch(url, obj);
