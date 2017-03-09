@@ -3,6 +3,8 @@ import { Button, ListGroupItem } from 'react-bootstrap';
 import 'whatwg-fetch';
 // let Loading = require('react-loading');
 
+import Variable from '../../services/var';
+
 class Field extends React.Component {
   constructor(props) {
     super(props);
@@ -11,6 +13,7 @@ class Field extends React.Component {
       errorMsg: null,
       loading: false
     };
+    this.vars = new Variable();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -35,7 +38,7 @@ class Field extends React.Component {
     }
 
     this.setState({errorMsg: null, loading: true}, () => {
-      const url = this.props.baseUrl + this.props.keys.keyUrl + '/' + this.props.id;
+      const url = this.vars.baseUrl + this.props.keys.keyUrl + '/' + this.props.id;
       const headers = {"Content-Type": "application/json", Authorization: this.props.authToken};
       const body = {};
       body[this.props.keys.keyBody] = {};
@@ -105,7 +108,6 @@ class Field extends React.Component {
 
 Field.propTypes = {
   authToken: React.PropTypes.string,
-  baseUrl: React.PropTypes.string,
   hideValue: React.PropTypes.bool,
   optional: React.PropTypes.bool,
   canEdit: React.PropTypes.bool,

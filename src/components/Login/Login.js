@@ -1,6 +1,8 @@
 import React from 'react';
 import { Button, FormGroup, ControlLabel, FormControl, HelpBlock } from 'react-bootstrap';
 
+import Variable from '../../services/var';
+
 class Login extends React.Component {
   constructor(props) {
     super(props);
@@ -22,6 +24,7 @@ class Login extends React.Component {
         password: ""
       }
     };
+    this.vars = new Variable();
   }
 
   submit() {
@@ -46,7 +49,7 @@ class Login extends React.Component {
   signInUp(formData) {
     const headers = {"Content-Type": "application/json"};
     let
-      url = this.props.baseUrl,
+      url = this.vars.baseUrl,
       bodyData;
 
     if (this.state.signInUp === 'in') {
@@ -217,7 +220,6 @@ class Login extends React.Component {
 }
 
 Login.propTypes = {
-  baseUrl: React.PropTypes.string.isRequired,
   signInUp: React.PropTypes.func.isRequired
 };
 

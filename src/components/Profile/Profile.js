@@ -6,6 +6,8 @@ let Loading = require('react-loading');
 import Field from './Field';
 // import AddItemModal from './AddItemModal';
 
+import Variable from '../../services/var';
+
 class Profile extends React.Component {
   constructor(props) {
     super(props);
@@ -24,15 +26,16 @@ class Profile extends React.Component {
         admin: false
       }
     };
+    this.vars = new Variable();
   }
 
   componentWillMount() {
-    const url = this.props.baseUrl + '/orgs/whoAreWe';
+    const url = this.vars.baseUrl + 'orgs/whoAreWe';
     fetch(url, {
       method: 'GET',
       headers: {
         "Content-Type": "application/json",
-        Authorization: this.props.authToken
+        Authorization: this.vars.baseUrl
       }
     })
       .then(res => {
@@ -108,7 +111,7 @@ class Profile extends React.Component {
     obj.employer.org_id = this.state.org.id;
     console.log(obj);
     const headers = {"Content-Type": "application/json", Authorization: this.props.authToken};
-    const url = this.props.baseUrl + 'employers';
+    const url = this.vars.baseUrl + 'employers';
     fetch(url, {
       method: 'POST',
       headers,
@@ -138,7 +141,7 @@ class Profile extends React.Component {
 
   deleteEmployer(employer) {
     const headers = {"Content-Type": "application/json", Authorization: this.props.authToken};
-    const url = this.props.baseUrl + 'employers/' + employer.id;
+    const url = this.vars.baseUrl + 'employers/' + employer.id;
     fetch(url, {
       method: 'DELETE',
       headers
@@ -186,7 +189,6 @@ class Profile extends React.Component {
       return (
         <Field
           authToken={this.props.authToken}
-          baseUrl={this.props.baseUrl}
           value={isPassword ? "" : data[keys.keyEdit]}
           hideValue={hideValue}
           optional={optional}
@@ -391,7 +393,6 @@ class Profile extends React.Component {
 
 Profile.propTypes = {
   authToken: React.PropTypes.string,
-  baseUrl: React.PropTypes.string,
   org: React.PropTypes.any,
   employer: React.PropTypes.any
 };

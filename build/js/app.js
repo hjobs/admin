@@ -39327,6 +39327,10 @@ var _Profile = require('./Profile/Profile');
 
 var _Profile2 = _interopRequireDefault(_Profile);
 
+var _var = require('../services/var');
+
+var _var2 = _interopRequireDefault(_var);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -39346,11 +39350,9 @@ var App = function (_React$Component) {
 
     _this.state = {
       currentTab: 'board',
-      authToken: null,
-      // baseUrl: 'http://api.hjobs.hk:9080/employer/'
-      // baseUrl: 'http://dev.hjobs.hk:9080/employer/'
-      baseUrl: 'http://localhost:9080/employer/'
+      authToken: null
     };
+    _this.vars = new _var2.default();
     return _this;
   }
 
@@ -39360,9 +39362,9 @@ var App = function (_React$Component) {
       // console.log("inside componentWillMount on App.js");
       // console.log(this.state);
       var token = window.localStorage.getItem("authToken");
-      if (token) {
-        this.setState({ authToken: token });
-      }
+      if (token) this.setState(function (s) {
+        s.authToken = token;return s;
+      });
     }
   }, {
     key: 'signInUp',
@@ -39371,23 +39373,30 @@ var App = function (_React$Component) {
           me = _ref.me,
           auth_token = _ref.auth_token;
 
-      var data = {};
-      data.org = org;
-      data.me = me;
-      if (auth_token) data.authToken = auth_token;
-      this.setState(data, console.log(this.state));
+      this.setState(function (s) {
+        s.org = org;
+        s.me = me;
+        if (auth_token) s.authToken = auth_token;
+        return s;
+      });
     }
   }, {
     key: 'signOut',
     value: function signOut() {
-      this.setState({ authToken: null });
+      this.setState(function (s) {
+        s.authToken = null;return s;
+      });
       localStorage.removeItem("authToken");
     }
+
+    /** @param {'board'|'profile'|'logout'} eventKey */
+
   }, {
     key: 'handleMenuSelect',
     value: function handleMenuSelect(eventKey) {
-      if (eventKey === 0) this.signOut();
-      this.setState({ currentTab: eventKey });
+      if (eventKey === 'logout') this.signOut();else this.setState(function (s) {
+        s.currentTab = eventKey;return s;
+      });
     }
   }, {
     key: 'render',
@@ -39400,20 +39409,17 @@ var App = function (_React$Component) {
           case 'board':default:
             content = _react2.default.createElement(_Board2.default, {
               authToken: this.state.authToken,
-              baseUrl: this.state.baseUrl,
               org: this.state.org,
               me: this.state.me });
             break;
           case 'profile':
             content = _react2.default.createElement(_Profile2.default, {
-              authToken: this.state.authToken,
-              baseUrl: this.state.baseUrl
+              authToken: this.state.authToken
             });
             break;
         }
       } else {
         content = _react2.default.createElement(_Login2.default, {
-          baseUrl: this.state.baseUrl,
           signInUp: function signInUp(_ref2) {
             var org = _ref2.org,
                 me = _ref2.me,
@@ -39467,7 +39473,7 @@ var App = function (_React$Component) {
               ),
               _react2.default.createElement(
                 _reactBootstrap.NavItem,
-                { eventKey: 0, href: '#' },
+                { eventKey: 'logout', href: '#' },
                 'Logout'
               )
             )
@@ -39483,7 +39489,7 @@ var App = function (_React$Component) {
 
 exports.default = App;
 
-},{"./Board/Board":436,"./Login/Login":437,"./Profile/Profile":439,"react":431,"react-bootstrap":111,"whatwg-fetch":432}],435:[function(require,module,exports){
+},{"../services/var":440,"./Board/Board":436,"./Login/Login":437,"./Profile/Profile":439,"react":431,"react-bootstrap":111,"whatwg-fetch":432}],435:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39501,6 +39507,10 @@ var _react2 = _interopRequireDefault(_react);
 var _reactBootstrap = require('react-bootstrap');
 
 require('whatwg-fetch');
+
+var _var = require('../../services/var');
+
+var _var2 = _interopRequireDefault(_var);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -39539,6 +39549,7 @@ var AddItemModal = function (_React$Component) {
         reward_value: ""
       }
     };
+    _this.vars = new _var2.default();
     return _this;
   }
 
@@ -39548,7 +39559,7 @@ var AddItemModal = function (_React$Component) {
       var _this2 = this;
 
       var data = this.state[this.props.modalType];
-      var url = this.props.baseUrl + this.props.modalType + 's';
+      var url = this.vars.baseUrl + this.props.modalType + 's';
       if (this.props.modalType === 'job') {
         // Post Job
         switch (data.salary_type) {
@@ -39877,7 +39888,6 @@ var AddItemModal = function (_React$Component) {
 
 AddItemModal.propTypes = {
   authToken: _react2.default.PropTypes.string.isRequired,
-  baseUrl: _react2.default.PropTypes.string.isRequired,
   closeModal: _react2.default.PropTypes.func.isRequired,
   show: _react2.default.PropTypes.bool.isRequired,
   modalType: _react2.default.PropTypes.string.isRequired,
@@ -39886,7 +39896,7 @@ AddItemModal.propTypes = {
 
 exports.default = AddItemModal;
 
-},{"react":431,"react-bootstrap":111,"whatwg-fetch":432}],436:[function(require,module,exports){
+},{"../../services/var":440,"react":431,"react-bootstrap":111,"whatwg-fetch":432}],436:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39906,6 +39916,10 @@ require('whatwg-fetch');
 var _AddItemModal = require('./AddItemModal');
 
 var _AddItemModal2 = _interopRequireDefault(_AddItemModal);
+
+var _var = require('../../services/var');
+
+var _var2 = _interopRequireDefault(_var);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -39944,6 +39958,7 @@ var Board = function (_React$Component) {
       projects: null,
       errorMsg: null
     };
+    _this.vars = new _var2.default();
     return _this;
   }
 
@@ -39969,7 +39984,7 @@ var Board = function (_React$Component) {
         s.loading = true;
         return s;
       }, function () {
-        var url = _this2.props.baseUrl + 'orgs/showPostings';
+        var url = _this2.vars.baseUrl + 'orgs/showPostings';
         fetch(url, {
           method: 'GET',
           headers: {
@@ -40024,7 +40039,7 @@ var Board = function (_React$Component) {
     value: function _delete(dataType, id) {
       var _this3 = this;
 
-      var url = this.props.baseUrl + dataType + 's/' + id;
+      var url = this.vars.baseUrleUrl + dataType + 's/' + id;
       fetch(url, {
         method: 'DELETE',
         headers: {
@@ -40525,7 +40540,7 @@ var Board = function (_React$Component) {
         ),
         this.state.showAddItemModal ? _react2.default.createElement(_AddItemModal2.default, {
           authToken: this.props.authToken,
-          baseUrl: this.props.baseUrl,
+          baseUrl: this.vars.baseUrleUrl,
           show: this.state.showAddItemModal,
           modalType: this.state.addItemModalType,
           jobType: this.state.addItemJobType,
@@ -40549,7 +40564,7 @@ Board.propTypes = {
 
 exports.default = Board;
 
-},{"./AddItemModal":435,"react":431,"react-bootstrap":111,"react-loading":405,"whatwg-fetch":432}],437:[function(require,module,exports){
+},{"../../services/var":440,"./AddItemModal":435,"react":431,"react-bootstrap":111,"react-loading":405,"whatwg-fetch":432}],437:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -40565,6 +40580,10 @@ var _react = require('react');
 var _react2 = _interopRequireDefault(_react);
 
 var _reactBootstrap = require('react-bootstrap');
+
+var _var = require('../../services/var');
+
+var _var2 = _interopRequireDefault(_var);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -40600,6 +40619,7 @@ var Login = function (_React$Component) {
         password: ""
       }
     };
+    _this.vars = new _var2.default();
     return _this;
   }
 
@@ -40630,7 +40650,7 @@ var Login = function (_React$Component) {
       var _this3 = this;
 
       var headers = { "Content-Type": "application/json" };
-      var url = this.props.baseUrl,
+      var url = this.vars.baseUrl,
           bodyData = void 0;
 
       if (this.state.signInUp === 'in') {
@@ -40869,13 +40889,12 @@ var Login = function (_React$Component) {
 }(_react2.default.Component);
 
 Login.propTypes = {
-  baseUrl: _react2.default.PropTypes.string.isRequired,
   signInUp: _react2.default.PropTypes.func.isRequired
 };
 
 exports.default = Login;
 
-},{"react":431,"react-bootstrap":111}],438:[function(require,module,exports){
+},{"../../services/var":440,"react":431,"react-bootstrap":111}],438:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -40892,6 +40911,10 @@ var _reactBootstrap = require('react-bootstrap');
 
 require('whatwg-fetch');
 
+var _var = require('../../services/var');
+
+var _var2 = _interopRequireDefault(_var);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -40899,7 +40922,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
 // let Loading = require('react-loading');
 
 var Field = function (_React$Component) {
@@ -40915,6 +40937,7 @@ var Field = function (_React$Component) {
       errorMsg: null,
       loading: false
     };
+    _this.vars = new _var2.default();
     return _this;
   }
 
@@ -40947,7 +40970,7 @@ var Field = function (_React$Component) {
       }
 
       this.setState({ errorMsg: null, loading: true }, function () {
-        var url = _this2.props.baseUrl + _this2.props.keys.keyUrl + '/' + _this2.props.id;
+        var url = _this2.vars.baseUrl + _this2.props.keys.keyUrl + '/' + _this2.props.id;
         var headers = { "Content-Type": "application/json", Authorization: _this2.props.authToken };
         var body = {};
         body[_this2.props.keys.keyBody] = {};
@@ -41063,7 +41086,6 @@ var Field = function (_React$Component) {
 
 Field.propTypes = {
   authToken: _react2.default.PropTypes.string,
-  baseUrl: _react2.default.PropTypes.string,
   hideValue: _react2.default.PropTypes.bool,
   optional: _react2.default.PropTypes.bool,
   canEdit: _react2.default.PropTypes.bool,
@@ -41080,7 +41102,7 @@ Field.propTypes = {
 
 exports.default = Field;
 
-},{"react":431,"react-bootstrap":111,"whatwg-fetch":432}],439:[function(require,module,exports){
+},{"../../services/var":440,"react":431,"react-bootstrap":111,"whatwg-fetch":432}],439:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -41103,6 +41125,10 @@ var _Field = require('./Field');
 
 var _Field2 = _interopRequireDefault(_Field);
 
+var _var = require('../../services/var');
+
+var _var2 = _interopRequireDefault(_var);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -41112,7 +41138,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var Loading = require('react-loading');
-
 // import AddItemModal from './AddItemModal';
 
 var Profile = function (_React$Component) {
@@ -41138,6 +41163,7 @@ var Profile = function (_React$Component) {
         admin: false
       }
     };
+    _this.vars = new _var2.default();
     return _this;
   }
 
@@ -41146,12 +41172,12 @@ var Profile = function (_React$Component) {
     value: function componentWillMount() {
       var _this2 = this;
 
-      var url = this.props.baseUrl + '/orgs/whoAreWe';
+      var url = this.vars.baseUrl + 'orgs/whoAreWe';
       fetch(url, {
         method: 'GET',
         headers: {
           "Content-Type": "application/json",
-          Authorization: this.props.authToken
+          Authorization: this.vars.baseUrl
         }
       }).then(function (res) {
         if (res.ok) {
@@ -41241,7 +41267,7 @@ var Profile = function (_React$Component) {
       obj.employer.org_id = this.state.org.id;
       console.log(obj);
       var headers = { "Content-Type": "application/json", Authorization: this.props.authToken };
-      var url = this.props.baseUrl + 'employers';
+      var url = this.vars.baseUrl + 'employers';
       fetch(url, {
         method: 'POST',
         headers: headers,
@@ -41272,7 +41298,7 @@ var Profile = function (_React$Component) {
       var _this6 = this;
 
       var headers = { "Content-Type": "application/json", Authorization: this.props.authToken };
-      var url = this.props.baseUrl + 'employers/' + employer.id;
+      var url = this.vars.baseUrl + 'employers/' + employer.id;
       fetch(url, {
         method: 'DELETE',
         headers: headers
@@ -41327,7 +41353,6 @@ var Profile = function (_React$Component) {
 
         return _react2.default.createElement(_Field2.default, {
           authToken: _this7.props.authToken,
-          baseUrl: _this7.props.baseUrl,
           value: isPassword ? "" : data[keys.keyEdit],
           hideValue: hideValue,
           optional: optional,
@@ -41665,13 +41690,76 @@ var Profile = function (_React$Component) {
 
 Profile.propTypes = {
   authToken: _react2.default.PropTypes.string,
-  baseUrl: _react2.default.PropTypes.string,
   org: _react2.default.PropTypes.any,
   employer: _react2.default.PropTypes.any
 };
 
 exports.default = Profile;
 
-},{"./Field":438,"react":431,"react-bootstrap":111,"react-loading":405,"whatwg-fetch":432}]},{},[433])
+},{"../../services/var":440,"./Field":438,"react":431,"react-bootstrap":111,"react-loading":405,"whatwg-fetch":432}],440:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+var Variable = function () {
+  function Variable() {
+    _classCallCheck(this, Variable);
+
+    // this.baseUrl = "http://api.hjobs.hk:9080/employer/";
+    this.baseUrl = "http://dev.hjobs.hk:9080/employer/";
+    // this.baseUrl = "http://localhost:9080/employer/";
+  }
+
+  /** @return {number} - 2 digit @param {number} num - 1 to 2 digit */
+
+
+  _createClass(Variable, [{
+    key: "pad2",
+    value: function pad2(num) {
+      return num < 10 ? '0' + num.toString() : num;
+    }
+    /** @return {"Jan"| "Feb"| "Mar"| "Apr"| "May"| "Jun"| "Jul"| "Aug"| "Sep"| "Oct"| "Nov"| "Dec"} @param {0|1|2|3|4|5|6|7|8|9|10|11} num */
+
+  }, {
+    key: "getMonth",
+    value: function getMonth(num) {
+      return months[num];
+    }
+
+    /** @return {'? to ?'|'?'|'negotiable'} */
+
+  }, {
+    key: "getSalaryDescription",
+    value: function getSalaryDescription(job) {
+      var salaryDescription = "";
+      switch (job.salary_type) {
+        case "range":
+          salaryDescription = job.salary_high + " - " + job.salary_low;
+          break;
+        case "specific":
+          salaryDescription = job.salary_value;
+          break;
+        case "negotiable":default:
+          salaryDescription = "negotiable";
+          break;
+      }
+      return salaryDescription;
+    }
+  }]);
+
+  return Variable;
+}();
+
+exports.default = Variable;
+
+},{}]},{},[433])
 
 //# sourceMappingURL=app.js.map

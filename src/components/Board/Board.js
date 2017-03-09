@@ -6,6 +6,8 @@ let Loading = require('react-loading');
 // import Job from './Job';
 import AddItemModal from './AddItemModal';
 
+import Variable from '../../services/var';
+
 class Board extends React.Component {
   constructor(props) {
     super(props);
@@ -26,6 +28,7 @@ class Board extends React.Component {
       projects: null,
       errorMsg: null
     };
+    this.vars = new Variable();
   }
 
   componentWillMount() {
@@ -45,7 +48,7 @@ class Board extends React.Component {
       s.loading = true;
       return s;
     }, () => {
-      const url = this.props.baseUrl + 'orgs/showPostings';
+      const url = this.vars.baseUrl + 'orgs/showPostings';
       fetch(url, {
         method: 'GET',
         headers: {
@@ -94,7 +97,7 @@ class Board extends React.Component {
   }
 
   delete(dataType, id) {
-    const url = this.props.baseUrl + dataType + 's/' + id;
+    const url = this.vars.baseUrleUrl + dataType + 's/' + id;
     fetch(url, {
       method: 'DELETE',
       headers: {
@@ -351,7 +354,7 @@ class Board extends React.Component {
             this.state.showAddItemModal ?
               <AddItemModal
                 authToken={this.props.authToken}
-                baseUrl={this.props.baseUrl}
+                baseUrl={this.vars.baseUrleUrl}
                 show={this.state.showAddItemModal}
                 modalType={this.state.addItemModalType}
                 jobType={this.state.addItemJobType}

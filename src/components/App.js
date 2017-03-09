@@ -7,43 +7,43 @@ import Board from './Board/Board';
 import Login from './Login/Login';
 import Profile from './Profile/Profile';
 
+import Variable from '../services/var';
+
 class App extends React.Component {
   constructor() {
     super();
     this.state = {
         currentTab: 'board',
-        authToken: null,
-        // baseUrl: 'http://api.hjobs.hk:9080/employer/'
-        // baseUrl: 'http://dev.hjobs.hk:9080/employer/'
-        baseUrl: 'http://localhost:9080/employer/'
+        authToken: null
     };
+    this.vars = new Variable();
   }
 
   componentWillMount() {
     // console.log("inside componentWillMount on App.js");
     // console.log(this.state);
-    let token = window.localStorage.getItem("authToken");
-    if (token) {
-      this.setState({authToken: token});
-    }
+    const token = window.localStorage.getItem("authToken");
+    if (token) this.setState(s => { s.authToken = token; return s; });
   }
 
   signInUp({org, me, auth_token}) {
-    const data = {};
-    data.org = org;
-    data.me = me;
-    if (auth_token) data.authToken = auth_token;
-    this.setState(data, console.log(this.state));
+    this.setState(s => {
+      s.org = org;
+      s.me = me;
+      if (auth_token) s.authToken = auth_token;
+      return s;
+    });
   }
 
   signOut() {
-    this.setState({authToken: null});
+    this.setState(s => { s.authToken = null; return s; });
     localStorage.removeItem("authToken");
   }
 
+  /** @param {'board'|'profile'|'logout'} eventKey */
   handleMenuSelect(eventKey) {
-    if (eventKey === 0) this.signOut();
-    this.setState({currentTab: eventKey});
+    if (eventKey === 'logout') this.signOut();
+    else this.setState(s => { s.currentTab = eventKey; return s; });
   }
 
   render() {
@@ -54,7 +54,6 @@ class App extends React.Component {
           content = (
             <Board
               authToken={this.state.authToken}
-              baseUrl={this.state.baseUrl}
               org={this.state.org}
               me={this.state.me} />
           );
@@ -63,7 +62,6 @@ class App extends React.Component {
           content = (
             <Profile
               authToken={this.state.authToken}
-              baseUrl={this.state.baseUrl}
             />
           );
           break;
@@ -71,8 +69,7 @@ class App extends React.Component {
     } else {
       content = (
         <Login
-          baseUrl={this.state.baseUrl}
-          signInUp={({org, me, auth_token}) => { this.signInUp({org: org, me: me, auth_token: auth_token}); }} />
+          signInUp={({org, me, auth_token}) => { this.signInUp({org, me, auth_token}); }} />
       );
     }
 
@@ -93,7 +90,7 @@ class App extends React.Component {
                 <Nav pullRight>
                   <NavItem eventKey={'board'} href="#">Board</NavItem>
                   <NavItem eventKey={'profile'} href="#">Profile</NavItem>
-                  <NavItem eventKey={0} href="#">Logout</NavItem>
+                  <NavItem eventKey={'logout'} href="#">Logout</NavItem>
                 </Nav>
               </Navbar.Collapse>
           </Navbar>

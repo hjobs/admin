@@ -2,6 +2,8 @@ import React from 'react';
 import { Modal, Button, FormGroup, ControlLabel, HelpBlock, FormControl, Checkbox } from 'react-bootstrap';
 import 'whatwg-fetch';
 
+import Variable from '../../services/var';
+
 class AddItemModal extends React.Component {
   constructor(props) {
     super(props);
@@ -26,11 +28,12 @@ class AddItemModal extends React.Component {
         reward_value: ""
       }
     };
+    this.vars = new Variable();
   }
 
   save() {
-    let data = this.state[this.props.modalType];
-    let url = this.props.baseUrl + this.props.modalType + 's';
+    const data = this.state[this.props.modalType];
+    const url = this.vars.baseUrl + this.props.modalType + 's';
     if (this.props.modalType === 'job') { // Post Job
       switch (data.salary_type) {
         case 'specific':
@@ -300,7 +303,6 @@ class AddItemModal extends React.Component {
 
 AddItemModal.propTypes = {
   authToken: React.PropTypes.string.isRequired,
-  baseUrl: React.PropTypes.string.isRequired,
   closeModal: React.PropTypes.func.isRequired,
   show: React.PropTypes.bool.isRequired,
   modalType: React.PropTypes.string.isRequired,
