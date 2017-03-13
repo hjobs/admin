@@ -1,144 +1,94 @@
 import React from 'react';
 import { Navbar, Nav, NavItem } from 'react-bootstrap';
 import 'whatwg-fetch';
-let Loading = require('react-loading');
+// let Loading = require('react-loading');
 
 import Board from './Board/Board';
 import Login from './Login/Login';
+import Profile from './Profile/Profile';
+
+// import Variable from '../services/var';
+import Http from '../services/http';
 
 class App extends React.Component {
   constructor() {
     super();
     this.state = {
-        authToken: window.localStorage.getItem("authToken"),
-        baseUrl: 'http://52.221.40.15:3000/employer/',
-        // baseUrl: 'http://localhost:3100/employer/',
+        currentTab: 'board',
         org: null,
-        loading: true,
-        employer: null,
-        jobs: [],
-        projects: []
+        me: null
     };
+    this.http = new Http();
   }
 
-  componentWillMount() {
-    console.log("inside componentWillMount on App.js");
-    console.log(this.state);
-    if (this.state.authToken && (!this.state.org || !this.state.employer)) {
-      this.loadData();
-    } else if (!this.state.authToken || this.state.authToken === null) {
-      this.setState({loading: false});
-    }
-  }
-
-  onLogin(org, employer, token) {
-    const data = {};
-    data.loading = true;
-    data.org = org;
-    data.employer = employer;
-    if (token) data.authToken = token;
-    this.setState(data, () => { this.loadData(); });
-  }
-
-  loadData() {
-    const url = this.state.baseUrl + 'orgs/showPostings';
-    fetch(url, {
-      method: 'GET',
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: this.state.authToken
-      }
-    })
-      .then(res => {
-        console.log(res);
-        if (res.ok) {
-          return res.json();
-        } else {
-          localStorage.removeItem("authToken");
-          this.setState({authToken: null, loading: false});
-        }
-      })
-      .then(d => {
-        console.log(d);
-        if (d.org) {
-          let obj = {};
-          obj.employer = d.employer;
-          obj.org = d.org;
-          obj.stableJobs = d.stable_jobs;
-          obj.casualJobs = d.casual_jobs;
-          obj.projects = d.projects;
-          obj.loading = false;
-          this.setState(obj, () => {
-            // console.log("app.js called loadData() and have setState");
-            console.log("app.js loadData is called, setState, will log this.state");
-            console.log(this.state);
-          });
-        } else {
-          localStorage.removeItem("authToken");
-          this.setState({authToken: null, loading: false});
-        }
-      });
+  signInUp({org, me, authToken}) {
+    this.http.setAuthToken(authToken);
+    this.setState(s => {
+      s.org = org;
+      s.me = me;
+      return s;
+    });
   }
 
   signOut() {
-    this.setState({authToken: null});
-    localStorage.removeItem("authToken");
+    this.setState(s => { s.org = null; s.me = null; return s; });
+    this.http.setAuthToken();
   }
 
+  /** @param {'board'|'profile'|'logout'} eventKey */
   handleMenuSelect(eventKey) {
-    switch (eventKey) {
-      case 0: this.signOut(); break;
-      default: break;
-    }
+    if (eventKey === 'logout') this.signOut();
+    else this.setState(s => { s.currentTab = eventKey; return s; });
   }
 
   render() {
+    let content;
+    if (!!this.http.authToken) {
+      switch (this.state.currentTab) {
+        case 'board': default:
+          content = (
+            <Board
+              signOut={() => { this.signOut(); }}
+              org={this.state.org}
+              me={this.state.me} />
+          );
+          break;
+        case 'profile':
+          content = (
+            <Profile />
+          );
+          break;
+      }
+    } else {
+      content = (
+        <Login signInUp={({org, me, authToken}) => { this.signInUp({org, me, authToken}); }} />
+      );
+    }
+
     return (
       <div>
-        <Navbar
-          fluid inverse
-          collapseOnSelect fixedTop
-          onSelect={(eventKey) => this.handleMenuSelect(eventKey)}
-        >
-          <Navbar.Header>
-            <Navbar.Brand>
-              <a href="#">HJobs Admin</a>
-            </Navbar.Brand>
-            {this.state.authToken ? <Navbar.Toggle /> : null}
-          </Navbar.Header>
-          {
-            this.state.authToken ?
-              <Navbar.Collapse>
-                <Nav pullRight>
-                  <NavItem eventKey={0} href="#">Logout</NavItem>
-                </Nav>
-              </Navbar.Collapse>
-              : null
-          }
-        </Navbar>
-        {
-          this.state.authToken ?
-            (
-              this.state.loading ?
-                <div className="flex-row flex-vhCenter">
-                  <Loading type="bubbles" color="#e3e3e3" />
-                </div>
-              :
-                <Board
-                  authToken={this.state.authToken}
-                  baseUrl={this.state.baseUrl}
-                  org={this.state.org}
-                  employer={this.state.employer}
-                  casualJobs={this.state.casualJobs}
-                  stableJobs={this.state.stableJobs}
-                  projects={this.state.projects}
-                  refresh={ () => { this.loadData(); }} />
-            )
-          :
-            <Login
-              baseUrl={this.state.baseUrl}
-              login={(org, employer, token) => { this.onLogin(org, employer, token); }} />
+        {!!this.http.authToken ?
+          <Navbar
+            fluid inverse
+            collapseOnSelect fixedTop
+            onSelect={(eventKey) => this.handleMenuSelect(eventKey)}>
+            <Navbar.Header>
+              <Navbar.Brand>
+                <a href="#" onClick={() => { this.handleMenuSelect('board'); }}>HJobs Admin</a>
+              </Navbar.Brand>
+              <Navbar.Toggle />
+            </Navbar.Header>
+            <Navbar.Collapse>
+              <Nav pullRight>
+                <NavItem eventKey={'board'} href="#">Board</NavItem>
+                <NavItem eventKey={'profile'} href="#">Profile</NavItem>
+                <NavItem eventKey={'logout'} href="#">Logout</NavItem>
+              </Nav>
+            </Navbar.Collapse>
+          </Navbar>
+          : null
         }
+        {content}
       </div>
     );
   }

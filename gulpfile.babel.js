@@ -22,6 +22,9 @@ import imagemin from 'gulp-imagemin';
 import pngquant from 'imagemin-pngquant';
 import runSequence from 'run-sequence';
 import ghPages from 'gulp-gh-pages';
+import plumber from 'gulp-plumber';
+import sass from 'gulp-sass';
+import stripDebug from 'gulp-strip-debug';
 
 const paths = {
   bundle: 'app.js',
@@ -29,10 +32,12 @@ const paths = {
   srcCss: 'src/**/*.scss',
   srcImg: 'src/images/**',
   srcLint: ['src/**/*.js', 'test/**/*.js'],
-  dist: 'dist',
-  distJs: 'dist/js',
-  distImg: 'dist/images',
-  distDeploy: './dist/**/*'
+  srcFontAwesome: 'src/styles/font-awesome/**/*',
+  dist: 'build',
+  distJs: 'build/js',
+  distImg: 'build/images',
+  distDeploy: './build/**/*',
+  distFontAwesome: 'build/styles/font-awesome'
 };
 
 const customOpts = {
@@ -84,12 +89,15 @@ gulp.task('browserify', () => {
   .pipe(buffer())
   .pipe(sourcemaps.init({ loadMaps: true }))
   .pipe(uglify())
+  .pipe(stripDebug())
   .pipe(sourcemaps.write('.'))
   .pipe(gulp.dest(paths.distJs));
 });
 
 gulp.task('styles', () => {
   gulp.src(paths.srcCss)
+  .pipe(plumber())
+  .pipe(sass().on('error', sass.logError))
   .pipe(rename({ extname: '.css' }))
   .pipe(sourcemaps.init())
   .pipe(postcss([vars, extend, nested, autoprefixer, cssnano]))
@@ -98,9 +106,18 @@ gulp.task('styles', () => {
   .pipe(reload({ stream: true }));
 });
 
+gulp.task('fontAwesome', () => {
+  gulp.src(paths.srcFontAwesome)
+  .pipe(gulp.dest(paths.distFontAwesome));
+})
+
 gulp.task('htmlReplace', () => {
   gulp.src('index.html')
-  .pipe(htmlReplace({ css: 'styles/main.css', js: 'js/app.js' }))
+  .pipe(htmlReplace({
+    css: 'styles/main.css?version=20170224',
+    fontAwesome: 'styles/font-awesome/css/font-awesome.min.css',
+    js: 'js/app.js?version=20170224'
+  }))
   .pipe(gulp.dest(paths.dist));
 });
 
@@ -131,10 +148,10 @@ gulp.task('deploy', () => {
 });
 
 gulp.task('watch', cb => {
-  runSequence('clean', ['browserSync', 'watchTask', 'watchify', 'styles', 'lint', 'images'], cb);
+  runSequence('clean', ['browserSync', 'watchTask', 'watchify', 'styles', 'fontAwesome', 'lint', 'images'], cb);
 });
 
 gulp.task('build', cb => {
   process.env.NODE_ENV = 'production';
-  runSequence('clean', ['browserify', 'styles', 'htmlReplace', 'images'], cb);
+  runSequence('clean', ['browserify', 'styles', 'htmlReplace', 'fontAwesome', 'images'], cb);
 });

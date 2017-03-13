@@ -1,6 +1,8 @@
 import React from 'react';
 import { Button, FormGroup, ControlLabel, FormControl, HelpBlock } from 'react-bootstrap';
 
+import Http from '../../services/http';
+
 class Login extends React.Component {
   constructor(props) {
     super(props);
@@ -22,80 +24,57 @@ class Login extends React.Component {
         password: ""
       }
     };
+    this.http = new Http();
   }
 
   submit() {
     event.preventDefault();
+    const
+      formData = this.state.signInUp === 'in' ? this.state.in : this.state.up,
+      errorArr = [];
+    for (const key in formData) {
+      if ((key !== "logo" && key !== "description") && !formData[key]) {
+        errorArr.push(key);
+      }
+    }
+    if (errorArr.length > 0) {
+      this.setState({errorMsg: "Please fill in " + errorArr.join(', ') + "."});
+    } else {
+      this.setState({loading: true}, () => {
+        this.signInUp(formData);
+      });
+    }
+  }
+
+  signInUp(formData) {
+    let urlSuffix;
+    let bodyData;
 
     if (this.state.signInUp === 'in') {
-      let data = {};
-      data.email = document.getElementById("in-email").value;
-      data.password = document.getElementById("in-password").value;
-
-      const url = this.props.baseUrl + 'authenticate';
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      })
-        .then(res => {
-          console.log(res);
-          if (res.status > 300) {
-            this.setState({errorMsg: res.statusText});
-          } else {
-            return res.json();
-          }
-        })
-        .then(d => {
-          console.log(d);
-          if (d.auth_token) {
-            localStorage.setItem("authToken", d.auth_token);
-            this.props.login(d.org, d.employer, d.auth_token);
-          } else {
-            localStorage.removeItem("authToken");
-            this.setState({errorMsg: d.error.employer_authentication });
-          }
-        });
+      bodyData = (formData);
+      urlSuffix = 'authenticate';
     } else if (this.state.signInUp === 'up') {
-      let data = {};
-      data = this.state.up;
-      for (let key in this.state.up) {
-        if (key !== "logo" && key !== "description" && !this.state.up[key]) {
-          this.errorMsg = "Please fill in " + key;
-        }
-      }
-
-      const url = this.props.baseUrl + 'orgs';
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({org: data})
-      })
-        .then(res => {
-          console.log(res);
-          if (res.status > 300) {
-            this.setState({errorMsg: res.statusText});
-          } else {
-            return res.json();
-          }
-        })
-        .then(d => {
-          console.log(d);
-          if (d.auth_token) {
-            localStorage.setItem("authToken", d.auth_token);
-            this.props.login(d.org, d.employer, d.auth_token);
-          } else {
-            localStorage.removeItem("authToken");
-            this.setState({errorMsg: d.error.employer_authentication });
-          }
-        });
+      bodyData = {org: formData};
+      urlSuffix = 'orgs';
     } else {
       window.alert("Sorry, there is an error, please contact admin if problem persists");
     }
+
+    this.http.request(urlSuffix, "POST", bodyData).then(res => {
+      console.log(res);
+      if (!res.ok) return this.setState(s => { s.errorMsg = res.statusText; return s; });
+      return res.json();
+    })
+    .then(d => {
+      console.log(d);
+      if (!!d && d.error) {
+        this.http.setAuthToken();
+        this.setState(s => { s.errorMsg = d.error.employer_authentication; return s; });
+      } else if (!!d && d.auth_token) {
+        this.http.setAuthToken(d.auth_token);
+        this.props.signInUp({org: d.org, me: d.employer, authToken: d.auth_token});
+      }
+    });
   }
 
   logoUnderstood() {
@@ -116,7 +95,9 @@ class Login extends React.Component {
     const data = this.state[idArr[0]];
     data[idArr[1]] = value;
     
-    this.setState(data, () => { console.log("logging this.state"); console.log(this.state); });
+    this.setState(data, () => {
+      // console.log("logging this.state"); console.log(this.state);
+    });
   }
 
   render() {
@@ -147,13 +128,13 @@ class Login extends React.Component {
     };
 
     return (
-      <div className="sign">
+      <div className="flex-col flex-vhCenter sign">
       { (this.state.signInUp === "in") ?
         (
         <section className="signin">
-          <p className="toggle-link text-right" onClick={() => { this.toggleInUp(); }}>Sign Up here!</p>
+          <p className="text-right link" onClick={() => { this.toggleInUp(); }}>Sign Up here!</p>
           <h2 className="text-center">Login</h2>
-          <form onSubmit={() => { this.submit(); }}>
+          <form onSubmit={(e) => { e.preventDefault(); this.submit(); }}>
             { fieldGroup({
               id: "in-email",
               type: "username",
@@ -174,20 +155,20 @@ class Login extends React.Component {
         :
         (
         <section className="signup">
-          <p className="toggle-link text-right" onClick={() => { this.toggleInUp(); }}>Already have an account? Log In here!</p>
+          <p className="link text-right" onClick={() => { this.toggleInUp(); }}>Already have an account? Log In here!</p>
           <h2 className="text-center">SignUp</h2>
-          <form onSubmit={() => { this.submit(); }}>
+          <form onSubmit={(e) => { e.preventDefault(); this.submit(); }}>
             { fieldGroup({
               id: "up-name",
               type: "text",
               label: "Organisation name"
             })}
-            { fieldGroup({
+            { /* fieldGroup({
               id: "up-description",
               type: "textarea",
               label: "Description (optional)",
               help: "Let people know what your organisation is about in a short description"
-            })}
+            }) */}
             {
               this.state.logoUnderstood ?
                 fieldGroup({
@@ -201,7 +182,7 @@ class Login extends React.Component {
                   <ControlLabel>Logo (Dropbox Link)</ControlLabel>
                   <HelpBlock>
                     Please upload your company's logo, in a square to dropbox, and attach a download link here.
-                    <Button className="logo-button" bsSize="xs" bsStyle="info" onClick={() => { this.logoUnderstood(); }}>I Understand</Button>
+                    <Button className="logo-button" bsSize="xs" bsStyle="primary" onClick={() => { this.logoUnderstood(); }}>I Understand</Button>
                   </HelpBlock>
                 </FormGroup>
             }
@@ -229,8 +210,7 @@ class Login extends React.Component {
 }
 
 Login.propTypes = {
-  baseUrl: React.PropTypes.string,
-  login: React.PropTypes.func
+  signInUp: React.PropTypes.func.isRequired
 };
 
 export default Login;

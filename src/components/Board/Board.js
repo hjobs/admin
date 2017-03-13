@@ -1,10 +1,13 @@
 import React from 'react';
 import { Button, Panel, Table } from 'react-bootstrap';
 import 'whatwg-fetch';
-// let Loading = require('react-loading');
+let Loading = require('react-loading');
 
 // import Job from './Job';
 import AddItemModal from './AddItemModal';
+
+// import Variable from '../../services/var';
+import Http from '../../services/http';
 
 class Board extends React.Component {
   constructor(props) {
@@ -15,40 +18,81 @@ class Board extends React.Component {
       addItemModalType: null,
       addItemJobType: null,
       panelOpen: {
-        casual: false,
+        quick: false,
         stable: false,
         projects: false
-      }
+      },
+      loading: true,
+      quickJobs: null,
+      stableJobs: null,
+      internships: null,
+      projects: null,
+      errorMsg: null
     };
+    console.log(["Board constructor called"]);
+    this.http = new Http();
+  }
+
+  componentWillMount() {
+    this.refresh();
+  }
+
+  refresh() {
+    const onError = (err) => {
+      this.setState(s => {
+        s.loading = false;
+        s.errorMsg = err;
+        return s;
+      });
+    };
+
+    this.setState(s => {
+      s.loading = true;
+      return s;
+    }, () => {
+      this.http.request("orgs/showPostings").then(res => {
+        console.log(res);
+        if (res.ok) return res.json();
+        onError(res.statusTExt);
+        throw Error(res.statusText);
+      }, err => onError(err))
+      .then(d => {
+        // console.log(d);
+        if (d && d.org) {
+          this.setState(s => {
+            s.stableJobs = d.stable_jobs;
+            s.quickJobs = d.quick_jobs;
+            s.internships = d.internships;
+            s.projects = d.projects;
+            s.loading = false;
+            return s;
+          });
+        } else this.props.signOut();
+      })
+      .catch(err => onError(err));
+    });
   }
 
   showDescription(object) {
     console.log(object);
-    window.alert(object.description);
+    if (!!object) alert(object.description);
   }
 
   togglePanel(type) {
-    const obj = {};
-    obj.panelOpen = this.state.panelOpen;
-    obj.panelOpen[type] = !obj.panelOpen[type];
-    this.setState(obj);
+    this.setState(s => {
+      s.panelOpen[type] = !s.panelOpen[type];
+      return s;
+    });
   }
 
-  delete(dataType, id) {
-    const url = this.props.baseUrl + dataType + 's/' + id;
-    fetch(url, {
-      method: 'DELETE',
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: this.props.authToken
-      }
-    }).then(res => {
+  delete(id) {
+    this.http.request('jobs/' + id, "DELETE").then(res => {
       if (res.ok) return res.json();
       return {error: true};
     }).then(d => {
       console.log("logging res.json or res.error");
       console.log(d);
-      if (!d.error) this.props.refresh();
+      if (!d.error) this.refresh();
     });
   }
 
@@ -66,147 +110,150 @@ class Board extends React.Component {
       addItemModalType: null
     }, () => {
       console.log("refresh is " + refresh);
-      if (refresh) this.props.refresh();
+      if (refresh) this.refresh();
     });
   }
 
   edit(data) {
-    console.log("inside board.js edit(), and logging data...")
+    console.log("inside board.js edit(), and logging data...");
     console.log(data);
   }
 
   render() {
-    
-    let casualJobsTable = this.props.casualJobs.map(data => {
-      const updatedAt = (new Date(data.updated_at).toLocaleDateString());
-      let salaryDescription = "";
-      switch (data.salary_type) {
-        case "range":
-          salaryDescription = "range = $" + data.salary_high + " to $" + data.salary_low;
-          break;
-        case "specific":
-          salaryDescription = "specific: $" + data.salary_value;
-          break;
-        case "negotiable": default:
-          salaryDescription = "negotiable";
-          break;
-      }
-      return (
-        <tr key={"jobs_long_" + data.id} >
-          <td>{data.title}</td>
-          <td>{updatedAt}</td>
-          <td>{salaryDescription}</td>
-          <td>
-            <Button
-              bsSize="small"
-              bsStyle="link"
-              onClick={() => { this.edit(data); }}
-            >
-              Edit
-            </Button>
-          </td>
-          <td>
-            <Button
-              bsSize="small"
-              bsStyle="link"
-              onClick={() => { this.delete('job', data.id); }}
-            >
-              X
-            </Button>
-          </td>
-        </tr>
-      );
-    });
+    if (!!this.state.loading) return (<div className="flex-row flex-vhCenter"><Loading type="bubbles" color="#337ab7" /></div>);
+    if (!!this.state.errorMsg) return (<div className="flex-row full-width" style={{minHeight: '50px'}}> this.state.errorMsg </div>);
+    let quickJobsTable, stableJobsTable, projectsTable;
+    if (!this.state.loading && !this.state.errorMsg) {
+      quickJobsTable = this.state.quickJobs.map(data => {
+        const updatedAt = (new Date(data.updated_at).toLocaleDateString());
+        let salaryDescription = "";
+        switch (data.salary_type) {
+          case "range":
+            salaryDescription = "range = $" + data.salary_high + " to $" + data.salary_low;
+            break;
+          case "specific":
+            salaryDescription = "specific: $" + data.salary_value;
+            break;
+          case "negotiable": default:
+            salaryDescription = "negotiable";
+            break;
+        }
+        return (
+          <tr key={"jobs_long_" + data.id} >
+            <td>{data.title}</td>
+            <td>{updatedAt}</td>
+            <td>{salaryDescription}</td>
+            <td>
+              <Button
+                bsSize="small"
+                bsStyle="link"
+                onClick={() => { this.edit(data); }}
+              >
+                Edit
+              </Button>
+            </td>
+            <td>
+              <Button
+                bsSize="small"
+                bsStyle="link"
+                onClick={() => { this.delete(data.id); }}
+              >
+                X
+              </Button>
+            </td>
+          </tr>
+        );
+      });
 
-    let stableJobsTable = this.props.stableJobs.map(data => {
-      const updatedAt = (new Date(data.updated_at).toLocaleDateString());
-      let salaryDescription = "";
-      switch (data.salary_type) {
-        case "range":
-          salaryDescription = "range = $" + data.salary_high + " to $" + data.salary_low;
-          break;
-        case "specific":
-          salaryDescription = "specific: $" + data.salary_value;
-          break;
-        case "negotiable": default:
-          salaryDescription = "negotiable";
-          break;
-      }
-      return (
-        <tr key={"jobs_long_" + data.id} >
-          <td>{data.title}</td>
-          <td>{updatedAt}</td>
-          <td>{salaryDescription}</td>
-          <td>
-            <Button
-              bsSize="small"
-              bsStyle="link"
-              onClick={() => { this.edit(data); }}
-            >
-              Edit
-            </Button>
-          </td>
-          <td>
-            <Button
-              bsSize="small"
-              bsStyle="link"
-              onClick={() => { this.delete('job', data.id); }}
-            >
-              X
-            </Button>
-          </td>
-        </tr>
-      );
-    });
+      stableJobsTable = this.state.stableJobs.map(data => {
+        const updatedAt = (new Date(data.updated_at).toLocaleDateString());
+        let salaryDescription = "";
+        switch (data.salary_type) {
+          case "range":
+            salaryDescription = "range = $" + data.salary_high + " to $" + data.salary_low;
+            break;
+          case "specific":
+            salaryDescription = "specific: $" + data.salary_value;
+            break;
+          case "negotiable": default:
+            salaryDescription = "negotiable";
+            break;
+        }
+        return (
+          <tr key={"jobs_long_" + data.id} >
+            <td>{data.title}</td>
+            <td>{updatedAt}</td>
+            <td>{salaryDescription}</td>
+            <td>
+              <Button
+                bsSize="small"
+                bsStyle="link"
+                onClick={() => { this.edit(data); }}
+              >
+                Edit
+              </Button>
+            </td>
+            <td>
+              <Button
+                bsSize="small"
+                bsStyle="link"
+                onClick={() => { this.delete(data.id); }}
+              >
+                X
+              </Button>
+            </td>
+          </tr>
+        );
+      });
 
-    let projectsTable = this.props.projects.map(data => {
-      const updatedAt = (new Date(data.updated_at).toLocaleDateString());
-      return (
-        <tr key={"jobs_long_" + data.id} >
-          <td>{data.title}</td>
-          <td>{updatedAt}</td>
-          <td>{data.reward_value}</td>
-          <td>
-            <Button
-              bsSize="small"
-              bsStyle="link"
-              onClick={() => { this.edit(data); }}
-            >
-              Edit
-            </Button>
-          </td>
-          <td>
-            <Button
-              bsSize="small"
-              bsStyle="link"
-              onClick={() => { this.delete('project', data.id); }}
-            >
-              X
-            </Button>
-          </td>
-        </tr>
-      );
-    });
-
+      projectsTable = this.state.projects.map(data => {
+        const updatedAt = (new Date(data.updated_at).toLocaleDateString());
+        return (
+          <tr key={"jobs_long_" + data.id} >
+            <td>{data.title}</td>
+            <td>{updatedAt}</td>
+            <td>{data.reward_value}</td>
+            <td>
+              <Button
+                bsSize="small"
+                bsStyle="link"
+                onClick={() => { this.edit(data); }}
+              >
+                Edit
+              </Button>
+            </td>
+            <td>
+              <Button
+                bsSize="small"
+                bsStyle="link"
+                onClick={() => { this.delete(data.id); }}
+              >
+                X
+              </Button>
+            </td>
+          </tr>
+        );
+      });
+    }
 
     return (
       <section className="board">
-        <p>You have posted {this.props.casualJobs.length} casual jobs, {this.props.stableJobs.length} stable jobs, and {this.props.projects.length} projects.</p>
-        
+        <p>You have posted {this.state.quickJobs.length} quick jobs, {this.state.stableJobs.length} stable jobs, and {this.state.projects.length} projects.</p>
+
         <div className="toggle-div">
-          <h4 className="inline">Casual Jobs</h4>
-          <Button bsStyle="link" onClick={() => { this.togglePanel('casual'); }}>
-            {this.state.panelOpen.casual ? "collapse" : "show" } ({this.props.casualJobs.length})
+          <h4 className="inline">Quick Jobs</h4>
+          <Button bsStyle="link" onClick={() => { this.togglePanel('quick'); }}>
+            {this.state.panelOpen.quick ? "collapse" : "show" } ({this.state.quickJobs.length})
           </Button>
           <div className="flex-col flex-vhCenter">
             <Button
               bsStyle="primary"
               bsSize="small"
               className="add"
-              onClick={() => { this.showAddItemModal('job','casual'); }}> + </Button>
+              onClick={() => { this.showAddItemModal('job','quick'); }}> + </Button>
           </div>
         </div>
-        <Panel collapsible expanded={this.state.panelOpen.casual}>
+        <Panel collapsible expanded={this.state.panelOpen.quick}>
           <Table responsive striped>
             <thead>
               <tr>
@@ -218,7 +265,7 @@ class Board extends React.Component {
               </tr>
             </thead>
             <tbody>
-              {casualJobsTable}
+              {quickJobsTable}
             </tbody>
           </Table>
         </Panel>
@@ -226,7 +273,7 @@ class Board extends React.Component {
         <div className="toggle-div">
           <h4 className="inline">Stable Jobs</h4>
           <Button bsStyle="link" onClick={() => { this.togglePanel('stable') }}>
-            {this.state.panelOpen.stable ? "collapse" : "show" } ({this.props.stableJobs.length})
+            {this.state.panelOpen.stable ? "collapse" : "show" } ({this.state.stableJobs.length})
           </Button>
           <div className="flex-col flex-vhCenter">
             <Button
@@ -255,8 +302,8 @@ class Board extends React.Component {
 
         <div className="toggle-div">
           <h4 className="inline">Projects</h4>
-          <Button bsStyle="link" onClick={() => { this.togglePanel('projects') }}>
-            {this.state.panelOpen.projects ? "collapse" : "show" } ({this.props.projects.length})
+          <Button bsStyle="link" onClick={() => { this.togglePanel('projects'); }}>
+            {this.state.panelOpen.projects ? "collapse" : "show" } ({this.state.projects.length})
           </Button>
           <div className="flex-col flex-vhCenter">
             <Button
@@ -283,91 +330,21 @@ class Board extends React.Component {
           </Table>
         </Panel>
 
-        {
-          this.state.showAddItemModal ?
-            <AddItemModal
-              authToken={this.props.authToken}
-              baseUrl={this.props.baseUrl}
-              show={this.state.showAddItemModal}
-              modalType={this.state.addItemModalType}
-              jobType={this.state.addItemJobType}
-              closeModal={ (refresh) => { this.closeAddItemModal(refresh); }}
-            />
-            : null
-        }
+        <AddItemModal
+          show={this.state.showAddItemModal}
+          modalType={this.state.addItemModalType}
+          jobType={this.state.addItemJobType}
+          closeModal={ (refresh) => { this.closeAddItemModal(refresh); }}
+        />
       </section>
-    );
-  }
+    ); // end render return()
+  } // end render
 }
 
 Board.propTypes = {
-  authToken: React.PropTypes.string,
-  baseUrl: React.PropTypes.string,
+  signOut: React.PropTypes.func.isRequired,
   org: React.PropTypes.any,
-  employer: React.PropTypes.any,
-  casualJobs: React.PropTypes.any,
-  stableJobs: React.PropTypes.any,
-  projects: React.PropTypes.any,
-  refresh: React.PropTypes.func
+  me: React.PropTypes.any
 };
 
 export default Board;
-
-/*
-const data = [
-  {
-    imgSrc: 'http://placehold.it/150x150',
-    title: 'Job Title Here',
-    name: 'HotelName Here',
-    date: new Date(1479095519606)
-  },
-  {
-    imgSrc: 'http://placehold.it/150x150',
-    title: 'Job Title Here',
-    name: 'HotelName Here \n HotelName Here a;sdlkfjas;ldkfjas;dlkfjas;dlfkajsd;lfkasjdf',
-    date: new Date(1479095519606)
-  },
-  {
-    imgSrc: 'http://placehold.it/150x150',
-    title: 'Job Title Here',
-    name: 'HotelName Here',
-    date: new Date(1479095519606)
-  },
-  {
-    imgSrc: 'http://placehold.it/150x150',
-    title: 'Job Title Here',
-    name: 'HotelName Here',
-    date: new Date(1479095519606)
-  },
-  {
-    imgSrc: 'http://placehold.it/150x150',
-    title: 'Job Title Here',
-    name: 'HotelName Here',
-    date: new Date(1479095519606)
-  },
-  {
-    imgSrc: 'http://placehold.it/150x150',
-    title: 'Job Title Here',
-    name: 'HotelName Here',
-    date: new Date(1479095519606)
-  }
-];
-*/
-
-    // let dataArr = data.map((datum, i) => {
-    //   return (
-    //     <div className="col-xs-24 col-sm-12" key={i}>
-    //       <Job
-    //         imgSrc={datum.imgSrc} title={datum.title}
-    //         name={datum.name} date={datum.date}
-    //         applyJob={ (jobNo) => { this.openModal(jobNo); } } jobNo={i} />
-    //     </div>
-    //   );
-    // });
-
-// <Job imgSrc={data[i].imgSrc} title={data[i].title} name={data[i].name} date={data[i].date} applyJob={this.applyJob.bind((data[i]))} key={i} />
-//
-
-        // <div className="col-sm-12 col-md-6" >
-        //   <Job imgSrc={data[i + 1].imgSrc} title={data[i + 1].title} name={data[i + 1].name} date={data[i + 1].date} applyJob={this.applyJob.bind((data[i + 1]))} key={i + 1} />
-        // </div>
