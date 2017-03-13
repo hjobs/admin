@@ -22,41 +22,33 @@ class AddItemModal extends React.Component {
         description: "",
         attachment_url: "",
         employment_type: [],
-        salary_type: "",
         job_type: props.jobType,
-        salary: {
-          salary_value: "",
-          salary_high: "",
-          salary_low: ""
-        },
-        reward_value: ""
+        salary_type: "",
+        salary_value: "",
+        salary_high: "",
+        salary_low: ""
       },
       loading: false
     };
     this.http = new Http();
   }
 
+  /*
+  attachment_url
+  deadline: datetime
+  description: text
+  job_type: integer
+  position: string
+
+  reward_type (salary_type: string)
+  reward_high (salary_high: integer)
+  reward_low (salary_low: integer)
+  reward_value (salary_value: text)
+  */
+
   save() {
     this.setState(s => { s.loading = true; }, () => {
-      const data = this.state[this.props.modalType];
-      if (this.props.modalType === 'job') { // Post Job
-        switch (data.salary_type) {
-          case 'specific':
-            data.salary_value = data.salary.salary_value;
-            break;
-          case 'range':
-            data.salary_low = data.salary.salary_low;
-            data.salary_high = data.salary.salary_high;
-            break;
-          case 'negotiable': default: break;
-        }
-        data.salary = null;
-        console.log(data);
-      }
-      const body = {};
-      body[this.props.modalType] = data;
-
-      this.http.request(this.props.modalType + 's', "POST", body).then(res => {
+      this.http.request('jobs', "POST", {jobs: this.state.job}).then(res => {
         console.log(res);
         if (!res.ok) return this.setState(s => { s.loading = false; s.errorMessage = res.statusText; return s; });
         return res.json();
@@ -83,30 +75,35 @@ class AddItemModal extends React.Component {
     // console.log(document.getElementById('job-employment_type').value);
   }
 
-  handleFormChange(id, value) {
-    // console.log('logging ' + id + ' event, and event = ');
-    // console.log(value);
-    const idArr = id.split(":");
-    const data = this.state[this.props.modalType];
-    let ref = data;
-    idArr.forEach((key, index, arr) => {
-      if (index < (arr.length - 1)) ref = data[key];
+  /** @param {string} value @param {'title'|'description'|'attachment_url'|'employment_type'|'salary_type'|'salary_high'|'salary_low'|'salary_value'} key */
+  handleFormChange(key, value) {
+    this.setState(s => {
+      s.job[key] = value;
+      return s;
     });
-    ref[idArr[idArr.length - 1]] = value;
-    const nextState = {};
-    nextState[this.props.modalType] = data;
-    this.setState(nextState, () => { console.log("logging this.state"); console.log(this.state); });
   }
+
+  [{name: "title"}, {name: "description"}, {name: "attachment_url"}];
 
   render() {
     if (!this.props.show) return null;
     return (
       <Modal show={this.props.show} dialogClassName="addItemModal" keyboard={false} backdrop="static">
         <Modal.Body>
-          Add a {this.props.jobType ? this.props.jobType : null} {this.props.modalType === 'job' ? 'job' : 'project'}
+          Add a {this.props.jobType ? this.props.jobType : null}
           <Form loading={this.state.loading} onSubmit={(e, data) => { e.preventDefault(); console.log([e, data]); }} >
-            <Form.Field />
-            <Form.Button type="submit" />
+            <Form.Input
+              name="Title"
+              label="Title" inline
+              onChange={(e) => { this.handleFormChange("title", e.target.value); }}
+              type="text"
+            />
+            <Form.Input
+              name="Description"
+              label="Description" inline
+              onChange={(e) => { this.handleFormChange("title", e.target.value); }}
+              type="text"
+            />
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -285,7 +282,6 @@ class AddItemModal extends React.Component {
 AddItemModal.propTypes = {
   closeModal: React.PropTypes.func.isRequired,
   show: React.PropTypes.bool.isRequired,
-  modalType: React.PropTypes.string.isRequired,
   jobType: React.PropTypes.string
 };
 

@@ -73407,20 +73407,29 @@ var AddItemModal = function (_React$Component) {
         description: "",
         attachment_url: "",
         employment_type: [],
-        salary_type: "",
         job_type: props.jobType,
-        salary: {
-          salary_value: "",
-          salary_high: "",
-          salary_low: ""
-        },
-        reward_value: ""
+        salary_type: "",
+        salary_value: "",
+        salary_high: "",
+        salary_low: ""
       },
       loading: false
     };
     _this.http = new _http2.default();
     return _this;
   }
+
+  /*
+  attachment_url
+  deadline: datetime
+  description: text
+  job_type: integer
+  position: string
+   reward_type (salary_type: string)
+  reward_high (salary_high: integer)
+  reward_low (salary_low: integer)
+  reward_value (salary_value: text)
+  */
 
   _createClass(AddItemModal, [{
     key: 'save',
@@ -73430,27 +73439,7 @@ var AddItemModal = function (_React$Component) {
       this.setState(function (s) {
         s.loading = true;
       }, function () {
-        var data = _this2.state[_this2.props.modalType];
-        if (_this2.props.modalType === 'job') {
-          // Post Job
-          switch (data.salary_type) {
-            case 'specific':
-              data.salary_value = data.salary.salary_value;
-              break;
-            case 'range':
-              data.salary_low = data.salary.salary_low;
-              data.salary_high = data.salary.salary_high;
-              break;
-            case 'negotiable':default:
-              break;
-          }
-          data.salary = null;
-          console.log(data);
-        }
-        var body = {};
-        body[_this2.props.modalType] = data;
-
-        _this2.http.request(_this2.props.modalType + 's', "POST", body).then(function (res) {
+        _this2.http.request('jobs', "POST", { jobs: _this2.state.job }).then(function (res) {
           console.log(res);
           if (!res.ok) return _this2.setState(function (s) {
             s.loading = false;s.errorMessage = res.statusText;return s;
@@ -73476,30 +73465,33 @@ var AddItemModal = function (_React$Component) {
       this.handleFormChange("employment_types", arr);
       // console.log(document.getElementById('job-employment_type').value);
     }
+
+    /** @param {string} value @param {'title'|'description'|'attachment_url'|'employment_type'|'salary_type'|'salary_high'|'salary_low'|'salary_value'} key */
+
   }, {
     key: 'handleFormChange',
-    value: function handleFormChange(id, value) {
-      var _this3 = this;
-
+    value: function handleFormChange(key, value) {
       // console.log('logging ' + id + ' event, and event = ');
       // console.log(value);
-      var idArr = id.split(":");
-      var data = this.state[this.props.modalType];
-      var ref = data;
-      idArr.forEach(function (key, index, arr) {
-        if (index < arr.length - 1) ref = data[key];
-      });
-      ref[idArr[idArr.length - 1]] = value;
-      var nextState = {};
-      nextState[this.props.modalType] = data;
-      this.setState(nextState, function () {
-        console.log("logging this.state");console.log(_this3.state);
+      // const idArr = id.split(":");
+      // const data = this.state[this.props.modalType];
+      // let ref = data;
+      // idArr.forEach((key, index, arr) => {
+      //   if (index < (arr.length - 1)) ref = data[key];
+      // });
+      // ref[idArr[idArr.length - 1]] = value;
+      // const nextState = {};
+      // nextState[this.props.modalType] = data;
+      // this.setState(nextState, () => { console.log("logging this.state"); console.log(this.state); });
+      this.setState(function (s) {
+        s.job[key] = value;
+        return s;
       });
     }
   }, {
     key: 'render',
     value: function render() {
-      var _this4 = this;
+      var _this3 = this;
 
       if (!this.props.show) return null;
       return _react2.default.createElement(
@@ -73510,15 +73502,20 @@ var AddItemModal = function (_React$Component) {
           null,
           'Add a ',
           this.props.jobType ? this.props.jobType : null,
-          ' ',
-          this.props.modalType === 'job' ? 'job' : 'project',
           _react2.default.createElement(
             _semanticUiReact.Form,
             { loading: this.state.loading, onSubmit: function onSubmit(e, data) {
                 e.preventDefault();console.log([e, data]);
               } },
-            _react2.default.createElement(_semanticUiReact.Form.Field, null),
-            _react2.default.createElement(_semanticUiReact.Form.Button, { type: 'submit' })
+            _react2.default.createElement(_semanticUiReact.Form.Input, {
+              name: 'Title',
+              label: 'Title', inline: true,
+              placeholder: 'Title',
+              onChange: function onChange(e) {
+                _this3.handleFormChange("title", e.target.value);
+              },
+              type: 'text'
+            })
           )
         ),
         _react2.default.createElement(
@@ -73529,7 +73526,7 @@ var AddItemModal = function (_React$Component) {
             {
               color: 'orange',
               onClick: function onClick() {
-                _this4.props.closeModal(false);
+                _this3.props.closeModal(false);
               } },
             'Cancel'
           ),
@@ -73538,7 +73535,7 @@ var AddItemModal = function (_React$Component) {
             {
               color: 'green',
               onClick: function onClick() {
-                _this4.save();
+                _this3.save();
               } },
             'Submit'
           )
@@ -73709,7 +73706,6 @@ var AddItemModal = function (_React$Component) {
 AddItemModal.propTypes = {
   closeModal: _react2.default.PropTypes.func.isRequired,
   show: _react2.default.PropTypes.bool.isRequired,
-  modalType: _react2.default.PropTypes.string.isRequired,
   jobType: _react2.default.PropTypes.string
 };
 
