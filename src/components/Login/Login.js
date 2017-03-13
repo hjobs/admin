@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, FormGroup, ControlLabel, FormControl, HelpBlock } from 'react-bootstrap';
 
-import Variable from '../../services/var';
+import Http from '../../services/http';
 
 class Login extends React.Component {
   constructor(props) {
@@ -24,7 +24,7 @@ class Login extends React.Component {
         password: ""
       }
     };
-    this.vars = new Variable();
+    this.http = new Http();
   }
 
   submit() {
@@ -47,44 +47,34 @@ class Login extends React.Component {
   }
 
   signInUp(formData) {
-    const headers = {"Content-Type": "application/json"};
-    let
-      url = this.vars.baseUrl,
-      bodyData;
+    let urlSuffix;
+    let bodyData;
 
     if (this.state.signInUp === 'in') {
-      bodyData = JSON.stringify(formData);
-      url += 'authenticate';
+      bodyData = (formData);
+      urlSuffix = 'authenticate';
     } else if (this.state.signInUp === 'up') {
-      bodyData = JSON.stringify({org: formData});
-      url += 'orgs';
+      bodyData = {org: formData};
+      urlSuffix = 'orgs';
     } else {
       window.alert("Sorry, there is an error, please contact admin if problem persists");
     }
 
-    fetch(url, {
-        method: 'POST',
-        headers,
-        body: bodyData
-      })
-        .then(res => {
-          console.log(res);
-          if (res.status > 300) {
-            this.setState({errorMsg: res.statusText});
-          } else {
-            return res.json();
-          }
-        })
-        .then(d => {
-          console.log(d);
-          if (d && d.auth_token) {
-            localStorage.setItem("authToken", d.auth_token);
-            this.props.signInUp({org: d.org, me: d.me, auth_token: d.auth_token});
-          } else if (d && d.error) {
-            localStorage.removeItem("authToken");
-            this.setState({errorMsg: d.error.employer_authentication });
-          }
-        });
+    this.http.request(urlSuffix, "POST", bodyData).then(res => {
+      console.log(res);
+      if (!res.ok) return this.setState(s => { s.errorMsg = res.statusText; return s; });
+      return res.json();
+    })
+    .then(d => {
+      console.log(d);
+      if (!!d && d.error) {
+        this.http.setAuthToken();
+        this.setState(s => { s.errorMsg = d.error.employer_authentication; return s; });
+      } else if (!!d && d.auth_token) {
+        this.http.setAuthToken(d.auth_token);
+        this.props.signInUp({org: d.org, me: d.employer, authToken: d.auth_token});
+      }
+    });
   }
 
   logoUnderstood() {

@@ -6,7 +6,8 @@ let Loading = require('react-loading');
 // import Job from './Job';
 import AddItemModal from './AddItemModal';
 
-import Variable from '../../services/var';
+// import Variable from '../../services/var';
+import Http from '../../services/http';
 
 class Board extends React.Component {
   constructor(props) {
@@ -28,7 +29,8 @@ class Board extends React.Component {
       projects: null,
       errorMsg: null
     };
-    this.vars = new Variable();
+    console.log(["Board constructor called"]);
+    this.http = new Http();
   }
 
   componentWillMount() {
@@ -48,63 +50,43 @@ class Board extends React.Component {
       s.loading = true;
       return s;
     }, () => {
-      const url = this.vars.baseUrl + 'orgs/showPostings';
-      fetch(url, {
-        method: 'GET',
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: this.props.authToken
-        }
+      this.http.request("orgs/showPostings").then(res => {
+        console.log(res);
+        if (res.ok) return res.json();
+        onError(res.statusTExt);
+        throw Error(res.statusText);
+      }, err => onError(err))
+      .then(d => {
+        // console.log(d);
+        if (d && d.org) {
+          this.setState(s => {
+            s.stableJobs = d.stable_jobs;
+            s.quickJobs = d.quick_jobs;
+            s.internships = d.internships;
+            s.projects = d.projects;
+            s.loading = false;
+            return s;
+          });
+        } else this.props.signOut();
       })
-        .then(res => {
-          // console.log(res);
-          if (res.ok) {
-            return res.json();
-          }
-          onError(res.statusTExt);
-          throw Error(res.statusText);
-        }, err => onError(err))
-        .then(d => {
-          // console.log(d);
-          if (d && d.org) {
-            this.setState(s => {
-              s.stableJobs = d.stable_jobs;
-              s.quickJobs = d.quick_jobs;
-              s.internships = d.internships;
-              s.projects = d.projects;
-              s.loading = false;
-              return s;
-            }, () => {
-              // console.log("app.js loadData is called, setState, will log this.state");
-              // console.log(this.state);
-            });
-          }
-        })
-        .catch(err => onError(err));
+      .catch(err => onError(err));
     });
   }
 
   showDescription(object) {
     console.log(object);
-    window.alert(object.description);
+    if (!!object) alert(object.description);
   }
 
   togglePanel(type) {
-    const obj = {};
-    obj.panelOpen = this.state.panelOpen;
-    obj.panelOpen[type] = !obj.panelOpen[type];
-    this.setState(obj);
+    this.setState(s => {
+      s.panelOpen[type] = !s.panelOpen[type];
+      return s;
+    });
   }
 
-  delete(dataType, id) {
-    const url = this.vars.baseUrleUrl + dataType + 's/' + id;
-    fetch(url, {
-      method: 'DELETE',
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: this.props.authToken
-      }
-    }).then(res => {
+  delete(id) {
+    this.http.request('jobs/' + id, "DELETE").then(res => {
       if (res.ok) return res.json();
       return {error: true};
     }).then(d => {
@@ -138,6 +120,8 @@ class Board extends React.Component {
   }
 
   render() {
+    if (!!this.state.loading) return (<div className="flex-row flex-vhCenter"><Loading type="bubbles" color="#337ab7" /></div>);
+    if (!!this.state.errorMsg) return (<div className="flex-row full-width" style={{minHeight: '50px'}}> this.state.errorMsg </div>);
     let quickJobsTable, stableJobsTable, projectsTable;
     if (!this.state.loading && !this.state.errorMsg) {
       quickJobsTable = this.state.quickJobs.map(data => {
@@ -172,7 +156,7 @@ class Board extends React.Component {
               <Button
                 bsSize="small"
                 bsStyle="link"
-                onClick={() => { this.delete('job', data.id); }}
+                onClick={() => { this.delete(data.id); }}
               >
                 X
               </Button>
@@ -213,7 +197,7 @@ class Board extends React.Component {
               <Button
                 bsSize="small"
                 bsStyle="link"
-                onClick={() => { this.delete('job', data.id); }}
+                onClick={() => { this.delete(data.id); }}
               >
                 X
               </Button>
@@ -242,7 +226,7 @@ class Board extends React.Component {
               <Button
                 bsSize="small"
                 bsStyle="link"
-                onClick={() => { this.delete('project', data.id); }}
+                onClick={() => { this.delete(data.id); }}
               >
                 X
               </Button>
@@ -252,124 +236,113 @@ class Board extends React.Component {
       });
     }
 
-    return this.state.loading ? (<div className="flex-row flex-vhCenter"><Loading type="bubbles" color="#337ab7" /></div>) : (
-      this.state.errorMsg ?
-        <div className="flex-row full-width" style={{minHeight: '50px'}}>
-          this.state.errorMsg
-        </div> :
-        <section className="board">
-          <p>You have posted {this.state.quickJobs.length} quick jobs, {this.state.stableJobs.length} stable jobs, and {this.state.projects.length} projects.</p>
+    return (
+      <section className="board">
+        <p>You have posted {this.state.quickJobs.length} quick jobs, {this.state.stableJobs.length} stable jobs, and {this.state.projects.length} projects.</p>
 
-          <div className="toggle-div">
-            <h4 className="inline">Quick Jobs</h4>
-            <Button bsStyle="link" onClick={() => { this.togglePanel('quick'); }}>
-              {this.state.panelOpen.quick ? "collapse" : "show" } ({this.state.quickJobs.length})
-            </Button>
-            <div className="flex-col flex-vhCenter">
-              <Button
-                bsStyle="primary"
-                bsSize="small"
-                className="add"
-                onClick={() => { this.showAddItemModal('job','quick'); }}> + </Button>
-            </div>
+        <div className="toggle-div">
+          <h4 className="inline">Quick Jobs</h4>
+          <Button bsStyle="link" onClick={() => { this.togglePanel('quick'); }}>
+            {this.state.panelOpen.quick ? "collapse" : "show" } ({this.state.quickJobs.length})
+          </Button>
+          <div className="flex-col flex-vhCenter">
+            <Button
+              bsStyle="primary"
+              bsSize="small"
+              className="add"
+              onClick={() => { this.showAddItemModal('job','quick'); }}> + </Button>
           </div>
-          <Panel collapsible expanded={this.state.panelOpen.quick}>
-            <Table responsive striped>
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Updated At</th>
-                  <th>Salary</th>
-                  <th>Show Description</th>
-                  <th>Delete</th>
-                </tr>
-              </thead>
-              <tbody>
-                {quickJobsTable}
-              </tbody>
-            </Table>
-          </Panel>
+        </div>
+        <Panel collapsible expanded={this.state.panelOpen.quick}>
+          <Table responsive striped>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Updated At</th>
+                <th>Salary</th>
+                <th>Show Description</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              {quickJobsTable}
+            </tbody>
+          </Table>
+        </Panel>
 
-          <div className="toggle-div">
-            <h4 className="inline">Stable Jobs</h4>
-            <Button bsStyle="link" onClick={() => { this.togglePanel('stable') }}>
-              {this.state.panelOpen.stable ? "collapse" : "show" } ({this.state.stableJobs.length})
-            </Button>
-            <div className="flex-col flex-vhCenter">
-              <Button
-                bsStyle="primary"
-                bsSize="small"
-                className="add"
-                onClick={() => { this.showAddItemModal('job','stable'); }}> + </Button>
-            </div>
+        <div className="toggle-div">
+          <h4 className="inline">Stable Jobs</h4>
+          <Button bsStyle="link" onClick={() => { this.togglePanel('stable') }}>
+            {this.state.panelOpen.stable ? "collapse" : "show" } ({this.state.stableJobs.length})
+          </Button>
+          <div className="flex-col flex-vhCenter">
+            <Button
+              bsStyle="primary"
+              bsSize="small"
+              className="add"
+              onClick={() => { this.showAddItemModal('job','stable'); }}> + </Button>
           </div>
-          <Panel collapsible expanded={this.state.panelOpen.stable}>
-            <Table responsive striped>
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Updated At</th>
-                  <th>Salary</th>
-                  <th>Show Description</th>
-                  <th>Delete</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stableJobsTable}
-              </tbody>
-            </Table>
-          </Panel>
+        </div>
+        <Panel collapsible expanded={this.state.panelOpen.stable}>
+          <Table responsive striped>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Updated At</th>
+                <th>Salary</th>
+                <th>Show Description</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stableJobsTable}
+            </tbody>
+          </Table>
+        </Panel>
 
-          <div className="toggle-div">
-            <h4 className="inline">Projects</h4>
-            <Button bsStyle="link" onClick={() => { this.togglePanel('projects'); }}>
-              {this.state.panelOpen.projects ? "collapse" : "show" } ({this.state.projects.length})
-            </Button>
-            <div className="flex-col flex-vhCenter">
-              <Button
-                bsStyle="primary"
-                bsSize="small"
-                className="add"
-                onClick={() => { this.showAddItemModal('project'); }}> + </Button>
-            </div>
+        <div className="toggle-div">
+          <h4 className="inline">Projects</h4>
+          <Button bsStyle="link" onClick={() => { this.togglePanel('projects'); }}>
+            {this.state.panelOpen.projects ? "collapse" : "show" } ({this.state.projects.length})
+          </Button>
+          <div className="flex-col flex-vhCenter">
+            <Button
+              bsStyle="primary"
+              bsSize="small"
+              className="add"
+              onClick={() => { this.showAddItemModal('project'); }}> + </Button>
           </div>
-          <Panel collapsible expanded={this.state.panelOpen.projects}>
-            <Table responsive striped>
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Updated at</th>
-                  <th>Reward</th>
-                  <th>Show Description</th>
-                  <th>Delete</th>
-                </tr>
-              </thead>
-              <tbody>
-                {projectsTable}
-              </tbody>
-            </Table>
-          </Panel>
+        </div>
+        <Panel collapsible expanded={this.state.panelOpen.projects}>
+          <Table responsive striped>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Updated at</th>
+                <th>Reward</th>
+                <th>Show Description</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              {projectsTable}
+            </tbody>
+          </Table>
+        </Panel>
 
-          {
-            this.state.showAddItemModal ?
-              <AddItemModal
-                authToken={this.props.authToken}
-                baseUrl={this.vars.baseUrleUrl}
-                show={this.state.showAddItemModal}
-                modalType={this.state.addItemModalType}
-                jobType={this.state.addItemJobType}
-                closeModal={ (refresh) => { this.closeAddItemModal(refresh); }}
-              />
-              : null
-          }
-        </section>
-    );
-  }
+        <AddItemModal
+          show={this.state.showAddItemModal}
+          modalType={this.state.addItemModalType}
+          jobType={this.state.addItemJobType}
+          closeModal={ (refresh) => { this.closeAddItemModal(refresh); }}
+        />
+      </section>
+    ); // end render return()
+  } // end render
 }
 
 Board.propTypes = {
-  authToken: React.PropTypes.string,
-  baseUrl: React.PropTypes.string,
+  signOut: React.PropTypes.func.isRequired,
   org: React.PropTypes.any,
   me: React.PropTypes.any
 };

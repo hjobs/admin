@@ -85,15 +85,23 @@ h1,h2,h3,h4,h5,h6 {
       margin-bottom: 0px;
     }
   }
-  .addItemModal {
-    textarea {
-      max-width: 100% !important;
-    }
-  }
 
   .custom-tooltip {
     z-index: 1000000 !important;
   }
+}
+
+.addItemModal {
+  // margin: 0px;
+  @media screen and (max-width: $phoneTall) { margin: 5vh 5vw; width: 90vw; }
+  textarea { max-width: 100% !important; }
+  .modal-content {
+    @media screen and (max-width: $phoneTall) { width: 100%; max-height: 90vh; }
+    @media screen and (min-width: $phoneTall) { max-height: calc(100vh - 60px); }
+    // margin: 5vh 5vw; width: 90vw; max-height: 90vh;
+  }
+  .modal-body { max-height: calc(100% - (55.5px - 2px)); }
+  .modal-footer { max-height: 55.5px; }
 }
 
 .editable {

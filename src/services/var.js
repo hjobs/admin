@@ -1,11 +1,6 @@
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 class Variable {
-  constructor() {
-    // this.baseUrl = "http://api.hjobs.hk:9080/employer/";
-    this.baseUrl = "http://dev.hjobs.hk:9080/employer/";
-    // this.baseUrl = "http://localhost:9080/employer/";
-  }
 
   /** @return {number} - 2 digit @param {number} num - 1 to 2 digit */
   pad2(num) { return (num < 10) ? '0' + num.toString() : num; }

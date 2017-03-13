@@ -7,37 +7,32 @@ import Board from './Board/Board';
 import Login from './Login/Login';
 import Profile from './Profile/Profile';
 
-import Variable from '../services/var';
+// import Variable from '../services/var';
+import Http from '../services/http';
 
 class App extends React.Component {
   constructor() {
     super();
     this.state = {
         currentTab: 'board',
-        authToken: null
+        org: null,
+        me: null
     };
-    this.vars = new Variable();
+    this.http = new Http();
   }
 
-  componentWillMount() {
-    // console.log("inside componentWillMount on App.js");
-    // console.log(this.state);
-    const token = window.localStorage.getItem("authToken");
-    if (token) this.setState(s => { s.authToken = token; return s; });
-  }
-
-  signInUp({org, me, auth_token}) {
+  signInUp({org, me, authToken}) {
+    this.http.setAuthToken(authToken);
     this.setState(s => {
       s.org = org;
       s.me = me;
-      if (auth_token) s.authToken = auth_token;
       return s;
     });
   }
 
   signOut() {
-    this.setState(s => { s.authToken = null; return s; });
-    localStorage.removeItem("authToken");
+    this.setState(s => { s.org = null; s.me = null; return s; });
+    this.http.setAuthToken();
   }
 
   /** @param {'board'|'profile'|'logout'} eventKey */
@@ -48,34 +43,31 @@ class App extends React.Component {
 
   render() {
     let content;
-    if (this.state.authToken) {
+    if (!!this.http.authToken) {
       switch (this.state.currentTab) {
         case 'board': default:
           content = (
             <Board
-              authToken={this.state.authToken}
+              signOut={() => { this.signOut(); }}
               org={this.state.org}
               me={this.state.me} />
           );
           break;
         case 'profile':
           content = (
-            <Profile
-              authToken={this.state.authToken}
-            />
+            <Profile />
           );
           break;
       }
     } else {
       content = (
-        <Login
-          signInUp={({org, me, auth_token}) => { this.signInUp({org, me, auth_token}); }} />
+        <Login signInUp={({org, me, authToken}) => { this.signInUp({org, me, authToken}); }} />
       );
     }
 
     return (
       <div>
-        {this.state.authToken ?
+        {!!this.http.authToken ?
           <Navbar
             fluid inverse
             collapseOnSelect fixedTop
@@ -86,13 +78,13 @@ class App extends React.Component {
               </Navbar.Brand>
               <Navbar.Toggle />
             </Navbar.Header>
-              <Navbar.Collapse>
-                <Nav pullRight>
-                  <NavItem eventKey={'board'} href="#">Board</NavItem>
-                  <NavItem eventKey={'profile'} href="#">Profile</NavItem>
-                  <NavItem eventKey={'logout'} href="#">Logout</NavItem>
-                </Nav>
-              </Navbar.Collapse>
+            <Navbar.Collapse>
+              <Nav pullRight>
+                <NavItem eventKey={'board'} href="#">Board</NavItem>
+                <NavItem eventKey={'profile'} href="#">Profile</NavItem>
+                <NavItem eventKey={'logout'} href="#">Logout</NavItem>
+              </Nav>
+            </Navbar.Collapse>
           </Navbar>
           : null
         }
