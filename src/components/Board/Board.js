@@ -1,10 +1,11 @@
+import Flatpickr from 'react-flatpickr';
 import React from 'react';
 import { Button, Panel, Table } from 'react-bootstrap';
 import 'whatwg-fetch';
 let Loading = require('react-loading');
 
 // import Job from './Job';
-import AddItemModal from './AddItemModal';
+import AddItemModal from '../AddItemModal/AddItemModal';
 
 // import Variable from '../../services/var';
 import Http from '../../services/http';
@@ -18,9 +19,9 @@ class Board extends React.Component {
       addItemModalType: null,
       addItemJobType: null,
       panelOpen: {
-        quick: false,
-        stable: false,
-        projects: false
+        quick: true,
+        stable: true,
+        projects: true
       },
       loading: true,
       quickJobs: null,
@@ -239,7 +240,27 @@ class Board extends React.Component {
     return (
       <section className="board">
         <p>You have posted {this.state.quickJobs.length} quick jobs, {this.state.stableJobs.length} stable jobs, and {this.state.projects.length} projects.</p>
-
+        <Flatpickr
+          options={{
+            enableTime: true,
+            utc: true,
+            minDate: new Date(),
+            noCalendar: true,
+            time_24hr: true,
+            disableMobile: false
+          }}
+          onChange={v => console.info(v)}
+        />
+        <Flatpickr
+          options={{
+            mode: "multiple",
+            utc: true,
+            minDate: new Date(),
+            altInput: true,
+            altFormat: "F j"
+          }}
+          onChange={v => console.info(v)}
+        />
         <div className="toggle-div">
           <h4 className="inline">Quick Jobs</h4>
           <Button bsStyle="link" onClick={() => { this.togglePanel('quick'); }}>
