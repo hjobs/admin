@@ -76738,7 +76738,7 @@ var Board = function (_React$Component) {
           { className: 'flex-col flex-vhCenter' },
           _react2.default.createElement(_semanticUiReact.Icon, {
             name: 'plus circle',
-            size: 'huge',
+            size: 'big',
             link: true,
             className: 'add',
             onClick: function onClick() {
@@ -77935,8 +77935,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 // import Variable from './var';
 // const vars = new Variable();
 
-// const baseUrl = "http://api.hjobs.hk:9080/employer/";
-var baseUrl = "http://dev.hjobs.hk:9080/employer/";
+var baseUrl = "http://api.hjobs.hk:9080/employer/";
+// const baseUrl = "http://dev.hjobs.hk:9080/employer/";
 // const baseUrl = "http://localhost:9080/employer/";
 
 var Http = function () {
