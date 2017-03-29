@@ -23,7 +23,6 @@ class Http {
       method: httpMethod,
       headers: { "Content-Type": "application/json" }
     };
-    console.log(["this.authToken in request", this.authtoken]);
     if (localStorage.getItem("authToken")) { obj.headers.Authorization = localStorage.getItem("authToken"); }
     if (data) { obj.body = JSON.stringify(data); }
     console.log(["inside http.js, url, obj", url, obj, data]);

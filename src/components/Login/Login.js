@@ -132,7 +132,7 @@ class Login extends React.Component {
       { (this.state.signInUp === "in") ?
         (
         <section className="signin">
-          <p className="text-right link" onClick={() => { this.toggleInUp(); }}>Sign Up here!</p>
+          <p className="text-right link" onClick={() => { this.toggleInUp(); }} style={{paddingBottom: "30px"}}>Sign Up here!</p>
           <h2 className="text-center">Login</h2>
           <form onSubmit={(e) => { e.preventDefault(); this.submit(); }}>
             { fieldGroup({
@@ -155,7 +155,7 @@ class Login extends React.Component {
         :
         (
         <section className="signup">
-          <p className="link text-right" onClick={() => { this.toggleInUp(); }}>Already have an account? Log In here!</p>
+          <p className="link text-right" onClick={() => { this.toggleInUp(); }} style={{paddingBottom: "30px"}}>Already have an account? Log In here!</p>
           <h2 className="text-center">SignUp</h2>
           <form onSubmit={(e) => { e.preventDefault(); this.submit(); }}>
             { fieldGroup({
@@ -169,23 +169,6 @@ class Login extends React.Component {
               label: "Description (optional)",
               help: "Let people know what your organisation is about in a short description"
             }) */}
-            {
-              this.state.logoUnderstood ?
-                fieldGroup({
-                  id: "up-logo",
-                  type: "text",
-                  label: "Logo (Dropbox Link)",
-                  help: "Please upload your company's logo, in a square, to your desired cloud service, and attach a download link here."
-                })
-                :
-                <FormGroup>
-                  <ControlLabel>Logo (Dropbox Link)</ControlLabel>
-                  <HelpBlock>
-                    Please upload your company's logo, in a square to dropbox, and attach a download link here.
-                    <Button className="logo-button" bsSize="xs" bsStyle="primary" onClick={() => { this.logoUnderstood(); }}>I Understand</Button>
-                  </HelpBlock>
-                </FormGroup>
-            }
             { fieldGroup({
               id: "up-email",
               type: "username",
@@ -196,6 +179,19 @@ class Login extends React.Component {
               type: "password",
               label: "Enter a password"
             })}
+            {
+              this.state.logoUnderstood ?
+                fieldGroup({
+                  id: "up-logo",
+                  type: "text",
+                  label: "Logo (Dropbox Link)",
+                  help: "Please upload your company's logo in square to dropbox, and attach a download link here. Or send us an email to info@hjobs.hk with the attached photo"
+                }) :
+                <div className="flex-row flex-vEnd">
+                  <Button type="submit" bsStyle="primary" className="logo-button" onClick={() => { this.logoUnderstood(); }} bsSize="small">Add a logo</Button>
+                  <span style={{color: "#404040", padding: "3px"}}> This would make your posting much more attractive</span>
+                </div>
+            }
             <p className="error">{this.state.errorMsg}</p>
             <div className="flex-row flex-vhCenter">
               <Button type="submit" bsStyle="primary">Submit</Button>

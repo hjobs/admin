@@ -73,22 +73,22 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 .board {
-  .add {
-    border-radius: 50% !important;
-    margin-bottom: 5px;
-  }
+  .add { color: $bright-bkgd; }
   .toggle-div {
     padding: 15px 10px 2px 10px;
-    background-color: #EEE;
-    h3 {
-      margin-top: 0px;
-      margin-bottom: 0px;
-    }
+    color: $dark-bkgd;
+    text-align: center;
   }
-
   .custom-tooltip {
     z-index: 1000000 !important;
   }
+  .panel {
+    margin-bottom: 0px;
+    // box-shadow: 0px 0px 0px;
+    border-color: transparent;
+  }
+  .panel-body {padding: 0px;}
+  .table-responsive {margin-bottom: 0px;}
 }
 
 .addItemModal {
@@ -100,9 +100,25 @@ h1,h2,h3,h4,h5,h6 {
     @media screen and (min-width: $phoneTall) { max-height: calc(100vh - 60px); }
     // margin: 5vh 5vw; width: 90vw; max-height: 90vh;
   }
-  .modal-body { max-height: calc(100% - (55.5px - 2px) - 60px); }
+  .modal-body { max-height: calc(100vh - (55.5px - 2px) - 60px); overflow: scroll; }
   .modal-footer { max-height: 55.5px; }
+  .time-input { width: 3em; }
+  .flatpickr-input.flatpickr-input.form-control.input { height: 25px; overflow: scroll; }
+  label,.label { font-size: 16px; font-weight: bold; }
+  .chosen-bubble {
+    background-color: transparent;
+    color: #444;
+    border: 1px solid #AAA;
+  }
+  input { font-size: 12px; }
 }
+
+.padded-side { padding: 0px 7px; }
+.padded-vertical { padding: 7px 0px; }
+.padded { padding: 7px; }
+.margin-side { margin: 0px 7px; }
+.margin-vertical { margin: 7px 0px; }
+.margin { margin: 7px; }
 
 .editable {
   .fa {cursor: pointer; color: #337ab7;}

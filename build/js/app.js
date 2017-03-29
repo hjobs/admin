@@ -75280,7 +75280,7 @@ window.React = _react2.default;
 // import { Router, Route, hashHistory } from 'react-router';
 (0, _reactDom.render)(_react2.default.createElement(_App2.default, null), document.getElementById('app'));
 
-},{"./components/App":1076,"react":874,"react-dom":719}],1074:[function(require,module,exports){
+},{"./components/App":1077,"react":874,"react-dom":719}],1074:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -75309,9 +75309,13 @@ var _http = require('../../services/http');
 
 var _http2 = _interopRequireDefault(_http);
 
-var _ChoiceComponent = require('./ChoiceComponent');
+var _RewardComponent = require('./RewardComponent');
 
-var _ChoiceComponent2 = _interopRequireDefault(_ChoiceComponent);
+var _RewardComponent2 = _interopRequireDefault(_RewardComponent);
+
+var _TimeComponent = require('./TimeComponent');
+
+var _TimeComponent2 = _interopRequireDefault(_TimeComponent);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -75333,48 +75337,66 @@ var AddItemModal = function (_React$Component) {
 
     _this.vars = new _var2.default();
     _this.http = new _http2.default();
-    _this.state = {
-      job: {
-        title: "",
-        description: "",
-        attachment_url: "",
-        employment_type: [],
-        job_type: props.jobType || "quick",
-        salary_type: "",
-        salary_value: "",
-        salary_high: "",
-        salary_low: ""
-      },
-      reward: {
-        chosen: [],
-        toChoose: _this.vars.salaryChoices.root
-      },
-      loading: false
-    };
+    _this.state = _this.getBlankState();
     return _this;
   }
 
-  /*
-  attachment_url
-  deadline: datetime
-  description: text
-  job_type: integer
-  position: string
-   reward_type (salary_type: string)
-  reward_high (salary_high: integer)
-  reward_low (salary_low: integer)
-  reward_value (salary_value: text)
-  */
-
   _createClass(AddItemModal, [{
+    key: 'getBlankState',
+    value: function getBlankState() {
+      return {
+        job: {
+          title: "",
+          description: "",
+          event: "",
+          langs: [],
+          attachment_url: "",
+          employment_types: [],
+          job_type: "quick",
+          salary_type: "",
+          salary_value: "",
+          salary_high: "",
+          salary_low: "",
+          salary_unit: "hour"
+        },
+        reward: {
+          chosen: [],
+          toChoose: this.vars.salaryChoices.monetary1
+        },
+        period: {
+          dateArr: [],
+          startTimeHour: "",
+          startTimeMinute: "",
+          endTimeHour: "",
+          endTimeMinute: ""
+        },
+        progress: {
+          // reward: 0,
+          period: 0
+        },
+        isEvent: false,
+        hasLang: false,
+        loading: false,
+        errorMessage: null
+      };
+    }
+  }, {
     key: 'save',
     value: function save() {
       var _this2 = this;
 
-      this.setState(function (s) {
+      var method = this.props.type === "new" ? "POST" : "PATCH";
+      var processData = this.vars.getJobHttpObject(this.state);
+      console.log(processData);
+      if (!!processData.error && processData.error.length > 0) {
+        return this.setState(function (s) {
+          s.errorMessage = processData.error.join("\n ");return s;
+        });
+      }
+      return this.setState(function (s) {
         s.loading = true;
       }, function () {
-        _this2.http.request('jobs', "POST", { jobs: _this2.state.job }).then(function (res) {
+        _this2.http.request('jobs', method, { job: processData.data }).then(function (res) {
           console.log(res);
           if (!res.ok) return _this2.setState(function (s) {
             s.loading = false;s.errorMessage = res.statusText;return s;
@@ -75382,8 +75404,8 @@ var AddItemModal = function (_React$Component) {
           return res.json();
         }).then(function (d) {
           if (!d) return;
-          _this2.setState(function (s) {
-            s.loading = false;s.errorMessage = null;return s;
+          _this2.setState(function () {
+            return _this2.getBlankState();
           }, function () {
             _this2.props.closeModal(true);
           });
@@ -75411,28 +75433,31 @@ var AddItemModal = function (_React$Component) {
         return s;
       });
     }
+
+    /** @param {"add"|"remove"} addOrRemove */
+
   }, {
-    key: 'choiceComponentOnAdd',
-    value: function choiceComponentOnAdd(key, option) {
+    key: 'rewardChangeChoice',
+    value: function rewardChangeChoice(addOrRemove, option) {
       var _this3 = this;
 
       this.setState(function (s) {
-        s[key].toChoose = _this3.vars.salaryChoices[option.nextPointer];
-        s[key].chosen.push(option);
-      });
-    }
-  }, {
-    key: 'choiceComponentOnRemove',
-    value: function choiceComponentOnRemove(key, option) {
-      var _this4 = this;
-
-      this.setState(function (s) {
-        s[key].toChoose = _this4.vars.salaryChoices[option.selfPointer];
-        var index = s[key].chosen.indexOf(option);
-        s[key].chosen = s[key].chosen.slice(0, index);
+        if (addOrRemove === "add") {
+          s.reward.toChoose = _this3.vars.salaryChoices[option.nextPointer];
+          s.reward.chosen.push(option);
+          if (!!option.fieldName) s.job[option.fieldName] = option.value;
+        } else if (addOrRemove === "remove") {
+          if (option.selfPointer === "monetary1") {
+            s.job.salary_high = "";s.job.salary_low = "";s.job.salary_value = "";s.job.salary_unit = "hour";
+          }
+          if (!!option.fieldName) s.job[option.fieldName] = "";
+          s.reward.toChoose = _this3.vars.salaryChoices[option.selfPointer];
+          var index = s.reward.chosen.indexOf(option);
+          s.reward.chosen = s.reward.chosen.slice(0, index);
+        }
         return s;
       }, function () {
-        console.log(["choiceCOmponentOnRemove, key option state", key, option, _this4.state]);
+        console.log(["choiceCOmponentOnRemove, key option state", option, _this3.state]);
       });
     }
   }, {
@@ -75440,9 +75465,37 @@ var AddItemModal = function (_React$Component) {
     value: function changeJobType(jobTypeObject) {
       if (this.state.job.job_type !== jobTypeObject.value) {
         this.setState(function (s) {
-          s.job.job_type = jobTypeObject.value;return s;
+          s.job.job_type = jobTypeObject.value;
+          if (s.job.job_type !== "stable" && s.progress.period === -1) {
+            s.progress.period = 0;
+          }
+          return s;
         });
       }
+    }
+  }, {
+    key: 'periodChange',
+    value: function periodChange() {
+      var _this4 = this;
+
+      var periodObject = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var progress = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+      console.log(["key, data, period = ", periodObject, progress]);
+      // if (key === "reset") return this.setState(s => { s.period = {dateArr: [], startTimeHour: "", startTimeMinute: "", endTimeHour: "", endTimeMinute: ""}; s.progress.period = 0; return s; });
+      return this.setState(function (s) {
+        if (!!periodObject) {
+          for (var key in periodObject) {
+            s.period[key] = periodObject[key];
+          }
+        }
+        if (progress !== null && progress !== undefined) {
+          s.progress.period = progress;
+        }
+        return s;
+      }, function () {
+        return console.log(_this4.state);
+      });
     }
   }, {
     key: 'render',
@@ -75491,37 +75544,24 @@ var AddItemModal = function (_React$Component) {
         );
       };
 
-      var checkbox = function checkbox(_ref2) {
-        var id = _ref2.id,
-            label = _ref2.label,
-            help = _ref2.help,
-            itemArr = _ref2.itemArr;
-
-        return _react2.default.createElement(
-          _reactBootstrap.FormGroup,
-          null,
-          label ? _react2.default.createElement(
-            _reactBootstrap.ControlLabel,
-            null,
-            label
-          ) : null,
-          ' ',
-          itemArr.map(function (item) {
-            return _react2.default.createElement(
-              _reactBootstrap.Checkbox,
-              {
-                key: "job" + "_" + id + "_" + item.value,
-                onClick: function onClick() {
-                  _this5.changeEmploymentType(item.value);
-                }, inline: true },
-              item.name,
-              ' ',
-              ' '
-            );
-          }),
-          help
-        );
-      };
+      // const checkbox = ({id, label, help, itemArr}) => {
+      //   return (
+      //     <FormGroup>
+      //       { label ? <ControlLabel>{label}</ControlLabel> : null }
+      //       {' '}
+      //       {
+      //         itemArr.map(item =>
+      //           <Checkbox
+      //             key={"job" + "_" + id + "_" + item.value}
+      //             onClick={() => { this.changeEmploymentType(item.value); }} inline>
+      //             {item.name} {' '}
+      //           </Checkbox>
+      //         )
+      //       }
+      //       {help}
+      //     </FormGroup>
+      //   );
+      // };
 
       return _react2.default.createElement(
         _reactBootstrap.Modal,
@@ -75539,14 +75579,15 @@ var AddItemModal = function (_React$Component) {
                 result.push(_react2.default.createElement(
                   _semanticUiReact.Button,
                   {
+                    key: 'job-type-choice-' + jobType.value,
                     onClick: function onClick() {
                       _this5.changeJobType(jobType);
                     },
-                    color: _this5.state.job.job_type === jobType.value ? "black" : "transparent"
+                    color: _this5.state.job.job_type === jobType.value ? "black" : null
                   },
                   jobType.name
                 ));
-                if (i < arr.length - 1) result.push(_react2.default.createElement(_semanticUiReact.Button.Or, null));
+                if (i < arr.length - 1) result.push(_react2.default.createElement(_semanticUiReact.Button.Or, { key: 'button-separator-' + i }));
                 return result;
               }, [])
             )
@@ -75555,7 +75596,7 @@ var AddItemModal = function (_React$Component) {
             id: "title",
             label: "Job Title",
             type: "text",
-            placeholder: "e.g. Bartender, quick help on special event"
+            placeholder: "e.g. Bartender"
           }),
           fieldGroup({
             id: "description",
@@ -75569,16 +75610,102 @@ var AddItemModal = function (_React$Component) {
             type: "text",
             placeholder: "e.g. https://www.dropbox.com/s/mv7h76ivci2/VTafwn.pdf?dl=0"
           }),
-          _react2.default.createElement(_ChoiceComponent2.default, {
-            addChoice: function addChoice(option) {
-              _this5.choiceComponentOnAdd("reward", option);
+          _react2.default.createElement(
+            'label',
+            null,
+            'Additional Info'
+          ),
+          _react2.default.createElement(
+            'div',
+            null,
+            _react2.default.createElement(_semanticUiReact.Checkbox, {
+              checked: this.state.isEvent,
+              label: 'this is an event',
+              onClick: function onClick() {
+                _this5.setState(function (s) {
+                  s.isEvent = !_this5.state.isEvent;
+                  if (!s.isEvent) s.job.event = "";
+                  return s;
+                });
+              }
+            }),
+            "   ",
+            !this.state.isEvent ? null : _react2.default.createElement(_semanticUiReact.Input, {
+              focus: this.state.isEvent,
+              size: 'mini',
+              value: this.state.job.event,
+              onChange: function onChange(e, d) {
+                _this5.setState(function (s) {
+                  s.job.event = d.value;
+                });
+              },
+              placeholder: 'Event name here'
+            })
+          ),
+          _react2.default.createElement(
+            'div',
+            { style: { fontSize: "12px" } },
+            _react2.default.createElement(_semanticUiReact.Checkbox, {
+              checked: this.state.hasLang,
+              label: 'has language requirement',
+              onClick: function onClick() {
+                _this5.setState(function (s) {
+                  s.hasLang = !_this5.state.hasLang;
+                  if (!s.isEvent) s.job.langs = [];
+                  return s;
+                });
+              }
+            }),
+            "   ",
+            !this.state.hasLang ? null :
+            /*
+            <Input
+              focus={this.state.hasLang}
+              size="mini"
+              value={this.state.job.lang}
+              onChange={(e, d) => { this.setState(s => { s.job.lang = d.value; }); }}
+              placeholder="Lang"
+            />
+            */
+            _react2.default.createElement(_semanticUiReact.Dropdown, {
+              multiple: true,
+              placeholder: 'choose here',
+              onChange: function onChange(e, data) {
+                _this5.setState(function (s) {
+                  s.job.langs = data.value;
+                  return s;
+                });
+              },
+              options: [{ key: "english", text: "English", value: "english" }, { key: "cantonese", text: "Cantonese", value: "cantonese" }, { key: "mandarin", text: "Mandarin", value: "mandarin" }]
+            })
+          ),
+          _react2.default.createElement(_RewardComponent2.default, {
+            onChangeChoice: function onChangeChoice(addOrRemove, option) {
+              _this5.rewardChangeChoice(addOrRemove, option);
             },
-            removeChoice: function removeChoice(option) {
-              _this5.choiceComponentOnRemove("reward", option);
+            onChangeInput: function onChangeInput(key, data) {
+              _this5.handleFormChange(key, data);
             },
             choicesChosen: this.state.reward.chosen,
-            choicesToChoose: this.state.reward.toChoose
-          })
+            choicesToChoose: this.state.reward.toChoose,
+            customData: this.state.job,
+            progress: this.state.progress.reward
+          }),
+          _react2.default.createElement(_TimeComponent2.default, {
+            jobType: this.state.job.job_type,
+            type: 'period',
+            setDate: function setDate() {},
+            onChange: function onChange(key, data, period) {
+              _this5.periodChange(key, data, period);
+            },
+            data: this.state.period,
+            progress: this.state.progress.period
+          }),
+          _react2.default.createElement(
+            'p',
+            { style: { color: "red", whiteSpace: "pre-line", textAlign: "center", fontSize: "12px", paddingTop: "14px" } },
+            this.state.errorMessage
+          )
         ),
         _react2.default.createElement(
           _reactBootstrap.Modal.Footer,
@@ -75611,13 +75738,14 @@ var AddItemModal = function (_React$Component) {
 
 AddItemModal.propTypes = {
   closeModal: _react2.default.PropTypes.func.isRequired,
+  type: _react2.default.PropTypes.string.isRequired,
   show: _react2.default.PropTypes.bool.isRequired,
-  jobType: _react2.default.PropTypes.string
+  data: _react2.default.PropTypes.any
 };
 
 exports.default = AddItemModal;
 
-},{"../../services/http":1081,"../../services/var":1082,"./ChoiceComponent":1075,"react":874,"react-bootstrap":553,"semantic-ui-react":974,"whatwg-fetch":1072}],1075:[function(require,module,exports){
+},{"../../services/http":1082,"../../services/var":1083,"./RewardComponent":1075,"./TimeComponent":1076,"react":874,"react-bootstrap":553,"semantic-ui-react":974,"whatwg-fetch":1072}],1075:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -75629,6 +75757,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _reactBootstrap = require('react-bootstrap');
 
 var _semanticUiReact = require('semantic-ui-react');
 
@@ -75657,41 +75787,145 @@ var ChoiceComponent = function (_React$Component) {
   }
 
   _createClass(ChoiceComponent, [{
-    key: 'render',
-    value: function render() {
+    key: 'customRender',
+    value: function customRender() {
       var _this2 = this;
 
       return _react2.default.createElement(
+        _reactBootstrap.Form,
+        { inline: true },
+        this.props.choicesToChoose.value !== 'moneyRange' ? null : [_react2.default.createElement(
+          _reactBootstrap.FormGroup,
+          { key: 'salary_low', bsSize: 'small', className: 'margin-side' },
+          _react2.default.createElement(
+            _reactBootstrap.InputGroup,
+            null,
+            _react2.default.createElement(
+              _reactBootstrap.InputGroup.Addon,
+              null,
+              '$'
+            ),
+            _react2.default.createElement(_reactBootstrap.FormControl, {
+              onChange: function onChange(event) {
+                _this2.props.onChangeInput("salary_low", event.target.value);
+              },
+              value: this.props.customData.salary_low,
+              placeholder: 'from',
+              type: 'number' })
+          )
+        ), _react2.default.createElement(
+          _reactBootstrap.FormGroup,
+          { key: 'salary_high', bsSize: 'small', className: 'margin-side' },
+          _react2.default.createElement(
+            _reactBootstrap.InputGroup,
+            null,
+            _react2.default.createElement(
+              _reactBootstrap.InputGroup.Addon,
+              null,
+              '$'
+            ),
+            _react2.default.createElement(_reactBootstrap.FormControl, {
+              onChange: function onChange(event) {
+                _this2.props.onChangeInput("salary_high", event.target.value);
+              },
+              value: this.props.customData.salary_high,
+              placeholder: 'to',
+              type: 'number' })
+          )
+        )],
+        this.props.choicesToChoose.value !== "moneySpecific" ? null : _react2.default.createElement(
+          _reactBootstrap.FormGroup,
+          { bsSize: 'small', className: 'margin-side' },
+          _react2.default.createElement(
+            _reactBootstrap.InputGroup,
+            null,
+            _react2.default.createElement(
+              _reactBootstrap.InputGroup.Addon,
+              null,
+              '$'
+            ),
+            _react2.default.createElement(_reactBootstrap.FormControl, {
+              onChange: function onChange(event) {
+                _this2.props.onChangeInput("salary_value", event.target.value);
+              },
+              value: this.props.customData.salary_value,
+              type: 'number' })
+          )
+        ),
+        _react2.default.createElement(
+          _reactBootstrap.FormGroup,
+          { controlId: 'formControlsSelect', bsSize: 'small', className: 'margin-side' },
+          _react2.default.createElement(
+            _reactBootstrap.FormControl,
+            { componentClass: 'select', placeholder: 'select unit', onChange: function onChange(event) {
+                _this2.props.onChangeInput("salary_unit", event.target.value);
+              } },
+            _react2.default.createElement(
+              'option',
+              { value: 'hour' },
+              '/hour'
+            ),
+            _react2.default.createElement(
+              'option',
+              { value: 'day' },
+              '/day'
+            ),
+            _react2.default.createElement(
+              'option',
+              { value: 'month' },
+              '/month'
+            ),
+            _react2.default.createElement(
+              'option',
+              { value: 'year' },
+              '/year'
+            )
+          )
+        )
+      );
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this3 = this;
+
+      return _react2.default.createElement(
         'div',
-        null,
-        'Reward',
+        { style: { padding: "7px 0px" } },
+        _react2.default.createElement(
+          'label',
+          null,
+          'Reward'
+        ),
         _react2.default.createElement(
           'div',
-          null,
+          { style: { padding: "5px 0px 7px 0px" } },
           this.props.choicesChosen.map(function (c) {
             return _react2.default.createElement(
               _semanticUiReact.Button,
               {
-                key: c.currentPointer + "-" + c.name },
-              _react2.default.createElement(_semanticUiReact.Icon, { link: true, name: 'x', onClick: function onClick() {
-                  _this2.props.removeChoice(c);
-                } }),
-              c.value
+                key: c.currentPointer + "-" + c.value,
+                className: 'chosen-bubble',
+                onClick: function onClick() {
+                  _this3.props.onChangeChoice("remove", c);
+                } },
+              _react2.default.createElement(_semanticUiReact.Icon, { link: true, name: 'x' }),
+              c.name
             );
           })
         ),
         _react2.default.createElement(
           'div',
-          { className: 'text-center' },
-          this.props.choicesToChoose.map(function (o) {
+          null,
+          !!this.props.choicesToChoose ? !this.props.choicesToChoose.customRender ? this.props.choicesToChoose.map(function (c) {
             return _react2.default.createElement(_semanticUiReact.Button, {
               size: 'medium',
-              key: o.currentPointer + "-" + o.value,
+              key: c.currentPointer + "-" + c.value,
               onClick: function onClick() {
-                _this2.props.addChoice(o);
+                _this3.props.onChangeChoice("add", c);
               },
-              content: o.name });
-          })
+              content: c.name });
+          }) : this.customRender() : null
         )
       );
     }
@@ -75701,15 +75935,321 @@ var ChoiceComponent = function (_React$Component) {
 }(_react2.default.Component);
 
 ChoiceComponent.propTypes = {
-  addChoice: _react2.default.PropTypes.func.isRequired,
-  removeChoice: _react2.default.PropTypes.func.isRequired,
+  onChangeChoice: _react2.default.PropTypes.func.isRequired,
+  onChangeInput: _react2.default.PropTypes.func.isRequired,
   choicesChosen: _react2.default.PropTypes.any,
-  choicesToChoose: _react2.default.PropTypes.any
+  choicesToChoose: _react2.default.PropTypes.any,
+  customData: _react2.default.PropTypes.any
 };
 
 exports.default = ChoiceComponent;
 
-},{"../../services/var":1082,"react":874,"semantic-ui-react":974}],1076:[function(require,module,exports){
+},{"../../services/var":1083,"react":874,"react-bootstrap":553,"semantic-ui-react":974}],1076:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactFlatpickr = require('react-flatpickr');
+
+var _reactFlatpickr2 = _interopRequireDefault(_reactFlatpickr);
+
+var _semanticUiReact = require('semantic-ui-react');
+
+var _var = require('../../services/var');
+
+var _var2 = _interopRequireDefault(_var);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var TimeComponent = function (_React$Component) {
+  _inherits(TimeComponent, _React$Component);
+
+  function TimeComponent(props) {
+    _classCallCheck(this, TimeComponent);
+
+    var _this = _possibleConstructorReturn(this, (TimeComponent.__proto__ || Object.getPrototypeOf(TimeComponent)).call(this, props));
+
+    _this.vars = new _var2.default();
+    return _this;
+  }
+
+  _createClass(TimeComponent, [{
+    key: 'onChange',
+    value: function onChange() {
+      var object = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var num = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+      var shouldUpdate = true;
+      if (!!object) {
+        for (var key in object) {
+          if (key === "dateArr") shouldUpdate = shouldUpdate && this.props.data.dateArr.length !== object.dateArr.length;
+        }
+      } else if (num !== null || num !== undefined) {
+        shouldUpdate = shouldUpdate && num !== this.props.progress;
+      }
+      // shouldUpdate && this.state.period[key].length !== data.length;
+      if (shouldUpdate) this.props.onChange(object, num);
+    }
+  }, {
+    key: 'toggleNoDates',
+    value: function toggleNoDates() {
+      if (this.props.progress === -1) {
+        this.props.onChange(null, 0);
+      } else {
+        this.props.onChange({ dateArr: [], startTimeHour: "", startTimeMinute: "", endTimeHour: "", endTimeMinute: "" }, -1);
+      }
+    }
+
+    // /** @param {"add"|"set"} addOrSet @param {number?} num */
+    // changeProgress(addOrSet, num = null) {
+    //   if (addOrSet === "add") {
+    //     this.props.onChange(null, this.props.progress + num);
+    //   } else if (addOrSet === "set") {
+    //     this.props.onChange(null, num);
+    //   }
+    // }
+
+    /** @return {boolean} */
+
+  }, {
+    key: 'isTimeFilledIn',
+    value: function isTimeFilledIn() {
+      var p = this.props.data;return !!p.startTimeHour && !!p.startTimeMinute && !!p.endTimeHour && !!p.endTimeMinute;
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this2 = this;
+
+      var dataObj = !this.props.data ? null : this.props.data;
+      var progress = this.props.progress;
+      return _react2.default.createElement(
+        'div',
+        { style: { padding: "7px 0px" } },
+        _react2.default.createElement(
+          'label',
+          null,
+          'Dates'
+        ),
+        progress !== -1 ? null : _react2.default.createElement(
+          'div',
+          null,
+          _react2.default.createElement(
+            _semanticUiReact.Button,
+            {
+              key: 'no-specific-date-result-button',
+              size: 'medium',
+              onClick: function onClick() {
+                _this2.toggleNoDates();
+              }
+            },
+            _react2.default.createElement(_semanticUiReact.Icon, { link: true, name: 'x' }),
+            ' "No specific Date"'
+          )
+        ),
+        progress !== 0 ? null : _react2.default.createElement(
+          'div',
+          null,
+          _react2.default.createElement(
+            'span',
+            { style: { fontSize: "12px", color: "gray" } },
+            'Choose dates: '
+          ),
+          _react2.default.createElement(
+            'div',
+            { style: { width: "50%", display: "inline-block", padding: "10px" } },
+            _react2.default.createElement(_reactFlatpickr2.default, {
+              options: {
+                mode: "multiple",
+                utc: true,
+                value: dataObj.dateArr,
+                minDate: new Date(),
+                altInput: true,
+                altFormat: "F j",
+                clickOpens: progress === 0
+              },
+              onChange: function onChange(dates) {
+                _this2.onChange({ dateArr: dates });
+              }
+            })
+          ),
+          _react2.default.createElement(_semanticUiReact.Button, {
+            key: 'no-specific-date-button',
+            size: 'medium',
+            onClick: function onClick() {
+              _this2.toggleNoDates();
+            },
+            disabled: this.props.jobType === "quick",
+            content: "No specific Date" + (this.props.jobType === 'quick' ? " (not applicable to quick jobs)" : "")
+          }),
+          _react2.default.createElement(_semanticUiReact.Button, {
+            key: 'ok-period-1-button',
+            content: 'ok',
+            disabled: dataObj.dateArr.length <= 0,
+            onClick: function onClick() {
+              if (dataObj.dateArr.length > 0) _this2.onChange(null, progress + 1);
+            }
+          })
+        ),
+        progress !== 1 ? null : _react2.default.createElement(
+          'div',
+          null,
+          _react2.default.createElement(
+            'p',
+            null,
+            _react2.default.createElement(
+              _semanticUiReact.Button,
+              {
+                key: 'chosen-dates-button',
+                size: 'medium',
+                className: 'chosen-bubble',
+                onClick: function onClick() {
+                  _this2.onChange({ dateArr: [] }, progress - 1);
+                }
+              },
+              _react2.default.createElement(_semanticUiReact.Icon, { link: true, name: 'x' }),
+              dataObj.dateArr.map(function (d) {
+                return _this2.vars.customTimeStamp(d, "date");
+              }).join(", ")
+            )
+          ),
+          'From',
+          ' ',
+          _react2.default.createElement('input', {
+            type: 'number',
+            placeholder: 'HH',
+            className: 'time-input',
+            value: dataObj.startTimeHour,
+            onChange: function onChange(event) {
+              _this2.onChange({ startTimeHour: event.target.value });
+            }
+          }),
+          " : ",
+          _react2.default.createElement('input', {
+            type: 'number',
+            placeholder: 'MM',
+            className: 'time-input',
+            value: dataObj.startTimeMinute,
+            onChange: function onChange(event) {
+              _this2.onChange({ startTimeMinute: event.target.value });
+            }
+          }),
+          'To',
+          ' ',
+          _react2.default.createElement('input', {
+            type: 'number',
+            placeholder: 'HH',
+            className: 'time-input',
+            value: dataObj.endTimeHour,
+            onChange: function onChange(event) {
+              _this2.onChange({ endTimeHour: event.target.value });
+            }
+          }),
+          " : ",
+          _react2.default.createElement('input', {
+            type: 'number',
+            placeholder: 'MM',
+            className: 'time-input',
+            value: dataObj.endTimeMinute,
+            onChange: function onChange(event) {
+              _this2.onChange({ endTimeMinute: event.target.value });
+            }
+          }),
+          _react2.default.createElement(_semanticUiReact.Button, {
+            key: 'ok-time-button',
+            content: 'ok',
+            disabled: !this.isTimeFilledIn(),
+            onClick: function onClick() {
+              if (_this2.isTimeFilledIn()) _this2.onChange(null, progress + 1);
+            }
+          }),
+          _react2.default.createElement(_semanticUiReact.Button, {
+            key: 'no-time-button',
+            content: 'no time',
+            onClick: function onClick() {
+              _this2.onChange({ startTimeHour: "", startTimeMinute: "", endTimeHour: "", endTimeMinute: "" }, progress + 1);
+            }
+          })
+        ),
+        progress !== 2 ? null : _react2.default.createElement(
+          'div',
+          null,
+          _react2.default.createElement(
+            'p',
+            null,
+            _react2.default.createElement(
+              _semanticUiReact.Button,
+              {
+                key: 'progress-2-chosen-dates-button',
+                size: 'medium',
+                className: 'chosen-bubble',
+                onClick: function onClick() {
+                  _this2.onChange({ dateArr: [], startTimeHour: "", startTimeMinute: "", endTimeHour: "", endTimeMinute: "" }, progress - 2);
+                }
+              },
+              _react2.default.createElement(_semanticUiReact.Icon, { link: true, name: 'x' }),
+              dataObj.dateArr.map(function (d) {
+                return _this2.vars.customTimeStamp(d, "date");
+              }).join(", ")
+            ),
+            _react2.default.createElement(
+              _semanticUiReact.Button,
+              {
+                key: 'progress-2-chosen-time-button',
+                size: 'medium',
+                className: 'chosen-bubble',
+                onClick: function onClick() {
+                  _this2.onChange({ startTimeHour: "", startTimeMinute: "", endTimeHour: "", endTimeMinute: "" }, progress - 1);
+                }
+              },
+              _react2.default.createElement(_semanticUiReact.Icon, { link: true, name: 'x' }),
+              this.isTimeFilledIn() ? _react2.default.createElement(
+                'span',
+                null,
+                dataObj.startTimeHour,
+                ':',
+                dataObj.startTimeMinute,
+                ' to ',
+                dataObj.endTimeHour,
+                ':',
+                dataObj.endTimeMinute
+              ) : "no time"
+            )
+          )
+        )
+      );
+    }
+  }]);
+
+  return TimeComponent;
+}(_react2.default.Component);
+
+TimeComponent.propTypes = {
+  jobType: _react2.default.PropTypes.string,
+  type: _react2.default.PropTypes.string.isRequired, // unused
+  onChange: _react2.default.PropTypes.func.isRequired,
+  noDates: _react2.default.PropTypes.func,
+  data: _react2.default.PropTypes.any.isRequired,
+  progress: _react2.default.PropTypes.number.isRequired
+};
+
+exports.default = TimeComponent;
+
+},{"../../services/var":1083,"react":874,"react-flatpickr":847,"semantic-ui-react":974}],1077:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -75893,7 +76433,7 @@ var App = function (_React$Component) {
 
 exports.default = App;
 
-},{"../services/http":1081,"./Board/Board":1077,"./Login/Login":1078,"./Profile/Profile":1080,"react":874,"react-bootstrap":553,"whatwg-fetch":1072}],1077:[function(require,module,exports){
+},{"../services/http":1082,"./Board/Board":1078,"./Login/Login":1079,"./Profile/Profile":1081,"react":874,"react-bootstrap":553,"whatwg-fetch":1072}],1078:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -75902,21 +76442,23 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _reactFlatpickr = require('react-flatpickr');
-
-var _reactFlatpickr2 = _interopRequireDefault(_reactFlatpickr);
-
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
 var _reactBootstrap = require('react-bootstrap');
 
+var _semanticUiReact = require('semantic-ui-react');
+
 require('whatwg-fetch');
 
 var _AddItemModal = require('../AddItemModal/AddItemModal');
 
 var _AddItemModal2 = _interopRequireDefault(_AddItemModal);
+
+var _var = require('../../services/var');
+
+var _var2 = _interopRequireDefault(_var);
 
 var _http = require('../../services/http');
 
@@ -75934,9 +76476,6 @@ var Loading = require('react-loading');
 
 // import Job from './Job';
 
-
-// import Variable from '../../services/var';
-
 var Board = function (_React$Component) {
   _inherits(Board, _React$Component);
 
@@ -75947,22 +76486,28 @@ var Board = function (_React$Component) {
 
     _this.state = {
       openProjectPanel: false,
-      showAddItemModal: false,
-      addItemModalType: null,
-      addItemJobType: null,
       panelOpen: {
         quick: true,
         stable: true,
-        projects: true
+        intern: true,
+        project: true
+      },
+      modal: {
+        show: false,
+        type: "new",
+        data: null
+      },
+      jobs: {
+        quick: null,
+        stable: null,
+        intern: null,
+        project: null
       },
       loading: true,
-      quickJobs: null,
-      stableJobs: null,
-      internships: null,
-      projects: null,
       errorMsg: null
     };
     console.log(["Board constructor called"]);
+    _this.vars = new _var2.default();
     _this.http = new _http2.default();
     return _this;
   }
@@ -76000,11 +76545,18 @@ var Board = function (_React$Component) {
           // console.log(d);
           if (d && d.org) {
             _this2.setState(function (s) {
-              s.stableJobs = d.stable_jobs;
-              s.quickJobs = d.quick_jobs;
-              s.internships = d.internships;
-              s.projects = d.projects;
+              s.jobs.stable = d.stable_jobs;
+              s.jobs.quick = d.quick_jobs;
+              s.jobs.intern = d.internships;
+              s.jobs.project = d.projects;
+              s.panelOpen = {
+                quick: s.jobs.quick.length > 0,
+                stable: s.jobs.stable.length > 0,
+                intern: s.jobs.intern.length > 0,
+                project: s.jobs.project.length > 0
+              };
               s.loading = false;
+              s.errorMsg = null;
               return s;
             });
           } else _this2.props.signOut();
@@ -76043,11 +76595,15 @@ var Board = function (_React$Component) {
     }
   }, {
     key: 'showAddItemModal',
-    value: function showAddItemModal(modalType, jobType) {
-      this.setState({
-        addItemModalType: modalType,
-        addItemJobType: jobType,
-        showAddItemModal: true
+    value: function showAddItemModal() {
+      var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "new";
+      var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+      this.setState(function (s) {
+        s.modal.show = true;
+        s.modal.type = type;
+        if (!!data) s.modal.data = data;
+        return s;
       });
     }
   }, {
@@ -76055,9 +76611,11 @@ var Board = function (_React$Component) {
     value: function closeAddItemModal(refresh) {
       var _this4 = this;
 
-      this.setState({
-        showAddItemModal: false,
-        addItemModalType: null
+      this.setState(function (s) {
+        s.modal.show = false;
+        s.modal.type = "new";
+        s.modal.data = null;
+        return s;
       }, function () {
         console.log("refresh is " + refresh);
         if (refresh) _this4.refresh();
@@ -76070,9 +76628,83 @@ var Board = function (_React$Component) {
       console.log(data);
     }
   }, {
+    key: 'renderTable',
+    value: function renderTable(jobArr) {
+      var _this5 = this;
+
+      if (!jobArr || jobArr.length <= 0) return null;
+      return jobArr.map(function (job) {
+        var updatedAt = new Date(job.updated_at).toLocaleDateString();
+        var salaryDescription = "";
+        switch (job.salary_type) {
+          case "range":
+            salaryDescription = "$" + job.salary_high + " to $" + job.salary_low;
+            break;
+          case "specific":
+            salaryDescription = "$" + job.salary_value;
+            break;
+          case "negotiable":
+            salaryDescription = "negotiable";
+            break;
+          default:
+            salaryDescription = "no info";
+            break;
+        }
+        return _react2.default.createElement(
+          'tr',
+          { key: "jobs_long_" + job.id },
+          _react2.default.createElement(
+            'td',
+            null,
+            job.title
+          ),
+          _react2.default.createElement(
+            'td',
+            null,
+            updatedAt
+          ),
+          _react2.default.createElement(
+            'td',
+            null,
+            salaryDescription
+          ),
+          _react2.default.createElement(
+            'td',
+            null,
+            _react2.default.createElement(
+              _reactBootstrap.Button,
+              {
+                bsSize: 'small',
+                bsStyle: 'link',
+                onClick: function onClick() {
+                  _this5.edit(job);
+                }
+              },
+              'Edit'
+            )
+          ),
+          _react2.default.createElement(
+            'td',
+            null,
+            _react2.default.createElement(
+              _reactBootstrap.Button,
+              {
+                bsSize: 'small',
+                bsStyle: 'link',
+                onClick: function onClick() {
+                  _this5.delete(job.id);
+                }
+              },
+              'X'
+            )
+          )
+        );
+      });
+    }
+  }, {
     key: 'render',
     value: function render() {
-      var _this5 = this;
+      var _this6 = this;
 
       if (!!this.state.loading) return _react2.default.createElement(
         'div',
@@ -76084,193 +76716,6 @@ var Board = function (_React$Component) {
         { className: 'flex-row full-width', style: { minHeight: '50px' } },
         ' this.state.errorMsg '
       );
-      var quickJobsTable = void 0,
-          stableJobsTable = void 0,
-          projectsTable = void 0;
-      if (!this.state.loading && !this.state.errorMsg) {
-        quickJobsTable = this.state.quickJobs.map(function (data) {
-          var updatedAt = new Date(data.updated_at).toLocaleDateString();
-          var salaryDescription = "";
-          switch (data.salary_type) {
-            case "range":
-              salaryDescription = "range = $" + data.salary_high + " to $" + data.salary_low;
-              break;
-            case "specific":
-              salaryDescription = "specific: $" + data.salary_value;
-              break;
-            case "negotiable":default:
-              salaryDescription = "negotiable";
-              break;
-          }
-          return _react2.default.createElement(
-            'tr',
-            { key: "jobs_long_" + data.id },
-            _react2.default.createElement(
-              'td',
-              null,
-              data.title
-            ),
-            _react2.default.createElement(
-              'td',
-              null,
-              updatedAt
-            ),
-            _react2.default.createElement(
-              'td',
-              null,
-              salaryDescription
-            ),
-            _react2.default.createElement(
-              'td',
-              null,
-              _react2.default.createElement(
-                _reactBootstrap.Button,
-                {
-                  bsSize: 'small',
-                  bsStyle: 'link',
-                  onClick: function onClick() {
-                    _this5.edit(data);
-                  }
-                },
-                'Edit'
-              )
-            ),
-            _react2.default.createElement(
-              'td',
-              null,
-              _react2.default.createElement(
-                _reactBootstrap.Button,
-                {
-                  bsSize: 'small',
-                  bsStyle: 'link',
-                  onClick: function onClick() {
-                    _this5.delete(data.id);
-                  }
-                },
-                'X'
-              )
-            )
-          );
-        });
-
-        stableJobsTable = this.state.stableJobs.map(function (data) {
-          var updatedAt = new Date(data.updated_at).toLocaleDateString();
-          var salaryDescription = "";
-          switch (data.salary_type) {
-            case "range":
-              salaryDescription = "range = $" + data.salary_high + " to $" + data.salary_low;
-              break;
-            case "specific":
-              salaryDescription = "specific: $" + data.salary_value;
-              break;
-            case "negotiable":default:
-              salaryDescription = "negotiable";
-              break;
-          }
-          return _react2.default.createElement(
-            'tr',
-            { key: "jobs_long_" + data.id },
-            _react2.default.createElement(
-              'td',
-              null,
-              data.title
-            ),
-            _react2.default.createElement(
-              'td',
-              null,
-              updatedAt
-            ),
-            _react2.default.createElement(
-              'td',
-              null,
-              salaryDescription
-            ),
-            _react2.default.createElement(
-              'td',
-              null,
-              _react2.default.createElement(
-                _reactBootstrap.Button,
-                {
-                  bsSize: 'small',
-                  bsStyle: 'link',
-                  onClick: function onClick() {
-                    _this5.edit(data);
-                  }
-                },
-                'Edit'
-              )
-            ),
-            _react2.default.createElement(
-              'td',
-              null,
-              _react2.default.createElement(
-                _reactBootstrap.Button,
-                {
-                  bsSize: 'small',
-                  bsStyle: 'link',
-                  onClick: function onClick() {
-                    _this5.delete(data.id);
-                  }
-                },
-                'X'
-              )
-            )
-          );
-        });
-
-        projectsTable = this.state.projects.map(function (data) {
-          var updatedAt = new Date(data.updated_at).toLocaleDateString();
-          return _react2.default.createElement(
-            'tr',
-            { key: "jobs_long_" + data.id },
-            _react2.default.createElement(
-              'td',
-              null,
-              data.title
-            ),
-            _react2.default.createElement(
-              'td',
-              null,
-              updatedAt
-            ),
-            _react2.default.createElement(
-              'td',
-              null,
-              data.reward_value
-            ),
-            _react2.default.createElement(
-              'td',
-              null,
-              _react2.default.createElement(
-                _reactBootstrap.Button,
-                {
-                  bsSize: 'small',
-                  bsStyle: 'link',
-                  onClick: function onClick() {
-                    _this5.edit(data);
-                  }
-                },
-                'Edit'
-              )
-            ),
-            _react2.default.createElement(
-              'td',
-              null,
-              _react2.default.createElement(
-                _reactBootstrap.Button,
-                {
-                  bsSize: 'small',
-                  bsStyle: 'link',
-                  onClick: function onClick() {
-                    _this5.delete(data.id);
-                  }
-                },
-                'X'
-              )
-            )
-          );
-        });
-      }
 
       return _react2.default.createElement(
         'section',
@@ -76279,284 +76724,101 @@ var Board = function (_React$Component) {
           'p',
           null,
           'You have posted ',
-          this.state.quickJobs.length,
+          this.state.jobs.quick.length,
           ' quick jobs, ',
-          this.state.stableJobs.length,
-          ' stable jobs, and ',
-          this.state.projects.length,
+          this.state.jobs.stable.length,
+          ' stable jobs, ',
+          this.state.jobs.intern.length,
+          ' internships, and ',
+          this.state.jobs.project.length,
           ' projects.'
         ),
-        _react2.default.createElement(_reactFlatpickr2.default, {
-          options: {
-            enableTime: true,
-            utc: true,
-            minDate: new Date(),
-            noCalendar: true,
-            time_24hr: true,
-            disableMobile: false
-          },
-          onChange: function onChange(v) {
-            return console.info(v);
-          }
+        _react2.default.createElement(
+          'div',
+          { className: 'flex-col flex-vhCenter' },
+          _react2.default.createElement(_semanticUiReact.Icon, {
+            name: 'plus circle',
+            size: 'huge',
+            link: true,
+            className: 'add',
+            onClick: function onClick() {
+              _this6.showAddItemModal();
+            }
+          })
+        ),
+        this.vars.jobType.map(function (obj) {
+          return [_react2.default.createElement(
+            'div',
+            { className: 'toggle-div', key: "toggle-div-" + obj.value },
+            _react2.default.createElement(
+              'h4',
+              { className: 'inline' },
+              obj.name,
+              's'
+            ),
+            _react2.default.createElement(
+              _reactBootstrap.Button,
+              { bsStyle: 'link', onClick: function onClick() {
+                  _this6.togglePanel(obj.value);
+                } },
+              _this6.state.panelOpen[obj.value] ? "collapse" : "show",
+              ' (',
+              _this6.state.jobs[obj.value].length,
+              ')'
+            )
+          ), _react2.default.createElement(
+            _reactBootstrap.Panel,
+            { collapsible: true, expanded: _this6.state.panelOpen[obj.value], key: "panel-" + obj.value },
+            _react2.default.createElement(
+              _reactBootstrap.Table,
+              { responsive: true, striped: true },
+              _react2.default.createElement(
+                'thead',
+                null,
+                _react2.default.createElement(
+                  'tr',
+                  null,
+                  _react2.default.createElement(
+                    'th',
+                    null,
+                    'Title'
+                  ),
+                  _react2.default.createElement(
+                    'th',
+                    null,
+                    'Updated At'
+                  ),
+                  _react2.default.createElement(
+                    'th',
+                    null,
+                    'Salary'
+                  ),
+                  _react2.default.createElement(
+                    'th',
+                    null,
+                    'Show Description'
+                  ),
+                  _react2.default.createElement(
+                    'th',
+                    null,
+                    'Delete'
+                  )
+                )
+              ),
+              _react2.default.createElement(
+                'tbody',
+                null,
+                _this6.renderTable(_this6.state.jobs[obj.value])
+              )
+            )
+          )];
         }),
-        _react2.default.createElement(_reactFlatpickr2.default, {
-          options: {
-            mode: "multiple",
-            utc: true,
-            minDate: new Date(),
-            altInput: true,
-            altFormat: "F j"
-          },
-          onChange: function onChange(v) {
-            return console.info(v);
-          }
-        }),
-        _react2.default.createElement(
-          'div',
-          { className: 'toggle-div' },
-          _react2.default.createElement(
-            'h4',
-            { className: 'inline' },
-            'Quick Jobs'
-          ),
-          _react2.default.createElement(
-            _reactBootstrap.Button,
-            { bsStyle: 'link', onClick: function onClick() {
-                _this5.togglePanel('quick');
-              } },
-            this.state.panelOpen.quick ? "collapse" : "show",
-            ' (',
-            this.state.quickJobs.length,
-            ')'
-          ),
-          _react2.default.createElement(
-            'div',
-            { className: 'flex-col flex-vhCenter' },
-            _react2.default.createElement(
-              _reactBootstrap.Button,
-              {
-                bsStyle: 'primary',
-                bsSize: 'small',
-                className: 'add',
-                onClick: function onClick() {
-                  _this5.showAddItemModal('job', 'quick');
-                } },
-              ' + '
-            )
-          )
-        ),
-        _react2.default.createElement(
-          _reactBootstrap.Panel,
-          { collapsible: true, expanded: this.state.panelOpen.quick },
-          _react2.default.createElement(
-            _reactBootstrap.Table,
-            { responsive: true, striped: true },
-            _react2.default.createElement(
-              'thead',
-              null,
-              _react2.default.createElement(
-                'tr',
-                null,
-                _react2.default.createElement(
-                  'th',
-                  null,
-                  'Title'
-                ),
-                _react2.default.createElement(
-                  'th',
-                  null,
-                  'Updated At'
-                ),
-                _react2.default.createElement(
-                  'th',
-                  null,
-                  'Salary'
-                ),
-                _react2.default.createElement(
-                  'th',
-                  null,
-                  'Show Description'
-                ),
-                _react2.default.createElement(
-                  'th',
-                  null,
-                  'Delete'
-                )
-              )
-            ),
-            _react2.default.createElement(
-              'tbody',
-              null,
-              quickJobsTable
-            )
-          )
-        ),
-        _react2.default.createElement(
-          'div',
-          { className: 'toggle-div' },
-          _react2.default.createElement(
-            'h4',
-            { className: 'inline' },
-            'Stable Jobs'
-          ),
-          _react2.default.createElement(
-            _reactBootstrap.Button,
-            { bsStyle: 'link', onClick: function onClick() {
-                _this5.togglePanel('stable');
-              } },
-            this.state.panelOpen.stable ? "collapse" : "show",
-            ' (',
-            this.state.stableJobs.length,
-            ')'
-          ),
-          _react2.default.createElement(
-            'div',
-            { className: 'flex-col flex-vhCenter' },
-            _react2.default.createElement(
-              _reactBootstrap.Button,
-              {
-                bsStyle: 'primary',
-                bsSize: 'small',
-                className: 'add',
-                onClick: function onClick() {
-                  _this5.showAddItemModal('job', 'stable');
-                } },
-              ' + '
-            )
-          )
-        ),
-        _react2.default.createElement(
-          _reactBootstrap.Panel,
-          { collapsible: true, expanded: this.state.panelOpen.stable },
-          _react2.default.createElement(
-            _reactBootstrap.Table,
-            { responsive: true, striped: true },
-            _react2.default.createElement(
-              'thead',
-              null,
-              _react2.default.createElement(
-                'tr',
-                null,
-                _react2.default.createElement(
-                  'th',
-                  null,
-                  'Title'
-                ),
-                _react2.default.createElement(
-                  'th',
-                  null,
-                  'Updated At'
-                ),
-                _react2.default.createElement(
-                  'th',
-                  null,
-                  'Salary'
-                ),
-                _react2.default.createElement(
-                  'th',
-                  null,
-                  'Show Description'
-                ),
-                _react2.default.createElement(
-                  'th',
-                  null,
-                  'Delete'
-                )
-              )
-            ),
-            _react2.default.createElement(
-              'tbody',
-              null,
-              stableJobsTable
-            )
-          )
-        ),
-        _react2.default.createElement(
-          'div',
-          { className: 'toggle-div' },
-          _react2.default.createElement(
-            'h4',
-            { className: 'inline' },
-            'Projects'
-          ),
-          _react2.default.createElement(
-            _reactBootstrap.Button,
-            { bsStyle: 'link', onClick: function onClick() {
-                _this5.togglePanel('projects');
-              } },
-            this.state.panelOpen.projects ? "collapse" : "show",
-            ' (',
-            this.state.projects.length,
-            ')'
-          ),
-          _react2.default.createElement(
-            'div',
-            { className: 'flex-col flex-vhCenter' },
-            _react2.default.createElement(
-              _reactBootstrap.Button,
-              {
-                bsStyle: 'primary',
-                bsSize: 'small',
-                className: 'add',
-                onClick: function onClick() {
-                  _this5.showAddItemModal('project');
-                } },
-              ' + '
-            )
-          )
-        ),
-        _react2.default.createElement(
-          _reactBootstrap.Panel,
-          { collapsible: true, expanded: this.state.panelOpen.projects },
-          _react2.default.createElement(
-            _reactBootstrap.Table,
-            { responsive: true, striped: true },
-            _react2.default.createElement(
-              'thead',
-              null,
-              _react2.default.createElement(
-                'tr',
-                null,
-                _react2.default.createElement(
-                  'th',
-                  null,
-                  'Title'
-                ),
-                _react2.default.createElement(
-                  'th',
-                  null,
-                  'Updated at'
-                ),
-                _react2.default.createElement(
-                  'th',
-                  null,
-                  'Reward'
-                ),
-                _react2.default.createElement(
-                  'th',
-                  null,
-                  'Show Description'
-                ),
-                _react2.default.createElement(
-                  'th',
-                  null,
-                  'Delete'
-                )
-              )
-            ),
-            _react2.default.createElement(
-              'tbody',
-              null,
-              projectsTable
-            )
-          )
-        ),
         _react2.default.createElement(_AddItemModal2.default, {
-          show: this.state.showAddItemModal,
-          modalType: this.state.addItemModalType,
-          jobType: this.state.addItemJobType,
+          show: this.state.modal.show,
+          type: this.state.modal.type,
+          data: this.state.modal.data,
           closeModal: function closeModal(refresh) {
-            _this5.closeAddItemModal(refresh);
+            _this6.closeAddItemModal(refresh);
           }
         })
       ); // end render return()
@@ -76575,7 +76837,7 @@ Board.propTypes = {
 
 exports.default = Board;
 
-},{"../../services/http":1081,"../AddItemModal/AddItemModal":1074,"react":874,"react-bootstrap":553,"react-flatpickr":847,"react-loading":848,"whatwg-fetch":1072}],1078:[function(require,module,exports){
+},{"../../services/http":1082,"../../services/var":1083,"../AddItemModal/AddItemModal":1074,"react":874,"react-bootstrap":553,"react-loading":848,"semantic-ui-react":974,"whatwg-fetch":1072}],1079:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -76773,7 +77035,7 @@ var Login = function (_React$Component) {
             'p',
             { className: 'text-right link', onClick: function onClick() {
                 _this4.toggleInUp();
-              } },
+              }, style: { paddingBottom: "30px" } },
             'Sign Up here!'
           ),
           _react2.default.createElement(
@@ -76818,7 +77080,7 @@ var Login = function (_React$Component) {
             'p',
             { className: 'link text-right', onClick: function onClick() {
                 _this4.toggleInUp();
-              } },
+              }, style: { paddingBottom: "30px" } },
             'Already have an account? Log In here!'
           ),
           _react2.default.createElement(
@@ -76836,32 +77098,6 @@ var Login = function (_React$Component) {
               type: "text",
               label: "Organisation name"
             }),
-            this.state.logoUnderstood ? fieldGroup({
-              id: "up-logo",
-              type: "text",
-              label: "Logo (Dropbox Link)",
-              help: "Please upload your company's logo, in a square, to your desired cloud service, and attach a download link here."
-            }) : _react2.default.createElement(
-              _reactBootstrap.FormGroup,
-              null,
-              _react2.default.createElement(
-                _reactBootstrap.ControlLabel,
-                null,
-                'Logo (Dropbox Link)'
-              ),
-              _react2.default.createElement(
-                _reactBootstrap.HelpBlock,
-                null,
-                'Please upload your company\'s logo, in a square to dropbox, and attach a download link here.',
-                _react2.default.createElement(
-                  _reactBootstrap.Button,
-                  { className: 'logo-button', bsSize: 'xs', bsStyle: 'primary', onClick: function onClick() {
-                      _this4.logoUnderstood();
-                    } },
-                  'I Understand'
-                )
-              )
-            ),
             fieldGroup({
               id: "up-email",
               type: "username",
@@ -76872,6 +77108,27 @@ var Login = function (_React$Component) {
               type: "password",
               label: "Enter a password"
             }),
+            this.state.logoUnderstood ? fieldGroup({
+              id: "up-logo",
+              type: "text",
+              label: "Logo (Dropbox Link)",
+              help: "Please upload your company's logo in square to dropbox, and attach a download link here. Or send us an email to info@hjobs.hk with the attached photo"
+            }) : _react2.default.createElement(
+              'div',
+              { className: 'flex-row flex-vEnd' },
+              _react2.default.createElement(
+                _reactBootstrap.Button,
+                { type: 'submit', bsStyle: 'primary', className: 'logo-button', onClick: function onClick() {
+                    _this4.logoUnderstood();
+                  }, bsSize: 'small' },
+                'Add a logo'
+              ),
+              _react2.default.createElement(
+                'span',
+                { style: { color: "#404040", padding: "3px" } },
+                ' This would make your posting much more attractive'
+              )
+            ),
             _react2.default.createElement(
               'p',
               { className: 'error' },
@@ -76901,7 +77158,7 @@ Login.propTypes = {
 
 exports.default = Login;
 
-},{"../../services/http":1081,"react":874,"react-bootstrap":553}],1079:[function(require,module,exports){
+},{"../../services/http":1082,"react":874,"react-bootstrap":553}],1080:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -76916,11 +77173,9 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactBootstrap = require('react-bootstrap');
 
-require('whatwg-fetch');
+var _http = require('../../services/http');
 
-var _var = require('../../services/var');
-
-var _var2 = _interopRequireDefault(_var);
+var _http2 = _interopRequireDefault(_http);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -76944,7 +77199,7 @@ var Field = function (_React$Component) {
       errorMsg: null,
       loading: false
     };
-    _this.vars = new _var2.default();
+    _this.http = new _http2.default();
     return _this;
   }
 
@@ -76977,17 +77232,11 @@ var Field = function (_React$Component) {
       }
 
       this.setState({ errorMsg: null, loading: true }, function () {
-        var url = _this2.vars.baseUrl + _this2.props.keys.keyUrl + '/' + _this2.props.id;
-        var headers = { "Content-Type": "application/json", Authorization: _this2.props.authToken };
         var body = {};
         body[_this2.props.keys.keyBody] = {};
         body[_this2.props.keys.keyBody][_this2.props.keys.keyEdit] = _this2.state.editValue;
 
-        fetch(url, {
-          method: 'PATCH',
-          headers: headers,
-          body: JSON.stringify(body)
-        }).then(function (res) {
+        _this2.http.request(_this2.props.keys.keyUrl + '/' + _this2.props.id, "PATCH", body).then(function (res) {
           // console.log(res);
           if (res.status < 202) return res.json();
           _this2.setState({ errorMsg: res.statusText });
@@ -77109,7 +77358,7 @@ Field.propTypes = {
 
 exports.default = Field;
 
-},{"../../services/var":1082,"react":874,"react-bootstrap":553,"whatwg-fetch":1072}],1080:[function(require,module,exports){
+},{"../../services/http":1082,"react":874,"react-bootstrap":553}],1081:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -77126,15 +77375,13 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactBootstrap = require('react-bootstrap');
 
-require('whatwg-fetch');
-
 var _Field = require('./Field');
 
 var _Field2 = _interopRequireDefault(_Field);
 
-var _var = require('../../services/var');
+var _http = require('../../services/http');
 
-var _var2 = _interopRequireDefault(_var);
+var _http2 = _interopRequireDefault(_http);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -77170,7 +77417,7 @@ var Profile = function (_React$Component) {
         admin: false
       }
     };
-    _this.vars = new _var2.default();
+    _this.http = new _http2.default();
     return _this;
   }
 
@@ -77179,31 +77426,17 @@ var Profile = function (_React$Component) {
     value: function componentWillMount() {
       var _this2 = this;
 
-      var url = this.vars.baseUrl + 'orgs/whoAreWe';
-      fetch(url, {
-        method: 'GET',
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: this.vars.baseUrl
-        }
-      }).then(function (res) {
-        if (res.ok) {
-          return res.json();
-        } else {
-          localStorage.removeItem("authToken");
-          alert('Thre is an error with the request, if problem persists, please contact administrators.');
-          _this2.setState({ loading: false });
-        }
+      this.http.request("orgs/whoAreWe").then(function (res) {
+        if (!!res.ok) return res.json();
+        localStorage.removeItem("authToken");
+        alert('Thre is an error with the request, if problem persists, please contact administrators.');
+        return _this2.setState({ loading: false });
       }).then(function (d) {
         console.log(d);
-        if (d.me) {
+        if (!!d && d.me) {
           var obj = d; // {me, org, employers}
           obj.loading = false;
-          _this2.setState(obj
-          // , () => {
-          //   console.log("app.js loadData is called, setState, will log this.state");
-          //   console.log(this.state);}
-          );
+          _this2.setState(obj);
         } else {
           localStorage.removeItem("authToken");
           _this2.setState({ loading: false });
@@ -77270,23 +77503,14 @@ var Profile = function (_React$Component) {
     value: function submitAddEmployer() {
       var _this5 = this;
 
-      var obj = { employer: this.state.addAdminData };
-      obj.employer.org_id = this.state.org.id;
-      console.log(obj);
-      var headers = { "Content-Type": "application/json", Authorization: this.props.authToken };
-      var url = this.vars.baseUrl + 'employers';
-      fetch(url, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(obj)
-      }).then(function (res) {
+      var data = { employer: this.state.addAdminData };
+      data.employer.org_id = this.state.org.id;
+      this.http.request("employers", "POST", data).then(function (res) {
         if (res.ok) return res.json();
         return { error: res.statusText };
       }).then(function (d) {
-        // console.log('submitAddEployer fetch.then logging data');
-        // console.log(d);
         var obj = {};
-        if (!d.error) {
+        if (!!d && !d.error) {
           obj.employers = _this5.state.employers;
           obj.employers.push(d);
           obj.showModal = false;
@@ -77304,17 +77528,12 @@ var Profile = function (_React$Component) {
     value: function deleteEmployer(employer) {
       var _this6 = this;
 
-      var headers = { "Content-Type": "application/json", Authorization: this.props.authToken };
-      var url = this.vars.baseUrl + 'employers/' + employer.id;
-      fetch(url, {
-        method: 'DELETE',
-        headers: headers
-      }).then(function (res) {
+      this.http.request("employers/" + employer.id, "DELETE").then(function (res) {
         if (res.ok) return { error: null };
         return { error: res.statusText };
       }).then(function (d) {
         var obj = {};
-        if (!d.error) {
+        if (!!d && !d.error) {
           obj.employers = _this6.state.employers;
           var index = obj.employers.indexOf(employer);
           console.log("deleting local data, index is" + index);
@@ -77352,9 +77571,6 @@ var Profile = function (_React$Component) {
         keyState.forEach(function (key) {
           data = data[key];
         });
-        // console.log("going to log keyState and data inside generateField, render, Profile.js");
-        // console.log(keyState);
-        // console.log(data);
 
         var isPassword = keys.keyEdit === 'password';
 
@@ -77703,7 +77919,7 @@ Profile.propTypes = {
 
 exports.default = Profile;
 
-},{"../../services/var":1082,"./Field":1079,"react":874,"react-bootstrap":553,"react-loading":848,"whatwg-fetch":1072}],1081:[function(require,module,exports){
+},{"../../services/http":1082,"./Field":1080,"react":874,"react-bootstrap":553,"react-loading":848}],1082:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -77748,7 +77964,6 @@ var Http = function () {
         method: httpMethod,
         headers: { "Content-Type": "application/json" }
       };
-      console.log(["this.authToken in request", this.authtoken]);
       if (localStorage.getItem("authToken")) {
         obj.headers.Authorization = localStorage.getItem("authToken");
       }
@@ -77779,7 +77994,7 @@ var Http = function () {
 
 exports.default = Http;
 
-},{"whatwg-fetch":1072}],1082:[function(require,module,exports){
+},{"whatwg-fetch":1072}],1083:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -77816,27 +78031,33 @@ var Variable = function () {
         value: "others",
         prevPointer: null,
         selfPointer: "root",
-        nextPointer: "textarea"
+        nextPointer: "others"
       }],
       monetary1: [{
         name: "Range",
         value: "range",
+        fieldName: "salary_type",
         prevPointer: "root",
         nextPointer: "moneyRange",
         selfPointer: "monetary1"
       }, {
-        name: "specific",
+        name: "Specific",
         value: "specific",
+        fieldName: "salary_type",
         prevPointer: "root",
         selfPointer: "monetary1",
         nextPointer: "moneySpecific"
       }, {
         name: "Negotiable",
         value: "negotiable",
+        fieldName: "salary_type",
         prevPointer: "root",
         selfPointer: "monetary1",
         nextPointer: null
-      }]
+      }],
+      moneyRange: { customRender: true, value: "moneyRange" },
+      moneySpecific: { customRender: true, value: "moneySpecific" },
+      others: { customRender: true, value: "others" }
     };
     this.jobType = [{
       name: "Quick Job",
@@ -77894,6 +78115,91 @@ var Variable = function () {
           break;
       }
       return salaryDescription;
+    }
+    /** @param {'date'|'time'|'datetime'} format */
+
+  }, {
+    key: "customTimeStamp",
+    value: function customTimeStamp(date, format) {
+      return (/time/g.test(format) ? this.pad2(date.getHours()) + ":" + this.pad2(date.getMinutes()) : "") + (format === "datetime" ? ", " : "") + (/date/g.test(format) ? this.pad2(date.getDate()) + "-" + this.pad2(date.getMonth() + 1) + "-" + date.getFullYear() : "");
+    }
+    /** @return {{error: [string]|null, data: object}} */
+
+  }, {
+    key: "getJobHttpObject",
+    value: function getJobHttpObject(modalState) {
+      var error = this.inspectJobError(modalState);
+      if (error.length > 0) return { error: error, data: null };
+      error = null;
+      var job = modalState.job;
+      var obj = {
+        title: job.title,
+        description: job.description,
+        event: job.event,
+        attachment_url: job.attachment_url,
+        employment_type: job.employment_type,
+        job_type: job.job_type,
+        salary_type: job.salary_type,
+        salary_value: job.salary_value,
+        salary_high: job.salary_high,
+        salary_low: job.salary_low,
+        salary_unit: job.salary_unit,
+        langs: job.langs.map(function (l) {
+          return l;
+        })
+      };
+      if (modalState.progress.period > 0) {
+        var timeNotEmpty = !!modalState.period.startTimeHour && !!modalState.period.startTimeMinute && !!modalState.period.endTimeHour && !!modalState.period.endTimeMinute;
+
+        var periods = modalState.period.dateArr.map(function (d) {
+          return { date: d };
+        });
+        if (timeNotEmpty) {
+          periods.forEach(function (p) {
+            p.start_time = new Date(p.date.getFullYear(), p.date.getMonth(), p.date.getDate(), modalState.period.startTimeHour, modalState.period.startTimeMinute);
+            p.end_time = new Date(p.date.getFullYear(), p.date.getMonth(), p.date.getDate(), modalState.period.endTimeHour, modalState.period.endTimeMinute);
+          });
+        }
+        obj.periods = periods;
+      }
+      return { error: null, data: obj };
+    }
+
+    /** @return {[string]} */
+
+  }, {
+    key: "inspectJobError",
+    value: function inspectJobError(modalState) {
+      var errors = [];
+      var job = modalState.job;
+      if (!job.title) errors.push("Please input title");
+      if (!job.description) errors.push("Please input description");
+      switch (job.salary_type) {
+        case "specific":
+          if (!job.salary_value) errors.push("Salary information is incomplete");
+          break;
+        case "range":
+          if (!job.salary_high || !job.salary_low) errors.push("Please specify the salary");
+          break;
+        case "negotiable":
+          break;
+        default:
+          errors.push("Please specify the salary");
+          break;
+      }
+      if (modalState.isEvent && !job.event) errors.push("Please input event name");
+      if (modalState.hasLang && !job.langs) errors.push("Please specify language requirements");
+      switch (modalState.progress.period) {
+        case 0:
+          errors.push("Please specify date");
+          break;
+        case 1:
+          errors.push("Please specify time");
+          break;
+        default:
+          break;
+      }
+      return errors;
     }
   }]);
 

@@ -16,6 +16,8 @@
     "one-var-declaration-per-line": "off",
     "camelcase":"off",
     "no-console":"off",
-    "no-param-reassign":"off"
+    "no-param-reassign":"off",
+    "guard-for-in":"off",
+    "brace-style":"off"
   }
 }

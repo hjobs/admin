@@ -1,64 +1,76 @@
 import React from 'react';
-import { Modal, FormGroup, ControlLabel, HelpBlock, FormControl, Checkbox } from 'react-bootstrap';
-import { Button } from 'semantic-ui-react';
+import { Modal, FormGroup, ControlLabel, HelpBlock, FormControl } from 'react-bootstrap';
+import { Button, Checkbox, Input, Dropdown } from 'semantic-ui-react';
 // import { Modal } from 'react-bootstrap';
 import 'whatwg-fetch';
 
 import Variable from '../../services/var';
 import Http from '../../services/http';
 
-import ChoiceComponent from "./ChoiceComponent";
+import RewardComponent from "./RewardComponent";
+import TimeComponent from "./TimeComponent";
 
 class AddItemModal extends React.Component {
   constructor(props) {
     super(props);
     this.vars = new Variable();
     this.http = new Http();
-    this.state = {
+    this.state = this.getBlankState();
+  }
+
+  getBlankState() {
+    return {
       job: {
         title: "",
         description: "",
+        event: "",
+        langs: [],
         attachment_url: "",
-        employment_type: [],
-        job_type: props.jobType || "quick",
+        employment_types: [],
+        job_type: "quick",
         salary_type: "",
         salary_value: "",
         salary_high: "",
-        salary_low: ""
+        salary_low: "",
+        salary_unit: "hour"
       },
       reward: {
         chosen: [],
-        toChoose: this.vars.salaryChoices.root
+        toChoose: this.vars.salaryChoices.monetary1
       },
-      loading: false
+      period: {
+        dateArr: [],
+        startTimeHour: "",
+        startTimeMinute: "",
+        endTimeHour: "",
+        endTimeMinute: ""
+      },
+      progress: {
+        // reward: 0,
+        period: 0
+      },
+      isEvent: false,
+      hasLang: false,
+      loading: false,
+      errorMessage: null
     };
   }
 
-  /*
-  attachment_url
-  deadline: datetime
-  description: text
-  job_type: integer
-  position: string
-
-  reward_type (salary_type: string)
-  reward_high (salary_high: integer)
-  reward_low (salary_low: integer)
-  reward_value (salary_value: text)
-  */
-
   save() {
-    this.setState(s => { s.loading = true; }, () => {
-      this.http.request('jobs', "POST", {jobs: this.state.job}).then(res => {
+    const method = this.props.type === "new" ? "POST" : "PATCH";
+    const processData = this.vars.getJobHttpObject(this.state);
+    console.log(processData);
+    if (!!processData.error && processData.error.length > 0) {
+      return this.setState(s => { s.errorMessage = processData.error.join("\n "); return s; });
+    }
+    return this.setState(s => { s.loading = true; }, () => {
+      this.http.request('jobs', method, {job: processData.data}).then(res => {
         console.log(res);
         if (!res.ok) return this.setState(s => { s.loading = false; s.errorMessage = res.statusText; return s; });
         return res.json();
-      })
-      .then(d => {
+      }).then(d => {
         if (!d) return;
-        this.setState(s => { s.loading = false; s.errorMessage = null; return s; }, () => {
-          this.props.closeModal(true);
-        });
+        this.setState(() => this.getBlankState(), () => { this.props.closeModal(true); });
       });
     });
   }
@@ -84,26 +96,50 @@ class AddItemModal extends React.Component {
     });
   }
 
-  choiceComponentOnAdd(key, option) {
+  /** @param {"add"|"remove"} addOrRemove */
+  rewardChangeChoice(addOrRemove, option) {
     this.setState(s => {
-      s[key].toChoose = this.vars.salaryChoices[option.nextPointer];
-      s[key].chosen.push(option);
-    });
-  }
-
-  choiceComponentOnRemove(key, option) {
-    this.setState(s => {
-      s[key].toChoose = this.vars.salaryChoices[option.selfPointer];
-      const index = s[key].chosen.indexOf(option);
-      s[key].chosen = s[key].chosen.slice(0, index);
+      if (addOrRemove === "add") {
+        s.reward.toChoose = this.vars.salaryChoices[option.nextPointer];
+        s.reward.chosen.push(option);
+        if (!!option.fieldName) s.job[option.fieldName] = option.value;
+      } else if (addOrRemove === "remove") {
+        if (option.selfPointer === "monetary1") {
+          s.job.salary_high = ""; s.job.salary_low = ""; s.job.salary_value = ""; s.job.salary_unit = "hour";
+        }
+        if (!!option.fieldName) s.job[option.fieldName] = "";
+        s.reward.toChoose = this.vars.salaryChoices[option.selfPointer];
+        const index = s.reward.chosen.indexOf(option);
+        s.reward.chosen = s.reward.chosen.slice(0, index);
+      }
       return s;
-    }, () => { console.log(["choiceCOmponentOnRemove, key option state", key, option, this.state]); });
+    }, () => { console.log(["choiceCOmponentOnRemove, key option state", option, this.state]); });
   }
 
   changeJobType(jobTypeObject) {
     if (this.state.job.job_type !== jobTypeObject.value) {
-      this.setState(s => { s.job.job_type = jobTypeObject.value; return s; });
+      this.setState(s => {
+        s.job.job_type = jobTypeObject.value;
+        if (s.job.job_type !== "stable" && s.progress.period === -1) {
+          s.progress.period = 0;
+        }
+        return s;
+      });
     }
+  }
+
+  periodChange(periodObject = null, progress = null) {
+    console.log(["key, data, period = ", periodObject, progress]);
+    // if (key === "reset") return this.setState(s => { s.period = {dateArr: [], startTimeHour: "", startTimeMinute: "", endTimeHour: "", endTimeMinute: ""}; s.progress.period = 0; return s; });
+    return this.setState(s => {
+      if (!!periodObject) {
+        for (const key in periodObject) {
+          s.period[key] = periodObject[key];
+        }
+      }
+      if (progress !== null && progress !== undefined) { s.progress.period = progress; }
+      return s;
+    }, () => console.log(this.state));
   }
 
   render() {
@@ -135,24 +171,24 @@ class AddItemModal extends React.Component {
       );
     };
 
-    const checkbox = ({id, label, help, itemArr}) => {
-      return (
-        <FormGroup>
-          { label ? <ControlLabel>{label}</ControlLabel> : null }
-          {' '}
-          {
-            itemArr.map(item =>
-              <Checkbox
-                key={"job" + "_" + id + "_" + item.value}
-                onClick={() => { this.changeEmploymentType(item.value); }} inline>
-                {item.name} {' '}
-              </Checkbox>
-            )
-          }
-          {help}
-        </FormGroup>
-      );
-    };
+    // const checkbox = ({id, label, help, itemArr}) => {
+    //   return (
+    //     <FormGroup>
+    //       { label ? <ControlLabel>{label}</ControlLabel> : null }
+    //       {' '}
+    //       {
+    //         itemArr.map(item =>
+    //           <Checkbox
+    //             key={"job" + "_" + id + "_" + item.value}
+    //             onClick={() => { this.changeEmploymentType(item.value); }} inline>
+    //             {item.name} {' '}
+    //           </Checkbox>
+    //         )
+    //       }
+    //       {help}
+    //     </FormGroup>
+    //   );
+    // };
 
     return (
       <Modal show={this.props.show} dialogClassName="addItemModal" keyboard={false} backdrop="static">
@@ -163,11 +199,12 @@ class AddItemModal extends React.Component {
               this.vars.jobType.reduce((result, jobType, i, arr) => {
                 result.push(
                   <Button
+                    key={'job-type-choice-' + jobType.value}
                     onClick={() => { this.changeJobType(jobType); }}
-                    color={this.state.job.job_type === jobType.value ? "black" : "transparent"}
+                    color={this.state.job.job_type === jobType.value ? "black" : null}
                   >{jobType.name}</Button>
                 );
-                if (i < arr.length - 1) result.push(<Button.Or />);
+                if (i < arr.length - 1) result.push(<Button.Or key={'button-separator-' + i} />);
                 return result;
               }, [])
             }
@@ -177,7 +214,7 @@ class AddItemModal extends React.Component {
             id: "title",
             label: "Job Title",
             type: "text",
-            placeholder: "e.g. Bartender, quick help on special event"
+            placeholder: "e.g. Bartender"
           })}
           { fieldGroup({
             id: "description",
@@ -191,12 +228,85 @@ class AddItemModal extends React.Component {
             type: "text",
             placeholder: "e.g. https://www.dropbox.com/s/mv7h76ivci2/VTafwn.pdf?dl=0"
           })}
-          <ChoiceComponent
-            addChoice={(option) => { this.choiceComponentOnAdd("reward", option); }}
-            removeChoice={(option) => { this.choiceComponentOnRemove("reward", option); }}
+          <label>Additional Info</label>
+          <div>
+            <Checkbox
+              checked={this.state.isEvent}
+              label="this is an event"
+              onClick={() => { this.setState(s => {
+                s.isEvent = !this.state.isEvent;
+                if (!s.isEvent) s.job.event = "";
+                return s;
+              }); }}
+            />{"   "}
+            {
+              !this.state.isEvent ? null :
+                <Input
+                  focus={this.state.isEvent}
+                  size="mini"
+                  value={this.state.job.event}
+                  onChange={(e, d) => { this.setState(s => { s.job.event = d.value; }); }}
+                  placeholder="Event name here"
+                />
+            }
+          </div>
+          <div style={{fontSize: "12px"}}>
+            <Checkbox
+              checked={this.state.hasLang}
+              label="has language requirement"
+              onClick={() => { this.setState(s => {
+                s.hasLang = !this.state.hasLang;
+                if (!s.isEvent) s.job.langs = [];
+                return s;
+              }); }}
+            />{"   "}
+            {
+              !this.state.hasLang ? null :
+                /*
+                <Input
+                  focus={this.state.hasLang}
+                  size="mini"
+                  value={this.state.job.lang}
+                  onChange={(e, d) => { this.setState(s => { s.job.lang = d.value; }); }}
+                  placeholder="Lang"
+                />
+                */
+                <Dropdown
+                  multiple
+                  placeholder="choose here"
+                  onChange={(e, data) => {
+                    this.setState(s => {
+                      s.job.langs = data.value;
+                      return s;
+                    });
+                  }}
+                  options={[
+                    {key: "english", text: "English", value: "english"},
+                    {key: "cantonese", text: "Cantonese", value: "cantonese"},
+                    {key: "mandarin", text: "Mandarin", value: "mandarin"}
+                  ]}
+                />
+            }
+          </div>
+          <RewardComponent
+            onChangeChoice={(addOrRemove, option) => { this.rewardChangeChoice(addOrRemove, option); }}
+            onChangeInput={(key, data) => { this.handleFormChange(key, data); }}
             choicesChosen={this.state.reward.chosen}
             choicesToChoose={this.state.reward.toChoose}
+            customData={this.state.job}
+            progress={this.state.progress.reward}
           />
+          <TimeComponent
+            jobType={this.state.job.job_type}
+            type="period"
+            setDate={() => {}}
+            onChange={(key, data, period) => { this.periodChange(key, data, period); }}
+            data={this.state.period}
+            progress={this.state.progress.period}
+          />
+          <p style={{color: "red", whiteSpace: "pre-line", textAlign: "center", fontSize: "12px", paddingTop: "14px"}}>
+            {this.state.errorMessage}
+          </p>
         </Modal.Body>
         <Modal.Footer>
           <Button
@@ -217,8 +327,9 @@ class AddItemModal extends React.Component {
 
 AddItemModal.propTypes = {
   closeModal: React.PropTypes.func.isRequired,
+  type: React.PropTypes.string.isRequired,
   show: React.PropTypes.bool.isRequired,
-  jobType: React.PropTypes.string
+  data: React.PropTypes.any
 };
 
 export default AddItemModal;
