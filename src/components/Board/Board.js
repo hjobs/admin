@@ -1,12 +1,13 @@
 import React from 'react';
 import { Button, Panel, Table } from 'react-bootstrap';
+import { Icon } from 'semantic-ui-react';
 import 'whatwg-fetch';
 let Loading = require('react-loading');
 
 // import Job from './Job';
-import AddItemModal from './AddItemModal';
+import AddItemModal from '../AddItemModal/AddItemModal';
 
-// import Variable from '../../services/var';
+import Variable from '../../services/var';
 import Http from '../../services/http';
 
 class Board extends React.Component {
@@ -14,28 +15,32 @@ class Board extends React.Component {
     super(props);
     this.state = {
       openProjectPanel: false,
-      showAddItemModal: false,
-      addItemModalType: null,
-      addItemJobType: null,
       panelOpen: {
-        quick: false,
-        stable: false,
-        projects: false
+        quick: true,
+        stable: true,
+        intern: true,
+        project: true
+      },
+      modal: {
+        show: false,
+        type: "new",
+        data: null
+      },
+      jobs: {
+        quick: null,
+        stable: null,
+        intern: null,
+        project: null
       },
       loading: true,
-      quickJobs: null,
-      stableJobs: null,
-      internships: null,
-      projects: null,
       errorMsg: null
     };
     console.log(["Board constructor called"]);
+    this.vars = new Variable();
     this.http = new Http();
   }
 
-  componentWillMount() {
-    this.refresh();
-  }
+  componentWillMount() { this.refresh(); }
 
   refresh() {
     const onError = (err) => {
@@ -60,11 +65,18 @@ class Board extends React.Component {
         // console.log(d);
         if (d && d.org) {
           this.setState(s => {
-            s.stableJobs = d.stable_jobs;
-            s.quickJobs = d.quick_jobs;
-            s.internships = d.internships;
-            s.projects = d.projects;
+            s.jobs.stable = d.stable_jobs;
+            s.jobs.quick = d.quick_jobs;
+            s.jobs.intern = d.internships;
+            s.jobs.project = d.projects;
+            s.panelOpen = {
+              quick: s.jobs.quick.length > 0,
+              stable: s.jobs.stable.length > 0,
+              intern: s.jobs.intern.length > 0,
+              project: s.jobs.project.length > 0
+            };
             s.loading = false;
+            s.errorMsg = null;
             return s;
           });
         } else this.props.signOut();
@@ -96,18 +108,21 @@ class Board extends React.Component {
     });
   }
 
-  showAddItemModal(modalType, jobType) {
-    this.setState({
-      addItemModalType: modalType,
-      addItemJobType: jobType,
-      showAddItemModal: true
+  showAddItemModal(type = "new", data = null) {
+    this.setState(s => {
+      s.modal.show = true;
+      s.modal.type = type;
+      if (!! data) s.modal.data = data;
+      return s;
     });
   }
 
   closeAddItemModal(refresh) {
-    this.setState({
-      showAddItemModal: false,
-      addItemModalType: null
+    this.setState(s => {
+      s.modal.show = false;
+      s.modal.type = "new";
+      s.modal.data = null;
+      return s;
     }, () => {
       console.log("refresh is " + refresh);
       if (refresh) this.refresh();
@@ -119,221 +134,100 @@ class Board extends React.Component {
     console.log(data);
   }
 
+  renderTable(jobArr) {
+    if (!jobArr || jobArr.length <= 0) return null;
+    return jobArr.map(job => {
+      const updatedAt = (new Date(job.updated_at).toLocaleDateString());
+      let salaryDescription = "";
+      switch (job.salary_type) {
+        case "range":
+          salaryDescription = "$" + job.salary_high + " to $" + job.salary_low;
+          break;
+        case "specific":
+          salaryDescription = "$" + job.salary_value;
+          break;
+        case "negotiable":
+          salaryDescription = "negotiable";
+          break;
+        default:
+          salaryDescription = "no info";
+          break;
+      }
+      return (
+        <tr key={"jobs_long_" + job.id} >
+          <td>{job.title}</td>
+          <td>{updatedAt}</td>
+          <td>{salaryDescription}</td>
+          <td>
+            <Button
+              bsSize="small"
+              bsStyle="link"
+              onClick={() => { this.edit(job); }}
+            >
+              Edit
+            </Button>
+          </td>
+          <td>
+            <Button
+              bsSize="small"
+              bsStyle="link"
+              onClick={() => { this.delete(job.id); }}
+            >
+              X
+            </Button>
+          </td>
+        </tr>
+      );
+    });
+  }
+
   render() {
     if (!!this.state.loading) return (<div className="flex-row flex-vhCenter"><Loading type="bubbles" color="#337ab7" /></div>);
     if (!!this.state.errorMsg) return (<div className="flex-row full-width" style={{minHeight: '50px'}}> this.state.errorMsg </div>);
-    let quickJobsTable, stableJobsTable, projectsTable;
-    if (!this.state.loading && !this.state.errorMsg) {
-      quickJobsTable = this.state.quickJobs.map(data => {
-        const updatedAt = (new Date(data.updated_at).toLocaleDateString());
-        let salaryDescription = "";
-        switch (data.salary_type) {
-          case "range":
-            salaryDescription = "range = $" + data.salary_high + " to $" + data.salary_low;
-            break;
-          case "specific":
-            salaryDescription = "specific: $" + data.salary_value;
-            break;
-          case "negotiable": default:
-            salaryDescription = "negotiable";
-            break;
-        }
-        return (
-          <tr key={"jobs_long_" + data.id} >
-            <td>{data.title}</td>
-            <td>{updatedAt}</td>
-            <td>{salaryDescription}</td>
-            <td>
-              <Button
-                bsSize="small"
-                bsStyle="link"
-                onClick={() => { this.edit(data); }}
-              >
-                Edit
-              </Button>
-            </td>
-            <td>
-              <Button
-                bsSize="small"
-                bsStyle="link"
-                onClick={() => { this.delete(data.id); }}
-              >
-                X
-              </Button>
-            </td>
-          </tr>
-        );
-      });
-
-      stableJobsTable = this.state.stableJobs.map(data => {
-        const updatedAt = (new Date(data.updated_at).toLocaleDateString());
-        let salaryDescription = "";
-        switch (data.salary_type) {
-          case "range":
-            salaryDescription = "range = $" + data.salary_high + " to $" + data.salary_low;
-            break;
-          case "specific":
-            salaryDescription = "specific: $" + data.salary_value;
-            break;
-          case "negotiable": default:
-            salaryDescription = "negotiable";
-            break;
-        }
-        return (
-          <tr key={"jobs_long_" + data.id} >
-            <td>{data.title}</td>
-            <td>{updatedAt}</td>
-            <td>{salaryDescription}</td>
-            <td>
-              <Button
-                bsSize="small"
-                bsStyle="link"
-                onClick={() => { this.edit(data); }}
-              >
-                Edit
-              </Button>
-            </td>
-            <td>
-              <Button
-                bsSize="small"
-                bsStyle="link"
-                onClick={() => { this.delete(data.id); }}
-              >
-                X
-              </Button>
-            </td>
-          </tr>
-        );
-      });
-
-      projectsTable = this.state.projects.map(data => {
-        const updatedAt = (new Date(data.updated_at).toLocaleDateString());
-        return (
-          <tr key={"jobs_long_" + data.id} >
-            <td>{data.title}</td>
-            <td>{updatedAt}</td>
-            <td>{data.reward_value}</td>
-            <td>
-              <Button
-                bsSize="small"
-                bsStyle="link"
-                onClick={() => { this.edit(data); }}
-              >
-                Edit
-              </Button>
-            </td>
-            <td>
-              <Button
-                bsSize="small"
-                bsStyle="link"
-                onClick={() => { this.delete(data.id); }}
-              >
-                X
-              </Button>
-            </td>
-          </tr>
-        );
-      });
-    }
 
     return (
       <section className="board">
-        <p>You have posted {this.state.quickJobs.length} quick jobs, {this.state.stableJobs.length} stable jobs, and {this.state.projects.length} projects.</p>
-
-        <div className="toggle-div">
-          <h4 className="inline">Quick Jobs</h4>
-          <Button bsStyle="link" onClick={() => { this.togglePanel('quick'); }}>
-            {this.state.panelOpen.quick ? "collapse" : "show" } ({this.state.quickJobs.length})
-          </Button>
-          <div className="flex-col flex-vhCenter">
-            <Button
-              bsStyle="primary"
-              bsSize="small"
-              className="add"
-              onClick={() => { this.showAddItemModal('job','quick'); }}> + </Button>
-          </div>
+        <p>You have posted {this.state.jobs.quick.length} quick jobs, {this.state.jobs.stable.length} stable jobs, {this.state.jobs.intern.length} internships, and {this.state.jobs.project.length} projects.</p>
+        <div className="flex-col flex-vhCenter">
+          <Icon
+            name="plus circle"
+            size="big"
+            link
+            className="add"
+            onClick={() => { this.showAddItemModal(); }}
+          />
         </div>
-        <Panel collapsible expanded={this.state.panelOpen.quick}>
-          <Table responsive striped>
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Updated At</th>
-                <th>Salary</th>
-                <th>Show Description</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {quickJobsTable}
-            </tbody>
-          </Table>
-        </Panel>
-
-        <div className="toggle-div">
-          <h4 className="inline">Stable Jobs</h4>
-          <Button bsStyle="link" onClick={() => { this.togglePanel('stable') }}>
-            {this.state.panelOpen.stable ? "collapse" : "show" } ({this.state.stableJobs.length})
-          </Button>
-          <div className="flex-col flex-vhCenter">
-            <Button
-              bsStyle="primary"
-              bsSize="small"
-              className="add"
-              onClick={() => { this.showAddItemModal('job','stable'); }}> + </Button>
-          </div>
-        </div>
-        <Panel collapsible expanded={this.state.panelOpen.stable}>
-          <Table responsive striped>
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Updated At</th>
-                <th>Salary</th>
-                <th>Show Description</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {stableJobsTable}
-            </tbody>
-          </Table>
-        </Panel>
-
-        <div className="toggle-div">
-          <h4 className="inline">Projects</h4>
-          <Button bsStyle="link" onClick={() => { this.togglePanel('projects'); }}>
-            {this.state.panelOpen.projects ? "collapse" : "show" } ({this.state.projects.length})
-          </Button>
-          <div className="flex-col flex-vhCenter">
-            <Button
-              bsStyle="primary"
-              bsSize="small"
-              className="add"
-              onClick={() => { this.showAddItemModal('project'); }}> + </Button>
-          </div>
-        </div>
-        <Panel collapsible expanded={this.state.panelOpen.projects}>
-          <Table responsive striped>
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Updated at</th>
-                <th>Reward</th>
-                <th>Show Description</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projectsTable}
-            </tbody>
-          </Table>
-        </Panel>
+        {
+          this.vars.jobType.map(obj => ([
+            <div className="toggle-div" key={"toggle-div-" + obj.value}>
+              <h4 className="inline">{obj.name}s</h4>
+              <Button bsStyle="link" onClick={() => { this.togglePanel(obj.value); }}>
+                {this.state.panelOpen[obj.value] ? "collapse" : "show" } ({this.state.jobs[obj.value].length})
+              </Button>
+            </div>,
+            <Panel collapsible expanded={this.state.panelOpen[obj.value]} key={"panel-" + obj.value}>
+              <Table responsive striped>
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Updated At</th>
+                    <th>Salary</th>
+                    <th>Show Description</th>
+                    <th>Delete</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {this.renderTable(this.state.jobs[obj.value])}
+                </tbody>
+              </Table>
+            </Panel>
+          ]))
+        }
 
         <AddItemModal
-          show={this.state.showAddItemModal}
-          modalType={this.state.addItemModalType}
-          jobType={this.state.addItemJobType}
+          show={this.state.modal.show}
+          type={this.state.modal.type}
+          data={this.state.modal.data}
           closeModal={ (refresh) => { this.closeAddItemModal(refresh); }}
         />
       </section>

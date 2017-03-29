@@ -1,12 +1,11 @@
 import React from 'react';
 import { Button, Grid, Row, Col, Image, ListGroup, ListGroupItem, Fade, Well, Modal, FormGroup, ControlLabel, FormControl, HelpBlock, Checkbox } from 'react-bootstrap';
-import 'whatwg-fetch';
 let Loading = require('react-loading');
 
 import Field from './Field';
 // import AddItemModal from './AddItemModal';
 
-import Variable from '../../services/var';
+import Http from "../../services/http";
 
 class Profile extends React.Component {
   constructor(props) {
@@ -26,37 +25,22 @@ class Profile extends React.Component {
         admin: false
       }
     };
-    this.vars = new Variable();
+    this.http = new Http();
   }
 
   componentWillMount() {
-    const url = this.vars.baseUrl + 'orgs/whoAreWe';
-    fetch(url, {
-      method: 'GET',
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: this.vars.baseUrl
-      }
-    })
-      .then(res => {
-        if (res.ok) {
-          return res.json();
-        } else {
-          localStorage.removeItem("authToken");
-          alert('Thre is an error with the request, if problem persists, please contact administrators.');
-          this.setState({loading: false});
-        }
+    this.http.request("orgs/whoAreWe").then(res => {
+        if (!!res.ok) return res.json();
+        localStorage.removeItem("authToken");
+        alert('Thre is an error with the request, if problem persists, please contact administrators.');
+        return this.setState({loading: false});
       })
       .then(d => {
         console.log(d);
-        if (d.me) {
+        if (!!d && d.me) {
           const obj = d; // {me, org, employers}
           obj.loading = false;
-          this.setState(obj
-          // , () => {
-          //   console.log("app.js loadData is called, setState, will log this.state");
-          //   console.log(this.state);}
-          );
+          this.setState(obj);
         } else {
           localStorage.removeItem("authToken");
           this.setState({loading: false});
@@ -107,62 +91,46 @@ class Profile extends React.Component {
   }
 
   submitAddEmployer() {
-    const obj = {employer: this.state.addAdminData};
-    obj.employer.org_id = this.state.org.id;
-    console.log(obj);
-    const headers = {"Content-Type": "application/json", Authorization: this.props.authToken};
-    const url = this.vars.baseUrl + 'employers';
-    fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(obj)
+    const data = {employer: this.state.addAdminData};
+    data.employer.org_id = this.state.org.id;
+    this.http.request("employers", "POST", data).then(res => {
+      if (res.ok) return res.json();
+      return {error: res.statusText};
     })
-      .then(res => {
-        if (res.ok) return res.json();
-        return {error: res.statusText};
-      })
-      .then(d => {
-        // console.log('submitAddEployer fetch.then logging data');
-        // console.log(d);
-        const obj = {};
-        if (!d.error) {
-          obj.employers = this.state.employers;
-          obj.employers.push(d);
-          obj.showModal = false;
-          obj.modalErrorMsg = null;
-          obj.addAdminData = {name: '', email: '', password: '', admin: false};
-          this.setState(obj);
-        } else {
-          obj.modalErrorMsg = d.error;
-          this.setState(obj);
-        }
-      });
+    .then(d => {
+      const obj = {};
+      if (!!d && !d.error) {
+        obj.employers = this.state.employers;
+        obj.employers.push(d);
+        obj.showModal = false;
+        obj.modalErrorMsg = null;
+        obj.addAdminData = {name: '', email: '', password: '', admin: false};
+        this.setState(obj);
+      } else {
+        obj.modalErrorMsg = d.error;
+        this.setState(obj);
+      }
+    });
   }
 
   deleteEmployer(employer) {
-    const headers = {"Content-Type": "application/json", Authorization: this.props.authToken};
-    const url = this.vars.baseUrl + 'employers/' + employer.id;
-    fetch(url, {
-      method: 'DELETE',
-      headers
+    this.http.request("employers/" + employer.id, "DELETE").then(res => {
+      if (res.ok) return {error: null};
+      return {error: res.statusText};
     })
-      .then(res => {
-        if (res.ok) return {error: null};
-        return {error: res.statusText};
-      })
-      .then(d => {
-        const obj = {};
-        if (!d.error) {
-          obj.employers = this.state.employers;
-          const index = obj.employers.indexOf(employer);
-          console.log("deleting local data, index is" + index);
-          obj.employers.splice(index, 1);
-          this.setState(obj);
-        } else {
-          obj.modalErrorMsg = d.error;
-          this.setState(obj);
-        }
-      });
+    .then(d => {
+      const obj = {};
+      if (!!d && !d.error) {
+        obj.employers = this.state.employers;
+        const index = obj.employers.indexOf(employer);
+        console.log("deleting local data, index is" + index);
+        obj.employers.splice(index, 1);
+        this.setState(obj);
+      } else {
+        obj.modalErrorMsg = d.error;
+        this.setState(obj);
+      }
+    });
   }
 
   render() {
@@ -180,10 +148,7 @@ class Profile extends React.Component {
       keyState.forEach((key) => {
         data = data[key];
       });
-      // console.log("going to log keyState and data inside generateField, render, Profile.js");
-      // console.log(keyState);
-      // console.log(data);
-      
+
       const isPassword = keys.keyEdit === 'password';
 
       return (

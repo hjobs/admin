@@ -30,7 +30,9 @@
   flex-wrap: wrap;
 }
 .flex-hCenter {justify-content: center;}
+.flex-vStart { align-items: flex-start; }
 .flex-vCenter {align-items: center;}
+.flex-vEnd { align-items: flex-end; }
 .flex-vhCenter {justify-content: center; align-items: center;}
 .flex-spacedBetween {justify-content: space-around;}
 

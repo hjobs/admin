@@ -1,9 +1,8 @@
 import React from 'react';
 import { Button, ListGroupItem } from 'react-bootstrap';
-import 'whatwg-fetch';
 // let Loading = require('react-loading');
 
-import Variable from '../../services/var';
+import Http from '../../services/http';
 
 class Field extends React.Component {
   constructor(props) {
@@ -13,7 +12,7 @@ class Field extends React.Component {
       errorMsg: null,
       loading: false
     };
-    this.vars = new Variable();
+    this.http = new Http();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -38,18 +37,11 @@ class Field extends React.Component {
     }
 
     this.setState({errorMsg: null, loading: true}, () => {
-      const url = this.vars.baseUrl + this.props.keys.keyUrl + '/' + this.props.id;
-      const headers = {"Content-Type": "application/json", Authorization: this.props.authToken};
       const body = {};
       body[this.props.keys.keyBody] = {};
       body[this.props.keys.keyBody][this.props.keys.keyEdit] = this.state.editValue;
 
-      fetch(url, {
-        method: 'PATCH',
-        headers,
-        body: JSON.stringify(body)
-      })
-        .then(res => {
+      this.http.request(this.props.keys.keyUrl + '/' + this.props.id, "PATCH", body).then(res => {
           // console.log(res);
           if (res.status < 202) return res.json();
           this.setState({errorMsg: res.statusText});
