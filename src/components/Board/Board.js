@@ -67,7 +67,7 @@ class Board extends React.Component {
           this.setState(s => {
             s.jobs.stable = d.stable_jobs;
             s.jobs.quick = d.quick_jobs;
-            s.jobs.intern = d.internships;
+            s.jobs.intern = d.interns;
             s.jobs.project = d.projects;
             s.panelOpen = {
               quick: s.jobs.quick.length > 0,
