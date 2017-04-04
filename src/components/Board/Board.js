@@ -141,10 +141,10 @@ class Board extends React.Component {
       let salaryDescription = "";
       switch (job.salary_type) {
         case "range":
-          salaryDescription = "$" + job.salary_high + " to $" + job.salary_low;
+          salaryDescription = "$" + job.salary_high + "-" + job.salary_low + " /" + job.salary_unit;
           break;
         case "specific":
-          salaryDescription = "$" + job.salary_value;
+          salaryDescription = "$" + job.salary_value + " /" + job.salary_unit;
           break;
         case "negotiable":
           salaryDescription = "negotiable";
