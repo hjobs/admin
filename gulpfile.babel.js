@@ -114,9 +114,9 @@ gulp.task('fontAwesome', () => {
 gulp.task('htmlReplace', () => {
   gulp.src('index.html')
   .pipe(htmlReplace({
-    css: 'styles/main.css?version=20170329',
+    css: 'styles/main.css?version=20170404v1',
     fontAwesome: 'styles/font-awesome/css/font-awesome.min.css',
-    js: 'js/app.js?version=20170329'
+    js: 'js/app.js?version=20170404v1'
   }))
   .pipe(gulp.dest(paths.dist));
 });
