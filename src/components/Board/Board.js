@@ -48,7 +48,7 @@ class Board extends React.Component {
         s.loading = false;
         s.errorMsg = err;
         return s;
-      });
+      }, () => { this.props.signOut(); });
     };
 
     this.setState(s => {

@@ -201,7 +201,7 @@ class AddItemModal extends React.Component {
                   <Button
                     key={'job-type-choice-' + jobType.value}
                     onClick={() => { this.changeJobType(jobType); }}
-                    color={this.state.job.job_type === jobType.value ? "black" : null}
+                    color={this.state.job.job_type === jobType.value ? "black" : "transparent"}
                   >{jobType.name}</Button>
                 );
                 if (i < arr.length - 1) result.push(<Button.Or key={'button-separator-' + i} />);
@@ -228,7 +228,23 @@ class AddItemModal extends React.Component {
             type: "text",
             placeholder: "e.g. https://www.dropbox.com/s/mv7h76ivci2/VTafwn.pdf?dl=0"
           })}
-          <label>Additional Info</label>
+          <RewardComponent
+            onChangeChoice={(addOrRemove, option) => { this.rewardChangeChoice(addOrRemove, option); }}
+            onChangeInput={(key, data) => { this.handleFormChange(key, data); }}
+            choicesChosen={this.state.reward.chosen}
+            choicesToChoose={this.state.reward.toChoose}
+            customData={this.state.job}
+            progress={this.state.progress.reward}
+          />
+          <TimeComponent
+            jobType={this.state.job.job_type}
+            type="period"
+            setDate={() => {}}
+            onChange={(key, data, period) => { this.periodChange(key, data, period); }}
+            data={this.state.period}
+            progress={this.state.progress.period}
+          />
+          <label style={{marginTop: "15px"}}>Additional Info</label>
           <div>
             <Checkbox
               checked={this.state.isEvent}
@@ -238,14 +254,12 @@ class AddItemModal extends React.Component {
                 if (!s.isEvent) s.job.event = "";
                 return s;
               }); }}
-            />{"   "}
+            /><span style={{visibility: "hidden"}}>"a"</span>
             {
               !this.state.isEvent ? null :
-                <Input
-                  focus={this.state.isEvent}
-                  size="mini"
+                <input
                   value={this.state.job.event}
-                  onChange={(e, d) => { this.setState(s => { s.job.event = d.value; }); }}
+                  onChange={() => { this.setState(s => { s.job.event = event.target.value; }); }}
                   placeholder="Event name here"
                 />
             }
@@ -259,7 +273,7 @@ class AddItemModal extends React.Component {
                 if (!s.isEvent) s.job.langs = [];
                 return s;
               }); }}
-            />{"   "}
+            /><span style={{visibility: "hidden"}}>"a"</span>
             {
               !this.state.hasLang ? null :
                 /*
@@ -288,22 +302,6 @@ class AddItemModal extends React.Component {
                 />
             }
           </div>
-          <RewardComponent
-            onChangeChoice={(addOrRemove, option) => { this.rewardChangeChoice(addOrRemove, option); }}
-            onChangeInput={(key, data) => { this.handleFormChange(key, data); }}
-            choicesChosen={this.state.reward.chosen}
-            choicesToChoose={this.state.reward.toChoose}
-            customData={this.state.job}
-            progress={this.state.progress.reward}
-          />
-          <TimeComponent
-            jobType={this.state.job.job_type}
-            type="period"
-            setDate={() => {}}
-            onChange={(key, data, period) => { this.periodChange(key, data, period); }}
-            data={this.state.period}
-            progress={this.state.progress.period}
-          />
           <p style={{color: "red", whiteSpace: "pre-line", textAlign: "center", fontSize: "12px", paddingTop: "14px"}}>
             {this.state.errorMessage}
           </p>

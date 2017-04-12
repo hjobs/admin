@@ -5,8 +5,10 @@ $bright-bkgd: #f0ce00;
 $dark-bkgd: #101010;
 $red: red;
 $white-bkgd: transparent;
-$white: white;
+$white: #FEFEFE;
 $off-white: #EEE;
+$black: $dark-bkgd;
+$gray: #666;
 
 $div-circle-bkgd: $bright-bkgd;
 $div-circle-border: $dark-bkgd;
@@ -100,17 +102,49 @@ h1,h2,h3,h4,h5,h6 {
     @media screen and (min-width: $phoneTall) { max-height: calc(100vh - 60px); }
     // margin: 5vh 5vw; width: 90vw; max-height: 90vh;
   }
-  .modal-body { max-height: calc(100vh - (55.5px - 2px) - 60px); overflow: scroll; }
-  .modal-footer { max-height: 55.5px; }
-  .time-input { width: 3em; }
-  .flatpickr-input.flatpickr-input.form-control.input { height: 25px; overflow: scroll; }
-  label,.label { font-size: 16px; font-weight: bold; }
-  .chosen-bubble {
-    background-color: transparent;
-    color: #444;
-    border: 1px solid #AAA;
+  .modal-body {
+    max-height: calc(100vh - (55.5px - 2px) - 60px);
+    overflow: scroll;
+    background-color: $off-white;
+    input, textarea, .flatpickr-input.flatpickr-input.form-control.input, .ui.multiple.dropdown { 
+      background-color: $white;
+      color: #333;
+      border: 0px;
+      border-radius: 5px;
+      padding: 6px 12px;
+    }
+    .flatpickr-input.flatpickr-input.form-control.input {
+      height: 25px;
+      overflow: scroll;
+    }
+    .time-input { width: 3em; padding: 6px 2px; border-radius: 0px; }
+    label, .label {
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .ui.checkbox>label { font-size: 12px; font-weight: 400; }
+    input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      margin: 0;
+    }
+    .ui.button {
+      background-color: $white;
+      color: $black;
+      font-weight: 400;
+    }
+    .ui.button.black { background-color: $black; color: $white; }
+    .ui.transparent.button { background-color: transparent ; color: $black; }
+    .ui.button.chosen-bubble {
+      background-color: #333;
+      color: $white;
+    }
+    input {
+      font-size: 12px;
+    }
   }
-  input { font-size: 12px; }
+  .modal-footer { max-height: 55.5px; }
 }
 
 .padded-side { padding: 0px 7px; }
@@ -135,4 +169,8 @@ section.profile {
       margin-bottom: 0px !important;
     }
   }
+}
+
+.flatpickr-days {
+  display: block !important;
 }

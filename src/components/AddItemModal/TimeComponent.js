@@ -54,6 +54,7 @@ class TimeComponent extends React.Component {
               <Button
                 key="no-specific-date-result-button"
                 size="medium"
+                color="black"
                 onClick={() => { this.toggleNoDates(); }}
               >
                 <Icon link name="x" /> "No specific Date"

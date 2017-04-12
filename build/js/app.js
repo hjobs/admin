@@ -49154,6 +49154,10 @@ var DateTimePicker = function (_Component) {
       });
 
       this.flatpickr = new _flatpickr2.default(this.node, options);
+
+      if (this.props.hasOwnProperty('value')) {
+        this.flatpickr.setDate(this.props.value, false);
+      }
     }
   }, {
     key: 'componentWillUnmount',
@@ -49165,17 +49169,25 @@ var DateTimePicker = function (_Component) {
     value: function render() {
       var _this2 = this;
 
-      // ignore onChange, options
+      // ignore onChange
       // eslint-disable-next-line no-unused-vars
       var _props = this.props,
           onChange = _props.onChange,
           options = _props.options,
           defaultValue = _props.defaultValue,
           value = _props.value,
-          props = _objectWithoutProperties(_props, ['onChange', 'options', 'defaultValue', 'value']);
+          children = _props.children,
+          props = _objectWithoutProperties(_props, ['onChange', 'options', 'defaultValue', 'value', 'children']);
 
-      return _react2.default.createElement('input', _extends({}, props, { defaultValue: defaultValue || value, ref: function ref(node) {
-          return _this2.node = node;
+      return options.wrap ? _react2.default.createElement(
+        'div',
+        _extends({}, props, { ref: function ref(node) {
+            _this2.node = node;
+          } }),
+        children
+      ) : _react2.default.createElement('input', _extends({}, props, { defaultValue: defaultValue || value,
+        ref: function ref(node) {
+          _this2.node = node;
         } }));
     }
   }]);
@@ -49184,7 +49196,11 @@ var DateTimePicker = function (_Component) {
 }(_react.Component);
 
 DateTimePicker.propTypes = {
-  options: _react.PropTypes.object
+  defaultValue: _react.PropTypes.string,
+  options: _react.PropTypes.object,
+  onChange: _react.PropTypes.func,
+  value: _react.PropTypes.string,
+  children: _react.PropTypes.node
 };
 DateTimePicker.defaultProps = {
   options: {}
@@ -75583,7 +75599,7 @@ var AddItemModal = function (_React$Component) {
                     onClick: function onClick() {
                       _this5.changeJobType(jobType);
                     },
-                    color: _this5.state.job.job_type === jobType.value ? "black" : null
+                    color: _this5.state.job.job_type === jobType.value ? "black" : "transparent"
                   },
                   jobType.name
                 ));
@@ -75610,75 +75626,6 @@ var AddItemModal = function (_React$Component) {
             type: "text",
             placeholder: "e.g. https://www.dropbox.com/s/mv7h76ivci2/VTafwn.pdf?dl=0"
           }),
-          _react2.default.createElement(
-            'label',
-            null,
-            'Additional Info'
-          ),
-          _react2.default.createElement(
-            'div',
-            null,
-            _react2.default.createElement(_semanticUiReact.Checkbox, {
-              checked: this.state.isEvent,
-              label: 'this is an event',
-              onClick: function onClick() {
-                _this5.setState(function (s) {
-                  s.isEvent = !_this5.state.isEvent;
-                  if (!s.isEvent) s.job.event = "";
-                  return s;
-                });
-              }
-            }),
-            "   ",
-            !this.state.isEvent ? null : _react2.default.createElement(_semanticUiReact.Input, {
-              focus: this.state.isEvent,
-              size: 'mini',
-              value: this.state.job.event,
-              onChange: function onChange(e, d) {
-                _this5.setState(function (s) {
-                  s.job.event = d.value;
-                });
-              },
-              placeholder: 'Event name here'
-            })
-          ),
-          _react2.default.createElement(
-            'div',
-            { style: { fontSize: "12px" } },
-            _react2.default.createElement(_semanticUiReact.Checkbox, {
-              checked: this.state.hasLang,
-              label: 'has language requirement',
-              onClick: function onClick() {
-                _this5.setState(function (s) {
-                  s.hasLang = !_this5.state.hasLang;
-                  if (!s.isEvent) s.job.langs = [];
-                  return s;
-                });
-              }
-            }),
-            "   ",
-            !this.state.hasLang ? null :
-            /*
-            <Input
-              focus={this.state.hasLang}
-              size="mini"
-              value={this.state.job.lang}
-              onChange={(e, d) => { this.setState(s => { s.job.lang = d.value; }); }}
-              placeholder="Lang"
-            />
-            */
-            _react2.default.createElement(_semanticUiReact.Dropdown, {
-              multiple: true,
-              placeholder: 'choose here',
-              onChange: function onChange(e, data) {
-                _this5.setState(function (s) {
-                  s.job.langs = data.value;
-                  return s;
-                });
-              },
-              options: [{ key: "english", text: "English", value: "english" }, { key: "cantonese", text: "Cantonese", value: "cantonese" }, { key: "mandarin", text: "Mandarin", value: "mandarin" }]
-            })
-          ),
           _react2.default.createElement(_RewardComponent2.default, {
             onChangeChoice: function onChangeChoice(addOrRemove, option) {
               _this5.rewardChangeChoice(addOrRemove, option);
@@ -75701,6 +75648,81 @@ var AddItemModal = function (_React$Component) {
             data: this.state.period,
             progress: this.state.progress.period
           }),
+          _react2.default.createElement(
+            'label',
+            { style: { marginTop: "15px" } },
+            'Additional Info'
+          ),
+          _react2.default.createElement(
+            'div',
+            null,
+            _react2.default.createElement(_semanticUiReact.Checkbox, {
+              checked: this.state.isEvent,
+              label: 'this is an event',
+              onClick: function onClick() {
+                _this5.setState(function (s) {
+                  s.isEvent = !_this5.state.isEvent;
+                  if (!s.isEvent) s.job.event = "";
+                  return s;
+                });
+              }
+            }),
+            _react2.default.createElement(
+              'span',
+              { style: { visibility: "hidden" } },
+              '"a"'
+            ),
+            !this.state.isEvent ? null : _react2.default.createElement('input', {
+              value: this.state.job.event,
+              onChange: function onChange() {
+                _this5.setState(function (s) {
+                  s.job.event = event.target.value;
+                });
+              },
+              placeholder: 'Event name here'
+            })
+          ),
+          _react2.default.createElement(
+            'div',
+            { style: { fontSize: "12px" } },
+            _react2.default.createElement(_semanticUiReact.Checkbox, {
+              checked: this.state.hasLang,
+              label: 'has language requirement',
+              onClick: function onClick() {
+                _this5.setState(function (s) {
+                  s.hasLang = !_this5.state.hasLang;
+                  if (!s.isEvent) s.job.langs = [];
+                  return s;
+                });
+              }
+            }),
+            _react2.default.createElement(
+              'span',
+              { style: { visibility: "hidden" } },
+              '"a"'
+            ),
+            !this.state.hasLang ? null :
+            /*
+            <Input
+              focus={this.state.hasLang}
+              size="mini"
+              value={this.state.job.lang}
+              onChange={(e, d) => { this.setState(s => { s.job.lang = d.value; }); }}
+              placeholder="Lang"
+            />
+            */
+            _react2.default.createElement(_semanticUiReact.Dropdown, {
+              multiple: true,
+              placeholder: 'choose here',
+              onChange: function onChange(e, data) {
+                _this5.setState(function (s) {
+                  s.job.langs = data.value;
+                  return s;
+                });
+              },
+              options: [{ key: "english", text: "English", value: "english" }, { key: "cantonese", text: "Cantonese", value: "cantonese" }, { key: "mandarin", text: "Mandarin", value: "mandarin" }]
+            })
+          ),
           _react2.default.createElement(
             'p',
             { style: { color: "red", whiteSpace: "pre-line", textAlign: "center", fontSize: "12px", paddingTop: "14px" } },
@@ -76053,6 +76075,7 @@ var TimeComponent = function (_React$Component) {
             {
               key: 'no-specific-date-result-button',
               size: 'medium',
+              color: 'black',
               onClick: function onClick() {
                 _this2.toggleNoDates();
               }
@@ -76527,6 +76550,8 @@ var Board = function (_React$Component) {
           s.loading = false;
           s.errorMsg = err;
           return s;
+        }, function () {
+          _this2.props.signOut();
         });
       };
 
