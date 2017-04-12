@@ -3,9 +3,9 @@ import 'whatwg-fetch';
 // import Variable from './var';
 // const vars = new Variable();
 
-// const baseUrl = "http://api.hjobs.hk:9080/employer/";
+const baseUrl = "http://api.hjobs.hk:9080/employer/";
 // const baseUrl = "http://dev.hjobs.hk:9080/employer/";
-const baseUrl = "http://localhost:9080/employer/";
+// const baseUrl = "http://localhost:9080/employer/";
 
 class Http {
   constructor() {
