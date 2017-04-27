@@ -5,7 +5,7 @@ import 'whatwg-fetch';
 let Loading = require('react-loading');
 
 // import Job from './Job';
-import AddItemModal from '../AddItemModal/AddItemModal';
+import JobModal from '../JobModal/JobModal';
 
 import Variable from '../../services/var';
 import Http from '../../services/http';
@@ -85,11 +85,6 @@ class Board extends React.Component {
     });
   }
 
-  showDescription(object) {
-    console.log(object);
-    if (!!object) alert(object.description);
-  }
-
   togglePanel(type) {
     this.setState(s => {
       s.panelOpen[type] = !s.panelOpen[type];
@@ -108,16 +103,19 @@ class Board extends React.Component {
     });
   }
 
-  showAddItemModal(type = "new", data = null) {
+  showJobModal(type = "new", data = null) {
     this.setState(s => {
       s.modal.show = true;
       s.modal.type = type;
-      if (!! data) s.modal.data = data;
+      if (!! data) {
+        data.langs = data.langs.map(lang => lang.name);
+        s.modal.data = data;
+      }
       return s;
     });
   }
 
-  closeAddItemModal(refresh) {
+  closeJobModal(refresh) {
     this.setState(s => {
       s.modal.show = false;
       s.modal.type = "new";
@@ -127,11 +125,6 @@ class Board extends React.Component {
       console.log("refresh is " + refresh);
       if (refresh) this.refresh();
     });
-  }
-
-  edit(data) {
-    console.log("inside board.js edit(), and logging data...");
-    console.log(data);
   }
 
   renderTable(jobArr) {
@@ -162,7 +155,7 @@ class Board extends React.Component {
             <Button
               bsSize="small"
               bsStyle="link"
-              onClick={() => { this.edit(job); }}
+              onClick={() => { this.showJobModal("edit", job) }}
             >
               Edit
             </Button>
@@ -194,7 +187,7 @@ class Board extends React.Component {
             size="big"
             link
             className="add"
-            onClick={() => { this.showAddItemModal(); }}
+            onClick={() => { this.showJobModal(); }}
           />
         </div>
         {
@@ -224,11 +217,11 @@ class Board extends React.Component {
           ]))
         }
 
-        <AddItemModal
+        <JobModal
           show={this.state.modal.show}
           type={this.state.modal.type}
           data={this.state.modal.data}
-          closeModal={ (refresh) => { this.closeAddItemModal(refresh); }}
+          closeModal={ (refresh) => { this.closeJobModal(refresh); }}
         />
       </section>
     ); // end render return()

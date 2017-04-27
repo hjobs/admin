@@ -1,11 +1,11 @@
 {
-  "name": "react-starterify",
-  "version": "2.4.1",
+  "name": "hjobs-admin",
+  "version": "0.9.0",
   "description": "React JS application skeleton using Browserify and other awesome tools",
   "main": "app.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Granze/react-starterify"
+    "url": "git+https://github.com/Granze/react-starterify.git"
   },
   "keywords": [
     "gulp",
@@ -49,7 +49,7 @@
     "react-router": "^2.3.0",
     "react-timeago": "^3.1.3",
     "rxjs": "^5.0.3",
-    "semantic-ui-react": "^0.67.0",
+    "semantic-ui-react": "^0.67.2",
     "whatwg-fetch": "^2.0.1"
   },
   "devDependencies": {

@@ -3,7 +3,7 @@ import { Button, Grid, Row, Col, Image, ListGroup, ListGroupItem, Fade, Well, Mo
 let Loading = require('react-loading');
 
 import Field from './Field';
-// import AddItemModal from './AddItemModal';
+// import JobModal from './JobModal';
 
 import Http from "../../services/http";
 

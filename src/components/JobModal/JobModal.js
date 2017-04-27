@@ -10,7 +10,7 @@ import Http from '../../services/http';
 import RewardComponent from "./RewardComponent";
 import TimeComponent from "./TimeComponent";
 
-class AddItemModal extends React.Component {
+class JobModal extends React.Component {
   constructor(props) {
     super(props);
     this.vars = new Variable();
@@ -54,6 +54,30 @@ class AddItemModal extends React.Component {
       loading: false,
       errorMessage: null
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.show !== this.props.show && !!nextProps.data) {
+      const j = nextProps.data;
+      this.setState(s => {
+        s.job = {
+          title: j.title,
+          description: j.description,
+          event: j.event,
+          langs: [],
+          attachment_url: "",
+          employment_types: [],
+          job_type: "quick",
+          salary_type: "",
+          salary_value: "",
+          salary_high: "",
+          salary_low: "",
+          salary_unit: "hour"
+        };
+      });
+    } else if (nextProps.show !== this.props.show && !nextProps.data) {
+      this.setState(() => this.getBlankState());
+    }
   }
 
   save() {
@@ -191,7 +215,7 @@ class AddItemModal extends React.Component {
     // };
 
     return (
-      <Modal show={this.props.show} dialogClassName="addItemModal" keyboard={false} backdrop="static">
+      <Modal show={this.props.show} dialogClassName="jobModal" keyboard={false} backdrop="static">
         <Modal.Body>
           <div className="text-center" style={{marginBottom: "15px"}}>
             <Button.Group size="big">
@@ -201,7 +225,8 @@ class AddItemModal extends React.Component {
                   <Button
                     key={'job-type-choice-' + jobType.value}
                     onClick={() => { this.changeJobType(jobType); }}
-                    color={this.state.job.job_type === jobType.value ? "black" : "transparent"}
+                    color={this.state.job.job_type === jobType.value ? "black" : null}
+                    className={this.state.job.job_type === jobType.value ? null : "transparent"}
                   >{jobType.name}</Button>
                 );
                 if (i < arr.length - 1) result.push(<Button.Or key={'button-separator-' + i} />);
@@ -276,15 +301,6 @@ class AddItemModal extends React.Component {
             /><span style={{visibility: "hidden"}}>"a"</span>
             {
               !this.state.hasLang ? null :
-                /*
-                <Input
-                  focus={this.state.hasLang}
-                  size="mini"
-                  value={this.state.job.lang}
-                  onChange={(e, d) => { this.setState(s => { s.job.lang = d.value; }); }}
-                  placeholder="Lang"
-                />
-                */
                 <Dropdown
                   multiple
                   placeholder="choose here"
@@ -323,11 +339,11 @@ class AddItemModal extends React.Component {
   }
 }
 
-AddItemModal.propTypes = {
+JobModal.propTypes = {
   closeModal: React.PropTypes.func.isRequired,
   type: React.PropTypes.string.isRequired,
   show: React.PropTypes.bool.isRequired,
   data: React.PropTypes.any
 };
 
-export default AddItemModal;
+export default JobModal;

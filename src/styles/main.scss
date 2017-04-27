@@ -93,7 +93,7 @@ h1,h2,h3,h4,h5,h6 {
   .table-responsive {margin-bottom: 0px;}
 }
 
-.addItemModal {
+.jobModal {
   // margin: 0px;
   @media screen and (max-width: $phoneTall) { margin: 5vh 5vw; width: 90vw; }
   textarea { max-width: 100% !important; min-height: 5em; max-height: 15em; }
@@ -144,7 +144,10 @@ h1,h2,h3,h4,h5,h6 {
       font-size: 12px;
     }
   }
-  .modal-footer { max-height: 55.5px; }
+  .modal-footer {
+    max-height: 55.5px;
+    background-color: $off-white;
+  }
 }
 
 .padded-side { padding: 0px 7px; }
