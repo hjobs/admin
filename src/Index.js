@@ -1,14 +1,14 @@
 import React from 'react';
-import { render } from 'react-dom';
-// import { Router, Route, hashHistory } from 'react-router';
-import App from './components/App';
+import ReactDOM from 'react-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
+import App from './Containers/App/App';
+import './index.css';
 
-window.React = React;
+// console.log = () => {};
 
-// render(
-//   (<Router history={hashHistory}>
-//     <Route path="/" component={App} />
-//   </Router>), document.getElementById('app')
-// );
-
-render(<App />, document.getElementById('app'));
+ReactDOM.render(
+  <Router>
+    <App />
+  </Router>,
+  document.getElementById('root')
+);
