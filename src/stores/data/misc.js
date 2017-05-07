@@ -1,7 +1,7 @@
 export const langObjects = [
-  {key: "english", text: "English", value: "english"},
-  {key: "cantonese", text: "Cantonese", value: "cantonese"},
-  {key: "mandarin", text: "Mandarin", value: "mandarin"}
+  {key: "en", text: "English", value: "en"},
+  {key: "zh_can", text: "Cantonese (Chinese)", value: "zh_can"},
+  {key: "zh_man", text: "Mandarin (Chinese)", value: "zh_man"}
 ];
 
 export const salaryChoices = {

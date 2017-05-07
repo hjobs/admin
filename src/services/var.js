@@ -171,7 +171,7 @@ const Variable = {
           title: hasJob ? job.title : "",
           description: hasJob ? job.description || "" :"",
           event: hasJob ? job.event || "" :"",
-          langs: hasJob ? job.langs.map(lang =>  lang.name) || [] : [],
+          langs: hasJob ? job.langs.map(lang =>  lang.code) || [] : [],
           attachment_url: hasJob ? job.attachment_url || [] : "",
           employment_types: hasJob ? job.employment_types.map(et => et.name) || [] : [],
           job_type: hasJob ? job.job_type || "quick" : "quick",
@@ -202,7 +202,7 @@ const Variable = {
         errorMessage: null
       }
     }
-  },
+  }
 
   /** @param {'endTimeHour'|'endTimeMinute'|'startTimeHour'|'startTimeMinute'} id @param {object} periodObj @return {number} */
   // getTimeInputMax(id, periodObj) {
