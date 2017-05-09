@@ -28,6 +28,7 @@ class UserStore extends Reflux.Store {
 
   getInitialState() {
     return {
+      userStoreLoading: true,
       me: null,
       authToken: localStorage.getItem("authToken"),
       org: null,
@@ -41,17 +42,19 @@ class UserStore extends Reflux.Store {
   setUser(userObject, authToken) {
     if (this.userObjectIsValid(userObject)) {
       if (authToken) localStorage.setItem("authToken", authToken);
-      this.setState(s => {
-        s.me = userObject.me;
-        s.org = userObject.org
-        s.employers = userObject.employers;
-        if (authToken) s.authToken = authToken;
-        return s;
-      });
+      const nextState = {
+        me: userObject.me,
+        org: userObject.org,
+        employers: userObject.employers,
+        userStoreLoading: false
+      };
+      if (authToken) nextState.authToken = authToken;
+      this.setState(nextState);
     }
   }
 
   getUserFromAuthToken() {
+    this.setState({userStoreLoading: true});
     Http.request('orgs/whoAreWe').then(res => res.json()).then(d => {
       if (!!d && !d.error) {
         this.setUser(d);
@@ -62,13 +65,15 @@ class UserStore extends Reflux.Store {
   }
 
   deleteEmployer(employer) {
+    this.setState({userStoreLoading: true});
     Http.request("employers/" + employer.id, "DELETE").then(res => {
       if (res.ok) return {error: null};
       return {error: res.statusText};
     })
     .then(d => {
-      const obj = {};
+      const obj = {userStoreLoading: false};
       if (!!d && !d.error) {
+        obj.modalErrorMsg = null;
         obj.employers = this.state.employers;
         const index = obj.employers.indexOf(employer);
         console.log("deleting local data, index is" + index);

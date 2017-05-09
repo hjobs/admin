@@ -187,86 +187,89 @@ class Edit extends Reflux.Component {
               </Button.Group>
             </div>
             {
-              fieldObjects.map(obj => (
-                <FieldGroup
-                  key={"fieldGroup-id-" + obj.id}
-                  id={obj.id}
-                  label={obj.label}
-                  type={obj.type}
-                  placeholde={obj.placeholder}
-                  value={this.state.jobModal.job[obj.id]}
-                  handleFormChange={(value) => { this.handleFormChange(obj.id, value); }}
+              !this.state.jobModal.job.job_type ? null :
+              <div>
+                {fieldObjects.map(obj => (
+                  <FieldGroup
+                    key={"fieldGroup-id-" + obj.id}
+                    id={obj.id}
+                    label={obj.label}
+                    type={obj.type}
+                    placeholde={obj.placeholder}
+                    value={this.state.jobModal.job[obj.id]}
+                    handleFormChange={(value) => { this.handleFormChange(obj.id, value); }}
+                  />
+                ))}
+                <RewardComponent
+                  onChangeChoice={(addOrRemove, option) => { this.rewardChangeChoice(addOrRemove, option); }}
+                  onChangeInput={(key, data) => { this.handleFormChange(key, data); }}
+                  choicesChosen={this.state.jobModal.reward.chosen}
+                  choicesToChoose={this.state.jobModal.reward.toChoose}
+                  customData={this.state.jobModal.job}
+                  progress={this.state.jobModal.progress.reward}
                 />
-              ))
+                <TimeComponent
+                  jobType={this.state.jobModal.job.job_type}
+                  type="period"
+                  setDate={() => {}}
+                  onChange={(key, data, period) => { this.periodChange(key, data, period); }}
+                  data={this.state.jobModal.period}
+                  progress={this.state.jobModal.progress.period}
+                />
+                <label style={{marginTop: "15px"}}>Additional Info</label>
+                <div className="flex-row flex-vCenter">
+                  <Checkbox
+                    checked={this.state.jobModal.isEvent}
+                    label="this is an event"
+                    onClick={() => { this.setState(s => {
+                      s.jobModal.isEvent = !this.state.jobModal.isEvent;
+                      if (!s.isEvent) s.jobModal.job.event = "";
+                      return s;
+                    }); }}
+                  /><span style={{visibility: "hidden"}}>"a"</span>
+                  {
+                    !this.state.jobModal.isEvent ? null :
+                      <input
+                        style={{display: "inline-block", width: "20rem"}}
+                        value={this.state.jobModal.job.event}
+                        maxLength={20}
+                        onChange={() => { this.setState(s => { s.jobModal.job.event = event.target.value; }); }}
+                        placeholder="Event name here"
+                      />
+                  }
+                </div>
+                <div style={{fontSize: "12px"}}>
+                  <Checkbox
+                    checked={this.state.jobModal.hasLang}
+                    label="has language requirement"
+                    onClick={() => { this.setState(s => {
+                      s.jobModal.hasLang = !this.state.jobModal.hasLang;
+                      if (!s.jobModal.isEvent) s.jobModal.job.langs = [];
+                      return s;
+                    }); }}
+                  /><span style={{visibility: "hidden"}}>"a"</span>
+                  {
+                    !this.state.jobModal.hasLang ? null :
+                      <Dropdown
+                        multiple
+                        placeholder="choose here"
+                        pointing="bottom"
+                        onClick={() => {
+                          this.form.scrollTop = this.form.scrollHeight;
+                        }}
+                        onChange={(e, data) => {
+                          this.setState(s => {
+                            s.jobModal.job.langs = data.value;
+                            return s;
+                          });
+                        }}
+                        value={this.state.jobModal.job.langs}
+                        options={langObjects}
+                      />
+                  }
+                </div>
+              </div>
             }
-            <RewardComponent
-              onChangeChoice={(addOrRemove, option) => { this.rewardChangeChoice(addOrRemove, option); }}
-              onChangeInput={(key, data) => { this.handleFormChange(key, data); }}
-              choicesChosen={this.state.jobModal.reward.chosen}
-              choicesToChoose={this.state.jobModal.reward.toChoose}
-              customData={this.state.jobModal.job}
-              progress={this.state.jobModal.progress.reward}
-            />
-            <TimeComponent
-              jobType={this.state.jobModal.job.job_type}
-              type="period"
-              setDate={() => {}}
-              onChange={(key, data, period) => { this.periodChange(key, data, period); }}
-              data={this.state.jobModal.period}
-              progress={this.state.jobModal.progress.period}
-            />
-            <label style={{marginTop: "15px"}}>Additional Info</label>
-            <div className="flex-row flex-vCenter">
-              <Checkbox
-                checked={this.state.jobModal.isEvent}
-                label="this is an event"
-                onClick={() => { this.setState(s => {
-                  s.jobModal.isEvent = !this.state.jobModal.isEvent;
-                  if (!s.isEvent) s.jobModal.job.event = "";
-                  return s;
-                }); }}
-              /><span style={{visibility: "hidden"}}>"a"</span>
-              {
-                !this.state.jobModal.isEvent ? null :
-                  <input
-                    style={{display: "inline-block", width: "20rem"}}
-                    value={this.state.jobModal.job.event}
-                    maxLength={20}
-                    onChange={() => { this.setState(s => { s.jobModal.job.event = event.target.value; }); }}
-                    placeholder="Event name here"
-                  />
-              }
-            </div>
-            <div style={{fontSize: "12px"}}>
-              <Checkbox
-                checked={this.state.jobModal.hasLang}
-                label="has language requirement"
-                onClick={() => { this.setState(s => {
-                  s.jobModal.hasLang = !this.state.jobModal.hasLang;
-                  if (!s.jobModal.isEvent) s.jobModal.job.langs = [];
-                  return s;
-                }); }}
-              /><span style={{visibility: "hidden"}}>"a"</span>
-              {
-                !this.state.jobModal.hasLang ? null :
-                  <Dropdown
-                    multiple
-                    placeholder="choose here"
-                    pointing="bottom"
-                    onClick={() => {
-                      this.form.scrollTop = this.form.scrollHeight;
-                    }}
-                    onChange={(e, data) => {
-                      this.setState(s => {
-                        s.jobModal.job.langs = data.value;
-                        return s;
-                      });
-                    }}
-                    value={this.state.jobModal.job.langs}
-                    options={langObjects}
-                  />
-              }
-            </div>
             {
               !!this.state.jobModal.errorMessage ? <ErrorMessage reason={this.state.jobModal.errorMessage} /> : null
             }

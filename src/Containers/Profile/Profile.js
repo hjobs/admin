@@ -1,4 +1,5 @@
 import React from 'react';
+import Reflux from 'reflux';
 import { Button, Grid, Row, Col, Image, ListGroup, ListGroupItem, Fade, Well, Modal, FormGroup, ControlLabel, FormControl, HelpBlock, Checkbox } from 'react-bootstrap';
 import { withRouter } from 'react-router-dom';
 let Loading = require('react-loading');
@@ -6,17 +7,16 @@ let Loading = require('react-loading');
 import Field from './Field';
 // import JobModal from './JobModal';
 
+import UserStore, { UserActions } from '../../stores/userStore';
+
 import Http from "../../services/http";
 
-class Profile extends React.Component {
+class Profile extends Reflux.Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading: true,
+      loading: false,
       successShown: false,
-      org: null,
-      me: null,
-      employers: null,
       editTarget: null,
       showModal: false,
       addAdminData: {
@@ -26,26 +26,27 @@ class Profile extends React.Component {
         admin: false
       }
     };
+    this.store = UserStore;
   }
 
-  componentWillMount() {
-    Http.request("orgs/whoAreWe").then(res => {
-        if (!!res.ok) return res.json();
-        localStorage.removeItem("authToken");
-        this.props.history.replace("/login");
-        return this.setState({loading: false});
-      })
-      .then(d => {
-        if (!!d && d.me) {
-          const obj = d; // {me, org, employers}
-          obj.loading = false;
-          this.setState(obj);
-        } else {
-          localStorage.removeItem("authToken");
-          this.setState({loading: false});
-        }
-      });
-  }
+  // componentWillMount() {
+  //   Http.request("orgs/whoAreWe").then(res => res.json())
+  //     .then(d => {
+  //       if (!!d && d.me) {
+  //         const obj = d; // {me, org, employers}
+  //         UserActions.setUser(obj);
+  //         this.setState(s => {s.loading = false; return s;});
+  //       } else {
+  //         throw Error("no data || no d.me")
+  //       }
+  //     }).catch(() => {
+  //       UserActions.logout();
+  //       this.setState(s => {
+  //         s.loading = false;
+  //         return s;
+  //       });
+  //     });
+  // }
 
   handleSubmit({key, data}) {
     console.log("going to log key and data in Profile.js handleSubmit()");
@@ -152,7 +153,6 @@ class Profile extends React.Component {
 
       return (
         <Field
-          authToken={localStorage.getItem("authToken")}
           value={isPassword ? "" : data[keys.keyEdit] || ""}
           hideValue={hideValue}
           optional={optional}
@@ -191,7 +191,7 @@ class Profile extends React.Component {
       );
     };
 
-    return this.state.loading ? <div className="flex-row flex-vhCenter"><Loading type='bubbles' color='#337ab7' /></div> : (
+    return this.state.userStoreLoading ? <div className="flex-row flex-vhCenter"><Loading type='bubbles' color='#337ab7' /></div> : (
       <section className="profile">
         <Grid fluid>
           <Row>

@@ -1,10 +1,11 @@
 import React from 'react';
+import Reflux from 'reflux';
 import { Button, ListGroupItem } from 'react-bootstrap';
 // let Loading = require('react-loading');
 
 import Http from '../../services/http';
 
-class Field extends React.Component {
+class Field extends Reflux.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -98,7 +99,6 @@ class Field extends React.Component {
 }
 
 Field.propTypes = {
-  authToken: React.PropTypes.string,
   hideValue: React.PropTypes.bool,
   optional: React.PropTypes.bool,
   canEdit: React.PropTypes.bool,

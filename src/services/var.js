@@ -174,7 +174,7 @@ const Variable = {
           langs: hasJob ? job.langs.map(lang =>  lang.code) || [] : [],
           attachment_url: hasJob ? job.attachment_url || [] : "",
           employment_types: hasJob ? job.employment_types.map(et => et.name) || [] : [],
-          job_type: hasJob ? job.job_type || "quick" : "quick",
+          job_type: hasJob ? job.job_type || null : null,
           salary_type: hasJob ? job.salary_type || "" : "",
           salary_value: hasJob ? job.salary_value || "" : "",
           salary_high: hasJob ? job.salary_high || "" : "",
