@@ -61,7 +61,7 @@ class Board extends Reflux.Component {
               bsSize="small"
               bsStyle="link"
               disabled={this.state.jobs.loading}
-              onClick={() => { this.props.history.push("/job/" + job.id); }}
+              onClick={() => { this.props.history.push("/editJob/" + job.id); }}
             >
               Edit
             </Button>
@@ -103,7 +103,7 @@ class Board extends Reflux.Component {
             size="big"
             link
             className="add"
-            onClick={() => this.props.history.push("/job/new") }
+            onClick={() => this.props.history.push("/editJob/new") }
           />
         </div>
         {/*

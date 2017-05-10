@@ -144,6 +144,8 @@ const Variable = {
       salary_high: job.salary_high,
       salary_low: job.salary_low,
       salary_unit: job.salary_unit,
+      has_bonus: job.has_bonus,
+      bonus_value: job.bonus_value,
       langs: job.langs.map(l => l)
     };
     if (state.progress.period > 0) {
@@ -179,7 +181,9 @@ const Variable = {
           salary_value: hasJob ? job.salary_value || "" : "",
           salary_high: hasJob ? job.salary_high || "" : "",
           salary_low: hasJob ? job.salary_low || "" : "",
-          salary_unit: hasJob ? job.salary_unit || "" : "hour"
+          salary_unit: hasJob ? job.salary_unit || "" : "hour",
+          has_bonus: hasJob ? job.has_bonus || false : false,
+          bonus_value: hasJob ? job.bonus_value || "" : ""
         },
         reward: hasJob ? httpJobReducer.rewardReducer(job) : {
           chosen: [],

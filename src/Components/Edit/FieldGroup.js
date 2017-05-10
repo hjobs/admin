@@ -1,9 +1,9 @@
 import React from 'react';
 import { FormGroup, ControlLabel, HelpBlock, FormControl } from 'react-bootstrap';
 
-const FieldGroup = ({id, label, help, type, placeholder, props, value, handleFormChange}) => {
+const FieldGroup = ({id, label, help, type, placeholder, props, value, inline, handleFormChange}) => {
   return (
-    <FormGroup controlId={id}>
+    <FormGroup style={inline ? {display: "inline-block"} : null} controlId={id}>
       {!label ? null : <ControlLabel>{label}</ControlLabel>}
       {
         type !== "textarea" ?

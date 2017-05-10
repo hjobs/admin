@@ -1,12 +1,14 @@
 import React from 'react';
-import { Form, FormGroup, FormControl, InputGroup, Input } from 'react-bootstrap';
-import { Button, Icon } from 'semantic-ui-react';
+import { Form, FormGroup, FormControl, InputGroup } from 'react-bootstrap';
+import { Button, Icon, Checkbox, Input } from 'semantic-ui-react';
 
+import FieldGroup from './FieldGroup';
 // import Variable from '../../services/var';
 
 class RewardComponent extends React.Component {
 
   customRender() {
+    const job = this.props.customData;
     return (
       <Form inline>
         {
@@ -17,7 +19,7 @@ class RewardComponent extends React.Component {
                   <InputGroup.Addon>$</InputGroup.Addon>
                   <FormControl
                     onChange={(event) => { this.props.onChangeInput("salary_low", event.target.value); }}
-                    value={this.props.customData.salary_low}
+                    value={job.salary_low}
                     placeholder="from"
                     type="number" />
                 </InputGroup>
@@ -27,7 +29,7 @@ class RewardComponent extends React.Component {
                   <InputGroup.Addon>$</InputGroup.Addon>
                   <FormControl
                     onChange={(event) => { this.props.onChangeInput("salary_high", event.target.value); }}
-                    value={this.props.customData.salary_high}
+                    value={job.salary_high}
                     placeholder="to"
                     type="number" />
                 </InputGroup>
@@ -41,7 +43,7 @@ class RewardComponent extends React.Component {
                 <InputGroup.Addon>$</InputGroup.Addon>
                 <FormControl
                   onChange={(event) => { this.props.onChangeInput("salary_value", event.target.value); }}
-                  value={this.props.customData.salary_value}
+                  value={job.salary_value}
                   type="number" />
               </InputGroup>
             </FormGroup>
@@ -59,6 +61,7 @@ class RewardComponent extends React.Component {
   }
 
   render() {
+    const job = this.props.customData;
     return (
       <div style={{padding: "7px 0px"}}>
         <label>Reward</label>
@@ -89,6 +92,21 @@ class RewardComponent extends React.Component {
               this.customRender()
           ) : null
         }
+        </div>
+        <div className="flex-row flex-vCenter" style={{paddingTop: "8px"}}>
+          <Checkbox
+            checked={job.has_bonus}
+            label="Has bonus"
+            onChange={(e, d) => this.props.onChangeInput("has_bonus", d.checked)}
+          />
+          {
+            !job.has_bonus ? null :
+              <Input
+                style={{marginLeft: "1em"}}
+                value={job.bonus_value}
+                onChange={(e, d) => this.props.onChangeInput("bonus_value", d.value)}
+              />
+          }
         </div>
       </div>
     );

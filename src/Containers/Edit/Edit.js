@@ -1,9 +1,7 @@
-import React, { ReactDOM } from 'react';
-import Reflux from 'reflux';
-import { withRouter, Prompt } from 'react-router-dom';
-import { Modal } from 'react-bootstrap';
-import { Button, Checkbox, Input, Dropdown, Form } from 'semantic-ui-react';
-// import { Modal } from 'react-bootstrap';
+import React from 'react';
+// import Reflux from 'reflux';
+import { withRouter } from 'react-router-dom';
+import { Button, Checkbox, Dropdown, Form } from 'semantic-ui-react';
 // import queryString from 'query-string';
 
 import Variable from '../../services/var';
@@ -17,7 +15,7 @@ import FieldGroup from '../../Components/Edit/FieldGroup';
 import fieldObjects from './EditFields';
 import { langObjects } from '../../stores/data/misc'
 
-class Edit extends Reflux.Component {
+class Edit extends React.Component {
   constructor(props) {
     super(props);
 
@@ -49,17 +47,14 @@ class Edit extends Reflux.Component {
     })
     .then(d => {
       if (!d || !!d.error) {
-        onError(!!d ? d.error : null);
+        onError(d.toStrig());
       } else {
         this.setState(s => {
           s = Variable.getStateFromJob(d, false);
           return s;
         })
       }
-    }).catch(err => {
-      console.log(err);
-      onError();
-    });
+    }).catch(err => onError(err.toString()));
   }
 
   save() {
@@ -103,7 +98,7 @@ class Edit extends Reflux.Component {
     // console.log(document.getElementById('job-employment_type').value);
   }
 
-  /** @param {string} value @param {'title'|'description'|'attachment_url'|'employment_type'|'salary_type'|'salary_high'|'salary_low'|'salary_value'} key */
+  /** @param {string} value @param {'title'|'description'|'attachment_url'|'employment_type'|'salary_type'|'salary_high'|'salary_low'|'salary_value'|'has_bonus'|'bonus_value'} key */
   handleFormChange(key, value) {
     this.setState(s => {
       s.jobModal.job[key] = value;

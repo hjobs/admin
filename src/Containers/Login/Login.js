@@ -77,7 +77,6 @@ class Login extends Reflux.Component {
           return s;
         });
       } else if (!!d && d.auth_token) {
-        localStorage.setItem("authToken", d.auth_token);
         UserActions.setUser(d, d.auth_token);
         window.setTimeout(() => this.props.history.push("/board"), 300);
       }
