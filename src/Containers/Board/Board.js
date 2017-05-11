@@ -5,6 +5,7 @@ import { Table } from 'react-bootstrap';
 import { Button, Icon } from 'semantic-ui-react';
 import 'whatwg-fetch';
 let Loading = require('react-loading');
+import './board.css';
 
 // import Job from './Job';
 
@@ -33,6 +34,7 @@ class Board extends Reflux.Component {
 
   renderTable(jobArr) {
     if (!jobArr || jobArr.length <= 0) return null;
+    console.log(jobArr);
     return jobArr.map((job, i) => {
       const updatedAt = (new Date(job.updated_at).toLocaleDateString());
       let salaryDescription = "";
@@ -57,13 +59,11 @@ class Board extends Reflux.Component {
           <td>{job.title}</td>
           <td>{updatedAt}</td>
           <td>{salaryDescription}</td>
-          {
-          // <td>
-          //   <Link to={"/viewJob/" + job.id}>
-          //     View
-          //   </Link>
-          // </td>
-          }
+          <td>
+            <Link to={"/viewJob/" + job.id}>
+              View
+            </Link>
+          </td>
           <td>
             <Link to={"/editJob/" + job.id}>
               Edit
@@ -127,8 +127,7 @@ class Board extends Reflux.Component {
                   <th>Title</th>
                   <th>Updated At</th>
                   <th>Salary</th>
-                  {//<th></th>
-                  }
+                  <th></th>
                   <th></th>
                   <th></th>
                 </tr>

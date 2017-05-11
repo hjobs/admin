@@ -3,6 +3,7 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { Button, Checkbox, Dropdown, Form } from 'semantic-ui-react';
 // import queryString from 'query-string';
+import './edit.css';
 
 import Variable from '../../services/var';
 import Http from '../../services/http';

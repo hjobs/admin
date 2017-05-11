@@ -1,0 +1,27 @@
+@import '../../styles/css_var';
+
+.board {
+  .add-job-div {
+    cursor: pointer;
+    background-color: $bright-bkgd;
+    color: $off-white;
+    padding: 15px;
+    margin-bottom: 15px;
+    span { font-size: 18px; }
+  }
+  .toggle-div {
+    padding: 15px 10px 2px 10px;
+    color: $dark-bkgd;
+    text-align: center;
+  }
+  .custom-tooltip {
+    z-index: 1000000 !important;
+  }
+  .panel {
+    margin-bottom: 0px;
+    // box-shadow: 0px 0px 0px;
+    border-color: transparent;
+  }
+  .panel-body {padding: 0px;}
+  .table-responsive {margin-bottom: 0px;}
+}

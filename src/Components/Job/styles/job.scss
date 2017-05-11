@@ -1,0 +1,98 @@
+@import '../../../styles/css_var';
+
+$jobsBkgd: transparent;
+$jobContainerBkgd: $white;
+$jobContainerBoxShadow: $off-white;
+$applyButtonBorder: $white;
+$applyButtonBkgd: $bright-bkgd;
+$applyButtonColor: white;
+
+$date-tag-background: $light-gray;
+$date-tag-color: $dark-bkgd;
+$job-color: #666666;
+
+.job-container {
+  h1,h2,h3,h4,h5,h6 {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: bold;
+  }
+  margin-top: 15px;
+  margin-bottom: 15px;
+  padding: 0px;
+  border-radius: 5px;
+  background-color: $jobContainerBkgd;
+  color: $dark-bkgd;
+  font-size: 14px;
+  // -webkit-box-shadow: 0 0 5px 0px $jobContainerBoxShadow;  /* Safari 3-4, iOS 4.0.2 - 4.2, Android 2.3+ */
+  // -moz-box-shadow:    0 0 5px 0px $jobContainerBoxShadow;  /* Firefox 3.5 - 3.6 */
+  // box-shadow:         0 0 5px 0px $jobContainerBoxShadow;  /* Opera 10.5, IE 9, Firefox 4+, Chrome 6+, iOS 5 */
+  .job-thumbnail{
+    width: 30%;
+    max-width: 125px;
+    margin: 0px 0px 0px 10px;
+    padding: 0px;
+    background-repeat: no-repeat;
+    background-position: right top;
+    background-size: contain;
+    border-radius: 10px;
+    border: 0px;
+  }
+  .job-thumbnail:before {
+    content: "";
+    display: block;
+    padding-top: 100%;
+  }
+
+  .detail-container {
+    position: relative;
+    overflow-wrap: break-word;
+    padding-left: 15px;
+    padding-right: 7.5px;
+    width: calc(70% - 10px);
+
+    // .apply-button {
+    //   // margin-top: calc(100% - 30px);
+    //   position: absolute;
+    //   bottom: 0;
+    //   left: 15px;
+    //   background-color: $applyButtonBkgd;
+    //   border: 1px solid $applyButtonBorder;
+    //   color: $applyButtonColor;
+    // }
+    p {
+      margin-left: 1.5px;
+      color: $job-color;
+      font-weight: 300;
+      i {font-size: 0.9em; margin-right: 8px; min-width: 5px;}
+    }
+  }
+
+  .job-title {
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 1.2em;
+    font-weight: 600;
+    text-overflow: ellipsis;
+  }
+
+  .tag {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    text-align: center;
+    div {
+      background-color: $date-tag-background;
+      border-radius: 15px;
+      color: $date-tag-color;
+      margin: 0px 5px 0px 0px;
+      padding: 0px 10px;
+    }
+    div.event {
+      background-color: #666;
+      color: $off-white;
+    }
+    div.lang {
+      background-color: #AAA;
+      color: $off-white;
+    }
+  }
+}

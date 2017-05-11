@@ -15,7 +15,8 @@ import NavBar from '../../Components/NavBar/NavBar';
 import Board from '../Board/Board';
 import Edit from '../Edit/Edit';
 import Profile from '../Profile/Profile';
-// import ViewJob from '../View/ViewJob';
+import ViewJob from '../View/ViewJob';
+import ViewProfile from '../View/ViewProfile';
 
 import UserStore from '../../stores/userStore';
 
@@ -43,6 +44,8 @@ class App extends Reflux.Component {
           <Route path="/editJob/:jobId" component={Edit} />
           <Route path="/board" component={Board} />
           <Route path="/profile" component={Profile} />
+          <Route path="/viewJob/:jobId" component={ViewJob} />
+          <Route path="/viewEmployee/:employeeId" component={ViewProfile} />
           <Route component={() => <Redirect to="/board" />} />
         </Switch>
       </div>
@@ -51,6 +54,3 @@ class App extends Reflux.Component {
 }
 
 export default withRouter(App);
-
-// <Route path="/viewJob/:jobId" component={ViewJob} />
-// <Route path="/viewEmployee/:employeeId" component={null} />
