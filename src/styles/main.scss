@@ -1,30 +1,6 @@
 @import 'flex';
+@import './css_var';
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|Righteous');
-
-$bright-bkgd: #f0ce00;
-$dark-bkgd: #101010;
-$red: red;
-$white-bkgd: transparent;
-$white: #FEFEFE;
-$off-white: #EEE;
-$black: $dark-bkgd;
-$gray: #666;
-
-$div-circle-bkgd: $bright-bkgd;
-$div-circle-border: $dark-bkgd;
-
-$jobsBkgd: #EFEFEF;
-$jobContainerBkgd: white;
-$jobContainerBoxShadow: #AAA;
-$applyButtonBorder: white;
-$applyButtonBkgd: #F0CE00;
-$applyButtonColor: white;
-$modalBkgd: $bright-bkgd;
-
-$phoneTall: 544px; /* originally 575 */
-$phoneWide: 767px;
-$tablet: 1023px;
-$desktop: 1024px;
 
 body {
   font-family: 'Open Sans', sans-serif;
@@ -44,7 +20,7 @@ section {
 .padding {padding: 20px;}
 
 .cursor {cursor: pointer !important;}
-p.link, span.link {color: blue !important; cursor: pointer;}
+p.link, span.link {color: $blue !important; cursor: pointer;}
 
 /*********TEXT*********/
 h1,h2,h3,h4,h5,h6 {
@@ -74,7 +50,14 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 .board {
-  .add { color: $bright-bkgd; }
+  .add-job-div {
+    cursor: pointer;
+    background-color: $bright-bkgd;
+    color: $off-white;
+    padding: 15px;
+    margin-bottom: 15px;
+    span { font-size: 18px; }
+  }
   .toggle-div {
     padding: 15px 10px 2px 10px;
     color: $dark-bkgd;

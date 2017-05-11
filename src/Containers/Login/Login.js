@@ -53,6 +53,12 @@ class Login extends Reflux.Component {
   signInUp(formData) {
     let urlSuffix;
     let bodyData;
+    const onError = (reason) => {
+      this.setState(s => {
+        s.errorMsg = reason || "There is an error";
+        return s;
+      });
+    }
 
     if (this.state.signInUp === 'in') {
       bodyData = (formData);
@@ -72,15 +78,12 @@ class Login extends Reflux.Component {
     .then(d => {
       console.log(d);
       if (!d || d.error) {
-        this.setState(s => {
-          s.errorMsg = !d ? "Unauthorised" : d.error.employer_authentication;
-          return s;
-        });
+        onError(!d ? "Unauthorised" : d.error.employer_authentication);
       } else if (!!d && d.auth_token) {
         UserActions.setUser(d, d.auth_token);
         window.setTimeout(() => this.props.history.push("/board"), 300);
       }
-    });
+    }).catch(err => onError(err.toString()));
   }
 
   logoUnderstood() { this.setState({logoUnderstood: true}); }

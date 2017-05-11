@@ -1,7 +1,8 @@
 import React from 'react';
 import Reflux from 'reflux';
-import { Button, Table } from 'react-bootstrap';
-import { Icon } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
+import { Table } from 'react-bootstrap';
+import { Button, Icon } from 'semantic-ui-react';
 import 'whatwg-fetch';
 let Loading = require('react-loading');
 
@@ -56,25 +57,25 @@ class Board extends Reflux.Component {
           <td>{job.title}</td>
           <td>{updatedAt}</td>
           <td>{salaryDescription}</td>
+          {
+          // <td>
+          //   <Link to={"/viewJob/" + job.id}>
+          //     View
+          //   </Link>
+          // </td>
+          }
           <td>
-            <Button
-              bsSize="small"
-              bsStyle="link"
-              disabled={this.state.jobs.loading}
-              onClick={() => { this.props.history.push("/editJob/" + job.id); }}
-            >
+            <Link to={"/editJob/" + job.id}>
               Edit
-            </Button>
+            </Link>
           </td>
           <td>
-            <Button
-              bsSize="small"
-              bsStyle="link"
-              disabled={this.state.jobs.loading}
-              onClick={() => { JobActions.delete(i); }}
+            <span
+              className="link"
+              onClick={() => { if (!this.state.jobs.loading) JobActions.delete(i); }}
             >
               X
-            </Button>
+            </span>
           </td>
         </tr>
       );
@@ -97,14 +98,15 @@ class Board extends Reflux.Component {
               and {this.state.jobs.project.length} projects.</p>
           </div>
         */}
-        <div className="flex-col flex-vhCenter" style={{fontSize: "36px", padding: "20px"}}>
+        <div
+          className="flex-row flex-vhCenter add-job-div"
+          onClick={() => this.props.history.push("/editJob/new")}
+        >
           <Icon
             name="plus circle"
-            size="big"
-            link
-            className="add"
-            onClick={() => this.props.history.push("/editJob/new") }
+            size="huge"
           />
+          <span>Add Job</span>
         </div>
         {/*
           <div className="toggle-div">
@@ -125,8 +127,10 @@ class Board extends Reflux.Component {
                   <th>Title</th>
                   <th>Updated At</th>
                   <th>Salary</th>
-                  <th>Show Description</th>
-                  <th>Delete</th>
+                  {//<th></th>
+                  }
+                  <th></th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>

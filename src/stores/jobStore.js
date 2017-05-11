@@ -5,12 +5,10 @@ import Http from '../services/http';
 
 import { UserActions } from './userStore';
 
-// export const JobActions = Reflux.createActions([
-//   "loadJobs"
-// ]);
-
 export const JobActions = Reflux.createActions({
+  // loadJob: {asyncResult: true},
   loadJobs: {asyncResult: true},
+  // loadProfile: {},
   delete: {asyncResult: true}
 });
 
@@ -27,19 +25,20 @@ class JobStore extends Reflux.Store {
       jobs: {
         data: null,
         loading: false,
-        error: false
+        error: null
+      },
+      viewJob: {
+        data: null,
+        loading: false,
+        error: null
+      },
+      viewProfile: {
+        data: null,
+        loading: false,
+        error: null
       }
     };
   }
-
-  init() {
-    console.log("jobStore init called");
-  }
-
-  // componentWillMount() {
-  //   Reflux.Component.prototype.componentWillMount.call(this);
-  //   if (localStorage.getItem("authToken")) this.loadJobs();
-  // }
 
   loadJobs() {
     const onError = (err) => {
@@ -50,9 +49,10 @@ class JobStore extends Reflux.Store {
       }, () => { UserActions.logout(); });
     };
 
-    this.state.jobs.loading = true;
-    this.state.jobs.error = null;
-    this.trigger(this.state);
+    const jobs = this.state.jobs;
+    jobs.loading = true;
+    jobs.error = null;
+    this.setState({jobs});
 
     Http.request("orgs/showPostings").then(res => {
       console.log(res);
@@ -61,43 +61,8 @@ class JobStore extends Reflux.Store {
     }, err => onError(err))
     .then(d => {
       this.loadJobsCompleted(d)
-      // console.log(["got jobs, log d from server", d]);
-      // if (d && d.org) {
-      //   this.setState(s => {
-      //     s.jobs.data = this.processJobsDataFromHttp(d);
-      //     s.jobs.loading = false;
-      //     s.jobs.error = null;
-      //     return s;
-      //   });
-      // }
     })
     .catch(err => this.loaddJobsFailed(err));
-
-    // this.setState(s => {
-    //   s.jobs.loading = true;
-    //   s.jobs.error = null;
-    //   return s;
-    // }, () => {
-    //   console.log("Http.req called");
-    //   Http.request("orgs/showPostings").then(res => {
-    //     console.log(res);
-    //     if (res.ok) return res.json();
-    //     throw Error(res.statusText);
-    //   }, err => onError(err))
-    //   .then(d => {
-    //     this.loadJobsCompleted(d)
-    //     // console.log(["got jobs, log d from server", d]);
-    //     // if (d && d.org) {
-    //     //   this.setState(s => {
-    //     //     s.jobs.data = this.processJobsDataFromHttp(d);
-    //     //     s.jobs.loading = false;
-    //     //     s.jobs.error = null;
-    //     //     return s;
-    //     //   });
-    //     // }
-    //   })
-    //   .catch(err => onError(err));
-    // });
   }
 
   loadJobsCompleted(data) {
@@ -139,10 +104,10 @@ class JobStore extends Reflux.Store {
 
   deleteFailed(reason) {
     if (!reason) reason = "There has been an error. Please check your internet connection, or contact us at info@hjobs.hk."
-    window.alert(reason);
-    this.state.jobs.loading = false;
-    this.state.jobs.error = reason;
-    this.trigger(this.state);
+    const jobs = this.state.jobs;
+    jobs.loading = false;
+    jobs.error = reason;
+    this.setState({jobs});
   }
 
   /** sort periods, discard unwanted periods, sort jobs according to periods or updated_at
@@ -219,6 +184,69 @@ class JobStore extends Reflux.Store {
     // const dateTags = afterTodayPeriods.map(p => p.date.getDate() + " " + Variable.getMonth(p.date.getMonth())); // for ungrouped dates
     return {periods: afterTodayPeriods, dateTags};
   }
+
+
+
+
+
+  // /** @param {number} id */
+  // loadJob(id) {
+  //   console.log("load job called");
+  //   const viewJob = this.state.viewJob;
+  //   viewJob.loading = true;
+  //   this.setState({viewJob});
+    
+  //   Http.request("jobs/" + id).then(res => {
+  //     if (res.ok) return res.json();
+  //     throw Error(res.statusText);
+  //   }).then(d => {
+  //     if (!d.toString() || !!d.error) return this.loadJobFailed();
+  //     this.loadJobCompleted(d);
+  //   }).catch(err => this.loadJobFailed(err.toString()))
+  // }
+
+  // loadJobCompleted(d) {
+  //   const viewJob = this.state.viewJob;
+  //   viewJob.data = d;
+  //   viewJob.loading = false;
+  //   viewJob.error = null;
+  //   this.setState({viewJob});
+  // }
+
+  // loadJobFailed(reason) {
+  //   const viewJob = this.state.viewJob;
+  //   viewJob.data = null;
+  //   viewJob.loading = false;
+  //   viewJob.error = reason.toString() || "There is an error";
+  //   this.setState({viewJob});
+  // }
+
+  // /** @param {number} id */
+  // loadProfile(id) {
+  //   const viewProfile = this.state.viewProfile
+  //   viewProfile.loading = true;
+  //   this.setState({viewProfile});
+
+  //   Http.request("employees/" + id).then(res => {
+  //     if (res.ok) return res.json();
+  //     throw Error(res.statusText);
+  //   }).then(d => {
+  //     if (!d || !!d.error) this.onError("viewProfile", "There has been an error");
+  //     this.loadCompleted()
+  //   }).catch(err => this.onError("viewProfile", err.toString()))
+  // }
+  
+  // loadProfileCompleted(data) {
+  //   const viewProfile = this.state.viewProfile;
+  // }
+
+
+  // /** @param {"jobs"|"viewJob"|"viewProfile"} key */
+  // loadCompleted(key, data) {
+  //   const obj = this.state[key];
+  //   obj.loading = false;
+
+  // }
 }
 
 export default JobStore;
