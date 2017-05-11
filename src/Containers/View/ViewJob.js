@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 // import { Button, Checkbox, Dropdown, Form } from 'semantic-ui-react';
 import Loading from 'react-loading';
 
-import Job from '../../Components/Job';
+import Job from '../../Components/Job/Job';
 
 import JobStore, { JobActions } from '../../stores/jobStore';
 
