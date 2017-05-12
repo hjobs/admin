@@ -29,25 +29,6 @@ class Profile extends Reflux.Component {
     this.store = UserStore;
   }
 
-  // componentWillMount() {
-  //   Http.request("orgs/whoAreWe").then(res => res.json())
-  //     .then(d => {
-  //       if (!!d && d.me) {
-  //         const obj = d; // {me, org, employers}
-  //         UserActions.setUser(obj);
-  //         this.setState(s => {s.loading = false; return s;});
-  //       } else {
-  //         throw Error("no data || no d.me")
-  //       }
-  //     }).catch(() => {
-  //       UserActions.logout();
-  //       this.setState(s => {
-  //         s.loading = false;
-  //         return s;
-  //       });
-  //     });
-  // }
-
   handleSubmit({key, data}) {
     console.log("going to log key and data in Profile.js handleSubmit()");
     const obj = {editTarget: null, successShown: true};

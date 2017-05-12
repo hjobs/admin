@@ -95,7 +95,7 @@ class UserStore extends Reflux.Store {
     this.setState(this.getInitialState());
   }
 
-  userObjectIsValid(userObject) { return !!userObject.me && !!userObject.org && !!userObject.employers; }
+  userObjectIsValid(userObject) { return !!userObject.org; }
 }
 
 export default UserStore;
