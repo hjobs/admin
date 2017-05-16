@@ -8,7 +8,7 @@ import { UserActions } from './userStore';
 export const JobActions = Reflux.createActions({
   // loadJob: {asyncResult: true},
   loadJobs: {asyncResult: true},
-  // loadProfile: {},
+  loadProfile: {},
   delete: {asyncResult: true}
 });
 
@@ -41,14 +41,6 @@ class JobStore extends Reflux.Store {
   }
 
   loadJobs() {
-    const onError = (err) => {
-      this.setState(s => {
-        s.jobs.loading = false;
-        s.jobs.error = err;
-        return s;
-      }, () => { UserActions.logout(); });
-    };
-
     const jobs = this.state.jobs;
     jobs.loading = true;
     jobs.error = null;
@@ -58,7 +50,7 @@ class JobStore extends Reflux.Store {
       console.log(res);
       if (res.ok) return res.json();
       throw Error(res.statusText);
-    }, err => onError(err))
+    })
     .then(d => {
       this.loadJobsCompleted(d)
     })

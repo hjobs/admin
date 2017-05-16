@@ -1,0 +1,153 @@
+@import "../../styles/css_var";
+
+.icon-detail {
+  div.icon, div.detail {
+    display: inline-block;
+  }
+  div.icon {
+    flex-grow: 0;
+  }
+  div.detail {
+    // width: calc(100% - 2em);
+    flex-grow: 1;
+    input {
+      background-color: transparent;
+      border: 0px;
+    }
+  }
+}
+
+.edit-icon {
+  font-size: 14px !important;
+  color: $link-blue;
+}
+
+.save-cancel-container {
+  padding: 10px 0px;
+  .ui.button {
+    border: 0px;
+    margin: 0px 5px;
+  }
+}
+
+.profile-detail-container {
+  max-width: 450px;
+  margin: auto;
+}
+
+// .editable-text {
+//   color: $blue;
+//   cursor: pointer;
+// }
+// .editable-text:hover {
+//   text-decoration: underline;
+// }
+
+textarea.edit-text {
+  max-width: 100%;
+  min-width: 100%;
+  resize: vertical;
+  min-height: 5em;
+  max-height: 20em;
+}
+
+.edit-location-container {
+  font-size: 14px;
+}
+
+.language-select.dropdown {
+  background-color: transparent !important;
+  color: $dark-bkgd !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  height: 2.5em !important;
+  div.text {
+    width: 100% !important;
+    text-overflow: ellipsis !important;
+    overflow: hidden !important;
+    height: 1.5em;
+  }
+}
+
+.lang-code-level {
+  .lang-code {
+    width: 30%;
+    height: 1.5em;
+    word-break: break-all;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+  .level {
+    width: calc(70% - 25px);
+    select {
+      -webkit-appearance: menulist;
+      -moz-appearance: menulist;
+      width: 100%;
+      box-sizing: border-box;
+      // border: 0.5px solid $light-gray;
+    }
+  }
+  .delete {
+    width: 25px;
+    color: $red;
+  }
+}
+
+.job-exps-container {
+  padding-top: 15px;
+  width: 100%;
+  max-width: 600px;
+  .job-exp-container {
+    max-width: 450px;
+    margin: auto;
+    display: inherit;
+    padding-bottom: 15px;
+    border-bottom: 0.5px solid $light-gray;
+    margin-bottom: 15px;
+    h3 {
+      margin: 15px 0px 0px 0px;
+    }
+    .job-exp-detail-container {
+      margin-left: 2em;
+      max-width: calc(100% - 2em);
+    }
+    .detail-description {
+      white-space: pre-line;
+      padding-left: 2em;
+      color: gray;
+    }
+  }
+  .job-exp-edit-container {
+    .input-container {
+      padding: 3px 0px;
+    }
+    input {
+      background-color: transparent;
+      border: 0px; 
+      // padding: 0.2em;
+      padding: 0.3em 0.6em;      
+    }
+    .edit-position>input {
+      border-width: 0px 0px 2px 0px;
+      border-color: $dark-bkgd;
+      border-radius: 0px;
+      border-style: solid;
+      font-size: 18px;
+      width: 100%;
+    }
+    .edit-time-container {
+      display: inline-block;
+      // input {
+      //   padding: .67861429em 1em;
+      // }
+    }
+    // .edit-working-container {
+    //   padding: 2px 1em;
+    // }
+    textarea {
+      background-color: transparent;
+      border: 0px;
+      padding: .3em .5em;
+    }
+  }
+}

@@ -3,9 +3,9 @@ import 'whatwg-fetch';
 // import Variable from './var';
 // const vars = new Variable();
 
-const baseUrl = "https://api.hjobs.hk/employer/",
+// const baseUrl = "https://api.hjobs.hk/employer/",
 // const baseUrl = "https://dev.hjobs.hk/employer/",
-// const baseUrl = "http://localhost:9080/employer/",
+const baseUrl = "http://localhost:9080/employer/",
       authToken = localStorage.getItem("authToken");
 
 const Http = {

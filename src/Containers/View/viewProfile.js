@@ -5,6 +5,8 @@ import { withRouter } from 'react-router-dom';
 import Loading from 'react-loading';
 // import queryString from 'query-string';
 
+import EmployeeProfileContent from './EmployeeProfileContent';
+
 import JobStore, { JobActions } from '../../stores/jobStore';
 
 import ErrorMessage from '../../Components/Misc/ErrorMessage';
@@ -18,7 +20,7 @@ class ViewProfile extends Reflux.Component {
 
   componentWillMount() {
     super.componentWillMount.call(this);
-    JobActions.loadJob(this.props.match.params.jobId);
+    JobActions.loadProfile(this.props.match.params.employeeId);
   }
 
   render() {
@@ -26,8 +28,15 @@ class ViewProfile extends Reflux.Component {
     if (!!this.state.viewProfile.loading || !this.state.viewJob.data) return <Loading />;
 
     return (
-      <section className="view-profile-page">
-      </section>
+      <div className="flex-col flex-vCenter" style={{
+        width: "100%",
+        minHeight: "calc(100vh - 50px - 50px)",
+        padding: "20px 0px 60px 0px",
+        overflowX: "hidden",
+        overflowY: "scroll"
+      }}>
+        <EmployeeProfileContent />
+      </div>
     );
   }
 }
