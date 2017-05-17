@@ -7,10 +7,9 @@
 
 .icon-detail div.detail {
   flex-grow: 1; }
-
-.icon-detail div.detail input {
-  background-color: transparent;
-  border: 0px; }
+  .icon-detail div.detail input {
+    background-color: transparent;
+    border: 0px; }
 
 .edit-icon {
   font-size: 14px !important;
@@ -18,10 +17,9 @@
 
 .save-cancel-container {
   padding: 10px 0px; }
-
-.save-cancel-container .ui.button {
-  border: 0px;
-  margin: 0px 5px; }
+  .save-cancel-container .ui.button {
+    border: 0px;
+    margin: 0px 5px; }
 
 .profile-detail-container {
   max-width: 450px;
@@ -43,12 +41,11 @@ textarea.edit-text {
   min-width: 100% !important;
   max-width: 100% !important;
   height: 2.5em !important; }
-
-.language-select.dropdown div.text {
-  width: 100% !important;
-  text-overflow: ellipsis !important;
-  overflow: hidden !important;
-  height: 1.5em; }
+  .language-select.dropdown div.text {
+    width: 100% !important;
+    text-overflow: ellipsis !important;
+    overflow: hidden !important;
+    height: 1.5em; }
 
 .lang-code-level .lang-code {
   width: 30%;
@@ -59,12 +56,11 @@ textarea.edit-text {
 
 .lang-code-level .level {
   width: calc(70% - 25px); }
-
-.lang-code-level .level select {
-  -webkit-appearance: menulist;
-  -moz-appearance: menulist;
-  width: 100%;
-  box-sizing: border-box; }
+  .lang-code-level .level select {
+    -webkit-appearance: menulist;
+    -moz-appearance: menulist;
+    width: 100%;
+    box-sizing: border-box; }
 
 .lang-code-level .delete {
   width: 25px;
@@ -74,47 +70,38 @@ textarea.edit-text {
   padding-top: 15px;
   width: 100%;
   max-width: 600px; }
-
-.job-exps-container .job-exp-container {
-  max-width: 450px;
-  margin: auto;
-  display: inherit;
-  padding-bottom: 15px;
-  border-bottom: 0.5px solid #CCCCCC;
-  margin-bottom: 15px; }
-
-.job-exps-container .job-exp-container h3 {
-  margin: 15px 0px 0px 0px; }
-
-.job-exps-container .job-exp-container .job-exp-detail-container {
-  margin-left: 2em;
-  max-width: calc(100% - 2em); }
-
-.job-exps-container .job-exp-container .detail-description {
-  white-space: pre-line;
-  padding-left: 2em;
-  color: gray; }
-
-.job-exps-container .job-exp-edit-container .input-container {
-  padding: 3px 0px; }
-
-.job-exps-container .job-exp-edit-container input {
-  background-color: transparent;
-  border: 0px;
-  padding: 0.3em 0.6em; }
-
-.job-exps-container .job-exp-edit-container .edit-position > input {
-  border-width: 0px 0px 2px 0px;
-  border-color: #101010;
-  border-radius: 0px;
-  border-style: solid;
-  font-size: 18px;
-  width: 100%; }
-
-.job-exps-container .job-exp-edit-container .edit-time-container {
-  display: inline-block; }
-
-.job-exps-container .job-exp-edit-container textarea {
-  background-color: transparent;
-  border: 0px;
-  padding: .3em .5em; }
+  .job-exps-container .job-exp-container {
+    max-width: 450px;
+    margin: auto;
+    display: inherit;
+    padding-bottom: 15px;
+    border-bottom: 0.5px solid #CCCCCC;
+    margin-bottom: 15px; }
+    .job-exps-container .job-exp-container h3 {
+      margin: 15px 0px 0px 0px; }
+    .job-exps-container .job-exp-container .job-exp-detail-container {
+      margin-left: 2em;
+      max-width: calc(100% - 2em); }
+    .job-exps-container .job-exp-container .detail-description {
+      white-space: pre-line;
+      padding-left: 2em;
+      color: gray; }
+  .job-exps-container .job-exp-edit-container .input-container {
+    padding: 3px 0px; }
+  .job-exps-container .job-exp-edit-container input {
+    background-color: transparent;
+    border: 0px;
+    padding: 0.3em 0.6em; }
+  .job-exps-container .job-exp-edit-container .edit-position > input {
+    border-width: 0px 0px 2px 0px;
+    border-color: #101010;
+    border-radius: 0px;
+    border-style: solid;
+    font-size: 18px;
+    width: 100%; }
+  .job-exps-container .job-exp-edit-container .edit-time-container {
+    display: inline-block; }
+  .job-exps-container .job-exp-edit-container textarea {
+    background-color: transparent;
+    border: 0px;
+    padding: .3em .5em; }
