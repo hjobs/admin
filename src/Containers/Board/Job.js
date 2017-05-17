@@ -1,7 +1,6 @@
 import React from 'react';
 import { Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import './styles/Job.css';
 import Themes from '../../styles/theme';
 
 import { customTimeStamp } from '../../services/var';
@@ -28,9 +27,10 @@ const Container = ({children}) => (
   <div
     style={{
       backgroundColor: Themes.colors.white,
+      borderRadius: 6,
       padding: 10,
       fontSize: Themes.fontSizes.s,
-      width: "350px",
+      width: 350,
       maxWidth: "100%"
     }}
     children={children}
@@ -81,7 +81,10 @@ const CustomLink = (props) => (
 
 const Job = ({job}) => {
   return (
-    <Col xs={12} sm={6} className="board-col flex-col flex-vhCenter">
+    <Col xs={12} sm={6} className="flex-col flex-vhCenter" style={{
+      backgroundColor: Themes.colors.offWhite,
+      padding: 15
+    }}>
       <Container>
         <Section children={<h3>{job.title}</h3>} />
         <Section>
@@ -92,9 +95,8 @@ const Job = ({job}) => {
             <span>
               {job.applicants_count || 0}<br />
               {job.employees.map((employee, i) => (
-                <div>
+                <div key={'job-' + job.id + '-employee-' + employee.id}>
                   <Link
-                    key={'job-' + job.id + '-employee-' + employee.id}
                     to={"/viewEmployee/" + employee.id}
                     children={employee.name}
                   />
@@ -103,7 +105,7 @@ const Job = ({job}) => {
             </span>
           }/>
         </Section>
-        <Section className="flex-row flex-vhCenter">
+        <Section className="flex-row flex-vhCenter" style={{padding: "15px 8px 0px 8px"}}>
           <ActionButton>
             <Link to={"/editJob/" + job.id} children="Edit" />
           </ActionButton>
