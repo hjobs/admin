@@ -1,16 +1,8 @@
 /* originally 575 */
-.profile-content-container {
-  width: 100%;
-  max-width: 1000px;
-  padding: 0px; }
-
-.profile-content-container div.bright-segment {
+div.bright-segment {
   background-color: #F5F5F5;
   padding: 15px;
   margin: 15px; }
-
-.profile-picture-outter-container {
-  padding: 10px; }
 
 .profile-detail-container {
   padding: 20px 10px 10px 10px; }

@@ -1,20 +1,10 @@
 @import '../../../styles/css_var';
 
-.profile-content-container {
-  width: 100%;
-  max-width: 1000px;
-  padding: 0px;
-
-  div.bright-segment {
-    background-color: #F5F5F5;
-    // box-shadow: 0px 0px 8px white;
-    padding: 15px;
-    margin: 15px;
-  }
-}
-
-.profile-picture-outter-container {
-  padding: 10px;
+div.bright-segment {
+  background-color: #F5F5F5;
+  // box-shadow: 0px 0px 8px white;
+  padding: 15px;
+  margin: 15px;
 }
 
 .profile-detail-container {

@@ -35,7 +35,7 @@ class ViewProfile extends Reflux.Component {
         overflowX: "hidden",
         overflowY: "scroll"
       }}>
-        <EmployeeProfileContent />
+        <EmployeeProfileContent user={this.state.viewProfile.data} />
       </div>
     );
   }

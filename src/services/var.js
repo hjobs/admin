@@ -90,7 +90,7 @@ export const pad2 = (num) => { return (num < 10) ? '0' + num.toString() : num; }
 /** @return {"Jan"| "Feb"| "Mar"| "Apr"| "May"| "Jun"| "Jul"| "Aug"| "Sep"| "Oct"| "Nov"| "Dec"} @param {0|1|2|3|4|5|6|7|8|9|10|11} num */
 export const getMonth = (num) => { return months[num]; }
 /** @param {'date'|'time'|'datetime'} format */
-export const customTimeStamp = (date, format = 'datetime')  => {
+export const customTimeStamp = (date, format = 'date')  => {
   return (
     ((/time/g.test(format)) ? pad2(date.getHours()) + ":" + pad2(date.getMinutes()) : "") +
     (format === "datetime" ? ", " : "") +
