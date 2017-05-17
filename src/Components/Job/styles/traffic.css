@@ -1,0 +1,16 @@
+/* originally 575 */
+.traffic {
+  border-radius: 50%;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin: 0px 6px -1.1px 0px; }
+
+.traffic-blue {
+  background-color: #134D9C; }
+
+.traffic-orange {
+  background-color: #DF7800; }
+
+.traffic-red {
+  background-color: #990515; }

@@ -1,0 +1,10 @@
+/* originally 575 */
+.board .add-job-div {
+  cursor: pointer;
+  background-color: #f0ce00;
+  color: #F0F0F0;
+  padding: 15px;
+  margin-bottom: 15px; }
+
+.board .add-job-div span {
+  font-size: 18px; }
