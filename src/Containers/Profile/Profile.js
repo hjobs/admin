@@ -1,11 +1,11 @@
 import React from 'react';
 import Reflux from 'reflux';
 import { Button, Grid, Row, Col, Image, ListGroup, ListGroupItem, Fade, Well, Modal, FormGroup, ControlLabel, FormControl, HelpBlock, Checkbox } from 'react-bootstrap';
-import { withRouter } from 'react-router-dom';
 let Loading = require('react-loading');
+import Themes from '../../styles/theme';
 
 import Field from './Field';
-// import JobModal from './JobModal';
+import EditLocation from '../../Components/Profile/EditLocation/EditLocation';
 
 import UserStore, { UserActions } from '../../stores/userStore';
 
@@ -34,7 +34,6 @@ class Profile extends Reflux.Component {
     const obj = {editTarget: null, successShown: true};
     obj[key[0]] = this.state[key[0]];
     if (key.length > 1) obj[key[0]][key[1]] = data;
-    else obj[key] = data;
     this.setState(obj, () => {
       window.setTimeout(() => { this.setState({successShown: false}); }, 2000);
     });
@@ -116,6 +115,7 @@ class Profile extends Reflux.Component {
 
   render() {
     const generateField = ({identity, title, description, helpText, optional, hideValue}) => {
+      // identity = keyState[.deepKeyState]-keyUrl-keyBody-keyEdit
       const keyArr = identity.split("-");
       const keys = {
         keyEdit: keyArr.pop(),
@@ -210,6 +210,11 @@ class Profile extends Reflux.Component {
                   title: "Company description",
                   optional: false
                 })}
+                <EditLocation
+                  editTarget={this.state.editTarget}
+                  toggleEdit={(str) => this.toggleEdit(str)}
+                  finishSubmit={(data) => this.handleSubmit({key: ["org"], data})}
+                />
               </ListGroup>
               <hr />
             </Col>
@@ -326,7 +331,7 @@ class Profile extends Reflux.Component {
           in={this.state.successShown}
           style={{top: 60, position: "fixed"}}>
           <div className="flex-row flex-vhCenter full-width">
-            <Well bsSize="small" className="text-center">
+            <Well bsSize="small" className="text-center" style={{backgroundColor: Themes.colors.green, color: Themes.colors.white}}>
               Successful!
             </Well>
           </div>
@@ -336,4 +341,4 @@ class Profile extends Reflux.Component {
   }
 }
 
-export default withRouter(Profile);
+export default Profile;

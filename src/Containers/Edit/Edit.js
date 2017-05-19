@@ -1,5 +1,5 @@
 import React from 'react';
-// import Reflux from 'reflux';
+import Reflux from 'reflux';
 import { withRouter } from 'react-router-dom';
 import { Button, Checkbox, Dropdown, Form } from 'semantic-ui-react';
 // import queryString from 'query-string';
@@ -16,7 +16,7 @@ import FieldGroup from '../../Components/Edit/FieldGroup';
 import fieldObjects from './EditFields';
 import { langObjects } from '../../stores/data/misc'
 
-class Edit extends React.Component {
+class Edit extends Reflux.Component {
   constructor(props) {
     super(props);
 
@@ -82,12 +82,10 @@ class Edit extends React.Component {
     });
   }
 
-  scrollToBottom() {
-    this.form.scrollTop = this.form.scrollHeight;
-  }
+  scrollToBottom() { this.form.scrollTop = this.form.scrollHeight; }
 
   changeEmploymentType(value) {
-    console.log("changeEmploymentType, valu = " + value);
+    console.log("changeEmploymentType, value = " + value);
     const arr =
       (!this.state.jobModal.job || !this.state.jobModal.job.employment_types) ?
         [] :

@@ -43,15 +43,17 @@ class UserStore extends Reflux.Store {
     if (this.userObjectIsValid(userObject)) {
       if (authToken) localStorage.setItem("authToken", authToken);
       const nextState = {
-        me: userObject.me,
-        org: userObject.org,
-        employers: userObject.employers,
+        me: userObject.me || this.state.me,
+        org: userObject.org || this.state.org,
+        employers: userObject.employers || this.state.employers,
         userStoreLoading: false
       };
       if (authToken) nextState.authToken = authToken;
       this.setState(nextState);
     }
   }
+
+  
 
   getUserFromAuthToken() {
     this.setState({userStoreLoading: true});

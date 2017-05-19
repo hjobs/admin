@@ -64,7 +64,7 @@ class RewardComponent extends React.Component {
     const job = this.props.customData;
     return (
       <div style={{padding: "7px 0px"}}>
-        <label>Reward</label>
+        <label>Salary</label>
         <div style={{padding: "5px 0px 7px 0px"}}>
           {
             this.props.choicesChosen.map(c => (

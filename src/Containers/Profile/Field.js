@@ -67,7 +67,9 @@ class Field extends Reflux.Component {
     return (
       <ListGroupItem className="editable">
         <div>
-          {this.props.title}{this.props.hideValue ? null : <span> : {this.props.value}</span>}{'  '}
+          {this.props.title}
+          {this.props.hideValue ? null : <span>: {this.props.value}</span>}
+          {'  '}
           {!this.props.editing && this.props.canEdit ? <i className="fa fa-pencil" aria-hidden="true" onClick={() => { this.props.toggleEdit(); }}></i> : null }
           {this.props.description ? <span className="help-text"><br />{this.props.description}</span> : null }
         </div>
@@ -80,7 +82,8 @@ class Field extends Reflux.Component {
               disabled={this.state.loading}
               value={this.state.editValue}
               onChange={(event) => { this.handleChange(event.target.value); }}
-              onKeyDown={(e) => { this.captureEnter(e); }} />
+              onKeyDown={(e) => { this.captureEnter(e); }}
+            />
             {this.props.helpText ? <span className="help-text"><br />{this.props.helpText}</span> : null}
             <br />
             <div className="flex-row flex-spacedBetween button-group">
@@ -99,16 +102,16 @@ class Field extends Reflux.Component {
 }
 
 Field.propTypes = {
+  title: React.PropTypes.string,
   hideValue: React.PropTypes.bool,
+  editing: React.PropTypes.bool,
+  description: React.PropTypes.string,
   optional: React.PropTypes.bool,
   canEdit: React.PropTypes.bool,
   keys: React.PropTypes.any,
   id: React.PropTypes.number,
   value: React.PropTypes.string,
-  title: React.PropTypes.string,
-  description: React.PropTypes.string,
   helpText: React.PropTypes.string,
-  editing: React.PropTypes.bool,
   toggleEdit: React.PropTypes.func,
   handleSubmit: React.PropTypes.func
 };

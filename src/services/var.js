@@ -216,6 +216,7 @@ const Variable = {
           event: hasJob ? job.event || "" :"",
           langs: hasJob ? job.langs.map(lang =>  lang.code) || [] : [],
           attachment_url: hasJob ? job.attachment_url || [] : "",
+          locations: hasJob ? job.locations || [] : [],
           employment_types: hasJob ? job.employment_types.map(et => et.name) || [] : [],
           job_type: hasJob ? job.job_type || null : null,
           salary_type: hasJob ? job.salary_type || "" : "",
