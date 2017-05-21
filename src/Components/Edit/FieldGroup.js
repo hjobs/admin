@@ -1,30 +1,52 @@
 import React from 'react';
+import Reflux from 'reflux';
 import { FormGroup, ControlLabel, HelpBlock, FormControl } from 'react-bootstrap';
 
-const FieldGroup = ({id, label, help, type, placeholder, props, value, inline, handleFormChange}) => {
-  return (
-    <FormGroup style={inline ? {display: "inline-block"} : null} controlId={id}>
-      {!label ? null : <ControlLabel>{label}</ControlLabel>}
-      {
-        type !== "textarea" ?
-          <FormControl
-            value={value}
-            {...props}
-            placeholder={placeholder}
-            type={type}
-            onChange={(event) => { handleFormChange(event.target.value); }}
-          />
-          :
-          <FormControl
-            componentClass={type}
-            value={value}
-            placeholder={placeholder}
-            onChange={(event) => { handleFormChange(event.target.value); }}
-          />
-      }
-      {help && <HelpBlock>{help}</HelpBlock>}
-    </FormGroup>
-  );
-};
+import EditStore, { EditActions } from '../../stores/editStore';
+
+class FieldGroup extends Reflux.Component {
+  constructor(props) {
+    super(props);
+    this.store = EditStore;
+    this.storeKeys = ["job"];
+  }
+
+  handleChange(val) {
+    EditActions.editJob("job", this.props.context.key, val);
+  }
+
+  render() {
+    const job = this.state.job;
+    const { context } = this.props;
+    return (
+      <FormGroup style={context.inline ? {display: "inline-block"} : null} controlId={context.key}>
+        {!context.label ? null : <ControlLabel>{context.label}</ControlLabel>}
+        {
+          context.inputType !== "textarea" ?
+            <FormControl
+              value={job[context.key]}
+              placeholder={context.placeholder}
+              type={context.inputType || "text"}
+              onChange={(event) => { const val = event.target.value; this.handleChange(val); }}
+            />
+            :
+            <FormControl
+              componentClass={"textarea"}
+              value={job[context.key]}
+              placeholder={context.placeholder}
+              onChange={(event) => { const val = event.target.value; this.handleChange(val); }}
+              style={{
+                maxWidth: "100%",
+                minWidth: "100%",
+                minHeight: "5em",
+                maxHeight: "10em"
+              }}
+            />
+        }
+        {context.help && <HelpBlock>{context.help}</HelpBlock>}
+      </FormGroup>
+    )
+  };
+}
 
 export default FieldGroup;

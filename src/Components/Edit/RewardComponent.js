@@ -1,55 +1,78 @@
 import React from 'react';
+import Reflux from 'reflux';
 import { Form, FormGroup, FormControl, InputGroup } from 'react-bootstrap';
 import { Button, Icon, Checkbox, Input } from 'semantic-ui-react';
+import Themes from '../../styles/theme';
 
-import FieldGroup from './FieldGroup';
-// import Variable from '../../services/var';
+import EditStore, { EditActions } from '../../stores/editStore';
 
-class RewardComponent extends React.Component {
+class RewardComponent extends Reflux.Component {
+  constructor(props) {
+    super(props);
+    this.store = EditStore;
+    this.storeKeys = ["reward"];
+  }
+
+  genFormGroup({key, placeholder, inputType}) {
+    const reward = this.state.reward;
+    return (
+      <FormGroup key={key} bsSize="small" className="margin-side">
+        <InputGroup>
+          <InputGroup.Addon>$</InputGroup.Addon>
+          <FormControl
+            onChange={(event) => {
+              const val = inputType === "number" ? +event.target.value : event.target.value;
+              this.onChange(key, val);
+            }}
+            value={reward[key]}
+            placeholder={placeholder}
+            type={inputType}
+            style={{
+              fontSize: Themes.fontSizes.m,
+              maxWidth: "6em",
+              padding: "7px"
+            }}
+          />
+        </InputGroup>
+      </FormGroup>
+    );
+  }
+
+  onChange(key, val) { EditActions.editJob("reward", key, val); }
 
   customRender() {
-    const job = this.props.customData;
+    const reward = this.state.reward;
     return (
       <Form inline>
         {
-          this.props.choicesToChoose.value !== 'moneyRange' ? null :
+          reward.toChoose.value !== 'moneyRange' ? null :
             [
-              <FormGroup key="salary_low" bsSize="small" className="margin-side">
-                <InputGroup>
-                  <InputGroup.Addon>$</InputGroup.Addon>
-                  <FormControl
-                    onChange={(event) => { this.props.onChangeInput("salary_low", event.target.value); }}
-                    value={job.salary_low}
-                    placeholder="from"
-                    type="number" />
-                </InputGroup>
-              </FormGroup>,
-              <FormGroup key="salary_high" bsSize="small" className="margin-side">
-                <InputGroup>
-                  <InputGroup.Addon>$</InputGroup.Addon>
-                  <FormControl
-                    onChange={(event) => { this.props.onChangeInput("salary_high", event.target.value); }}
-                    value={job.salary_high}
-                    placeholder="to"
-                    type="number" />
-                </InputGroup>
-              </FormGroup>
-            ]
+              {
+                key: "salary_low",
+                placeholder: "from",
+                inputType: "number"
+              },
+              {
+                key: "salary_high",
+                placeholder: "to",
+                inputType: "number"
+              }
+            ].map(context => this.genFormGroup(context))
         }
         {
-          this.props.choicesToChoose.value !== "moneySpecific" ? null :
-            <FormGroup bsSize="small" className="margin-side">
-              <InputGroup>
-                <InputGroup.Addon>$</InputGroup.Addon>
-                <FormControl
-                  onChange={(event) => { this.props.onChangeInput("salary_value", event.target.value); }}
-                  value={job.salary_value}
-                  type="number" />
-              </InputGroup>
-            </FormGroup>
+          reward.toChoose.value !== "moneySpecific" ? null :
+          this.genFormGroup({
+            key: "salary_value",
+            placeholder: "e.g. 75",
+            inputType: "number"
+          })
         }
         <FormGroup controlId="formControlsSelect" bsSize="small" className="margin-side">
-          <FormControl componentClass="select" placeholder="select unit" onChange={(event) => { this.props.onChangeInput("salary_unit", event.target.value); }}>
+          <FormControl
+            componentClass="select"
+            placeholder="select unit"
+            onChange={(event) => { const val = event.target.value; this.onChange("salary_unit", val); }}
+          >
             <option value="hour">/hour</option>
             <option value="day">/day</option>
             <option value="month">/month</option>
@@ -61,17 +84,17 @@ class RewardComponent extends React.Component {
   }
 
   render() {
-    const job = this.props.customData;
+    const reward = this.state.reward;
     return (
       <div style={{padding: "7px 0px"}}>
-        <label>Reward</label>
+        <label>Salary</label>
         <div style={{padding: "5px 0px 7px 0px"}}>
           {
-            this.props.choicesChosen.map(c => (
+            reward.chosen.map(c => (
               <Button
                 key={c.currentPointer + "-" + c.value}
                 className="chosen-bubble"
-                onClick={() => { this.props.onChangeChoice("remove", c); }}>
+                onClick={() => EditActions.rewardChangeChoice("remove", c)}>
                 <Icon link name="x" />
                 {c.name}
               </Button>
@@ -80,13 +103,13 @@ class RewardComponent extends React.Component {
         </div>
         <div>
         {
-          !!this.props.choicesToChoose ? (
-            !this.props.choicesToChoose.customRender ?
-              this.props.choicesToChoose.map(c => (
+          !!reward.toChoose ? (
+            !reward.toChoose.customRender ?
+              reward.toChoose.map(c => (
                 <Button
                   size="medium"
                   key={c.currentPointer + "-" + c.value}
-                  onClick={() => { this.props.onChangeChoice("add", c); }}
+                  onClick={() => EditActions.rewardChangeChoice("add", c)}
                   content={c.name} />
               )) :
               this.customRender()
@@ -95,16 +118,20 @@ class RewardComponent extends React.Component {
         </div>
         <div className="flex-row flex-vCenter" style={{paddingTop: "8px"}}>
           <Checkbox
-            checked={job.has_bonus}
+            checked={reward.has_bonus === true}
             label="Has bonus"
-            onChange={(e, d) => this.props.onChangeInput("has_bonus", d.checked)}
+            onChange={(e, d) => this.onChange("has_bonus", d.checked)}
           />
           {
-            !job.has_bonus ? null :
+            !reward.has_bonus ? null :
               <Input
-                style={{marginLeft: "1em"}}
-                value={job.bonus_value}
-                onChange={(e, d) => this.props.onChangeInput("bonus_value", d.value)}
+                value={reward.bonus_value}
+                onChange={(e) => this.onChange("bonus_value", event.target.value)}
+                style={{
+                  // marginLeft: "1em",
+                  padding: 7,
+                  fontSize: Themes.fontSizes.m
+                }}
               />
           }
         </div>
@@ -112,13 +139,5 @@ class RewardComponent extends React.Component {
     );
   }
 }
-
-RewardComponent.propTypes = {
-  onChangeChoice: React.PropTypes.func.isRequired,
-  onChangeInput: React.PropTypes.func.isRequired,
-  choicesChosen: React.PropTypes.any,
-  choicesToChoose: React.PropTypes.any,
-  customData: React.PropTypes.any
-};
 
 export default RewardComponent;

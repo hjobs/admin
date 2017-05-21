@@ -1,11 +1,11 @@
 import React from 'react';
 import Reflux from 'reflux';
 import { Button, Grid, Row, Col, Image, ListGroup, ListGroupItem, Fade, Well, Modal, FormGroup, ControlLabel, FormControl, HelpBlock, Checkbox } from 'react-bootstrap';
-import { withRouter } from 'react-router-dom';
 let Loading = require('react-loading');
+import Themes from '../../styles/theme';
 
 import Field from './Field';
-// import JobModal from './JobModal';
+import Locations from '../../Components/Misc/Locations';
 
 import UserStore, { UserActions } from '../../stores/userStore';
 
@@ -34,7 +34,6 @@ class Profile extends Reflux.Component {
     const obj = {editTarget: null, successShown: true};
     obj[key[0]] = this.state[key[0]];
     if (key.length > 1) obj[key[0]][key[1]] = data;
-    else obj[key] = data;
     this.setState(obj, () => {
       window.setTimeout(() => { this.setState({successShown: false}); }, 2000);
     });
@@ -116,6 +115,7 @@ class Profile extends Reflux.Component {
 
   render() {
     const generateField = ({identity, title, description, helpText, optional, hideValue}) => {
+      // identity = keyState[.deepKeyState]-keyUrl-keyBody-keyEdit
       const keyArr = identity.split("-");
       const keys = {
         keyEdit: keyArr.pop(),
@@ -176,14 +176,14 @@ class Profile extends Reflux.Component {
       <section className="profile">
         <Grid fluid>
           <Row>
-            <Col xs={24}>
+            <Col xs={24} style={{padding: 10}}>
               <h2>Your Organisation</h2>
               <p className="helpText">Only admin can edit.</p>
             </Col>
           </Row>
           <Row>
-            <Col xs={12} sm={4} className="flex-row flex-vhCenter" style={{padding: "10px"}}>
-              <Image src={this.state.org.logo} responsive style={{maxHeight: "150px"}} />
+            <Col xs={12} sm={4} className="flex-row flex-vhCenter" style={{padding: 10}}>
+              <Image src={this.state.org.logo} responsive style={{maxHeight: 150}} />
             </Col>
             <Col xs={12} sm={8}>
               <ListGroup>
@@ -210,6 +210,21 @@ class Profile extends Reflux.Component {
                   title: "Company description",
                   optional: false
                 })}
+                <ListGroupItem className="flex-row">
+                  <div style={{paddingRight: "1em"}}>
+                    Locations:
+                  </div>
+                  <div style={{flexGrow: 1}}>
+                    <Locations
+                      locations={this.state.org.locations}
+                      locationKeyToDisplay={"city"}
+                      onChange={(data) => UserActions.editOrg({locations: data})}
+                    />
+                    <div>
+                      <span className="help-text">Specify work location(s) here.</span>
+                    </div>
+                  </div>
+                </ListGroupItem>
               </ListGroup>
               <hr />
             </Col>
@@ -326,7 +341,7 @@ class Profile extends Reflux.Component {
           in={this.state.successShown}
           style={{top: 60, position: "fixed"}}>
           <div className="flex-row flex-vhCenter full-width">
-            <Well bsSize="small" className="text-center">
+            <Well bsSize="small" className="text-center" style={{backgroundColor: Themes.colors.green, color: Themes.colors.white}}>
               Successful!
             </Well>
           </div>
@@ -336,4 +351,4 @@ class Profile extends Reflux.Component {
   }
 }
 
-export default withRouter(Profile);
+export default Profile;

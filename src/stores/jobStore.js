@@ -4,7 +4,7 @@ import { getIndexInArrFromId } from '../services/var';
 import Http from '../services/http';
 import { processJobsDataFromHttp } from '../services/job';
 
-// import { UserActions } from './userStore';
+import { UserActions } from './userStore';
 
 export const JobActions = Reflux.createActions({
   loadJob: {asyncResult: true},
@@ -53,8 +53,8 @@ class JobStore extends Reflux.Store {
     })
     .then(d => {
       // console.log(["received jobs, logging data", d]);
-      if (!d || !!d.error) return this.loadFailed("jobs", "There has been an error")
-      this.loadCompleted("jobs", processJobsDataFromHttp(d.jobs));
+      if (d === null || d === undefined || !!d.error) throw Error("There has been an error");
+      this.loadCompleted("jobs", processJobsDataFromHttp(d));
     })
     .catch(err => this.loadFailed("jobs", err));
   }
@@ -69,7 +69,7 @@ class JobStore extends Reflux.Store {
       if (res.ok) return res.json();
       throw Error(res.statusText);
     }).then(d => {
-      if (!d.toString() || !!d.error) return this.loadFailed("viewJob", "There has been an error");
+      if (!d.toString() || !!d.error) throw Error("There has been an error");
       this.loadCompleted("viewJob", d);
     }).catch(err => this.loadFailed("viewJob", err.toString()))
   }
@@ -84,7 +84,7 @@ class JobStore extends Reflux.Store {
       if (res.ok) return res.json();
       throw Error(res.statusText);
     }).then(d => {
-      if (!d || !!d.error) this.loadFailed("viewProfile", "There has been an error");
+      if (!d || !!d.error) throw Error("There has been an error");
       this.loadCompleted("viewProfile", d);
     }).catch(err => this.loadFailed("viewProfile", err.toString()))
   }

@@ -25,6 +25,7 @@ class Board extends Reflux.Component {
       }
     };
     this.store = JobStore;
+    this.storeKeys= ["jobs"];
     this.refresh();
   }
 
@@ -72,7 +73,7 @@ class Board extends Reflux.Component {
               </Row>
             </Grid>
             :
-            <ErrorMessage reason="You don't yet have job postings. Post a new job!" />
+            <ErrorMessage reason={this.state.job.error || "You don't yet have job postings. Post a new job!"} />
         }
       </section>
     ); // end render return()

@@ -90,6 +90,9 @@ section {
 .text-center {
   text-align: center; }
 
+.text-red {
+  color: #f06060; }
+
 .inline-block {
   display: inline-block; }
 
@@ -166,12 +169,11 @@ h1, h2, h3, h4, h5, h6 {
 .editable .button-group {
   margin-top: 5px; }
 
-section.profile {
-  padding: 20px; }
-  section.profile .fade {
-    margin-left: -20px !important; }
-  section.profile .employers-list-group .list-group {
-    margin-bottom: 0px !important; }
+section.profile .fade {
+  margin-left: -20px !important; }
+
+section.profile .employers-list-group .list-group {
+  margin-bottom: 0px !important; }
 
 .flatpickr-days {
   display: block !important; }
