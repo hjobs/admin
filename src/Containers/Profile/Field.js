@@ -3,7 +3,7 @@ import Reflux from 'reflux';
 import { Button, ListGroupItem } from 'react-bootstrap';
 // let Loading = require('react-loading');
 
-import Http from '../../services/http';
+import { request } from '../../services/http';
 
 class Field extends Reflux.Component {
   constructor(props) {
@@ -41,7 +41,7 @@ class Field extends Reflux.Component {
       body[this.props.keys.keyBody] = {};
       body[this.props.keys.keyBody][this.props.keys.keyEdit] = this.state.editValue;
 
-      Http.request(this.props.keys.keyUrl + '/' + this.props.id, "PATCH", body).then(res => {
+      request(this.props.keys.keyUrl + '/' + this.props.id, "PATCH", body).then(res => {
           // console.log(res);
           if (res.status < 202) return res.json();
           this.setState({errorMsg: res.statusText});

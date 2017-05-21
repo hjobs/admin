@@ -4,7 +4,6 @@
   padding: 0px 20px 45px 20px;
   .form-container {
     padding-bottom: 40px;
-    textarea { max-width: 100% !important; min-height: 5em; max-height: 15em; }
     max-height: calc(100vh - 71px);
     overflow: scroll;
     input, .form-group>input, textarea, .flatpickr-input.flatpickr-input.form-control.input, .ui.multiple.dropdown { 
@@ -12,7 +11,7 @@
       color: #333;
       border: 0px;
       border-radius: 5px;
-      font-size: 14px;
+      font-size: 16px;
       padding: 6px 12px;
     }
     .ui.multiple.dropdown { font-size: 14px; padding: 5px; }
@@ -22,30 +21,19 @@
     }
     .time-input { width: 4em !important; padding: 6px 2px; border-radius: 0px; }
     label {
-      font-size: 20px;
+      font-size: 16px;
       font-weight: bold;
     }
-    .ui.checkbox>label { font-size: 12px; font-weight: 400; }
+    .ui.checkbox>label { font-weight: 400; }
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { 
       -webkit-appearance: none;
       -moz-appearance: none;
       appearance: none;
       margin: 0;
     }
-    .ui.button {
-      background-color: $white;
-      color: $black;
-      font-weight: 400;
-    }
+    .ui.button{ font-size: 12px; }
     .ui.button.black { background-color: $black; color: $white; }
     .ui.transparent.button { background-color: transparent ; color: $black; }
-    .ui.button.chosen-bubble {
-      background-color: #333;
-      color: $white;
-    }
-    input {
-      font-size: 12px;
-    }
   }
   .bottom-bar {
     background-color: rgba(51,51,51,0.8);

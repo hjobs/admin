@@ -24,7 +24,7 @@ class ViewProfile extends Reflux.Component {
   }
 
   render() {
-    if (!this.state.viewProfile || !!this.state.viewProfile.loading || !this.state.viewProfile.data) return <Loading />;
+    if (!!this.state.viewProfile.loading) return <div className="flex-row flex-vhCenter"><Loading /></div>;
     if (!!this.state.viewProfile.error) return <ErrorMessage reason={this.state.viewProfile.error} />
 
     return (

@@ -2,68 +2,77 @@ import React from 'react';
 import Reflux from 'reflux';
 import Flatpickr from 'react-flatpickr';
 import { Button, Icon } from 'semantic-ui-react';
-import Variable from '../../services/var';
+import { customTimeStamp } from '../../services/var';
 
-// import 'flatpickr/dist/flatpick.min.css';
 import 'flatpickr/dist/themes/dark.css';
 
 import TimeInput from './TimeInput';
 
+import EditStore, { EditActions } from '../../stores/editStore';
+
 class TimeComponent extends Reflux.Component {
+  constructor(props) {
+    super(props);
+    this.store = EditStore;
+    this.storeKeys = ["periods", "job_type", "progress"];
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    let shouldUpdate = true;
+    const ks = this.storeKeys;
+    for (let i = 0; i < ks && shouldUpdate; i++) {
+      if ( JSON.stringify(nextState[ks[i]]) !== JSON.stringify(this.state[ks[i]]) ) {
+        shouldUpdate = false
+      }
+    }
+    shouldUpdate = shouldUpdate && JSON.stringify(nextProps) === JSON.stringify(this.props);
+    return shouldUpdate;
+  }
 
   /** @param {number} progress */
   onChange(object = null, progress = null) {
     let shouldUpdate = true;
     if (!!object) {
       for (const key in object) {
-        if (key === "dateArr") shouldUpdate = shouldUpdate && this.props.data.dateArr.length !== object.dateArr.length;
+        if (key === "dateArr") shouldUpdate = shouldUpdate && this.state.periods.dateArr.length !== object.dateArr.length;
       }
     } else if (progress !== null || progress !== undefined) {
-      shouldUpdate = shouldUpdate && progress !== this.props.progress;
+      shouldUpdate = shouldUpdate && progress !== this.state.progress.period;
     }
     // shouldUpdate && this.state.period[key].length !== data.length;
-    if (shouldUpdate) this.props.onChange(object, progress);
+    if (shouldUpdate) EditActions.periodChange(object, progress);
   }
 
   toggleNoDates() {
-    if (this.props.progress === -1) {
-      this.props.onChange(null, 0);
+    if (this.state.progress.period === -1) {
+      EditActions.periodChange(null, 0);
     } else {
-      this.props.onChange({dateArr: [], startTimeHour: "", startTimeMinute: "", endTimeHour: "", endTimeMinute: ""}, -1);
+      EditActions.periodChange({dateArr: [], startTimeHour: "", startTimeMinute: "", endTimeHour: "", endTimeMinute: ""}, -1);
     }
   }
 
-  // /** @param {"add"|"set"} addOrSet @param {number?} num */
-  // changeProgress(addOrSet, num = null) {
-  //   if (addOrSet === "add") {
-  //     this.props.onChange(null, this.props.progress + num);
-  //   } else if (addOrSet === "set") {
-  //     this.props.onChange(null, num);
-  //   }
-  // }
-
   /** @return {boolean} */
-  isTimeFilledIn() { const p = this.props.data; return !!p.startTimeHour && !!p.startTimeMinute && !!p.endTimeHour && !!p.endTimeMinute; }
+  isTimeFilledIn() { const p = this.state.periods; return !!p.startTimeHour && !!p.startTimeMinute && !!p.endTimeHour && !!p.endTimeMinute; }
 
   renderTimeInput(id, placeholder) {
-    // const max = Variable.getTimeInputMax(id, this.props.data);
+    const periods = this.state.periods;
     return (
       <TimeInput
         id={id}
         placeholder={placeholder}
-        value={this.props.data[id]}
+        value={periods[id]}
         handleChange={val => {
           const obj = {};
           obj[id] = val;
-          this.onChange(obj);
+          EditActions.periodChange(obj);
         }}
       />
     );
   }
 
   render() {
-    const periodProp = !this.props.data ? null : this.props.data;
-    const progress = this.props.progress;
+    const periods = this.state.periods;
+    const progress = this.state.progress.period;
     return (
       <div style={{padding: "7px 0px"}}>
         <label>Dates</label>
@@ -89,7 +98,7 @@ class TimeComponent extends Reflux.Component {
                   options={{
                     mode: "multiple",
                     utc: true,
-                    value: periodProp.dateArr,
+                    value: periods.dateArr,
                     minDate: new Date(),
                     altInput: true,
                     altFormat: "F j",
@@ -102,14 +111,14 @@ class TimeComponent extends Reflux.Component {
                 key="no-specific-date-button"
                 size="medium"
                 onClick={() => { this.toggleNoDates(); }}
-                disabled={this.props.jobType === "quick"}
-                content={"No specific Date" + (this.props.jobType === 'quick' ? " (not applicable to quick jobs)" : "")}
+                disabled={this.state.job_type === "quick"}
+                content={"No specific Date" + (this.state.job_type === 'quick' ? " (not applicable to quick jobs)" : "")}
               />
               <Button
                 key="ok-period-1-button"
                 content="ok"
-                disabled={periodProp.dateArr.length <= 0}
-                onClick={() => { if (periodProp.dateArr.length > 0) this.onChange(null, progress + 1); }}
+                disabled={periods.dateArr.length <= 0}
+                onClick={() => { if (periods.dateArr.length > 0) EditActions.periodChange(null, progress + 1); }}
               />
             </div>
         }
@@ -121,10 +130,10 @@ class TimeComponent extends Reflux.Component {
                   key="chosen-dates-button"
                   size="medium"
                   className="chosen-bubble"
-                  onClick={() => { this.onChange({dateArr: []}, progress - 1); }}
+                  onClick={() => { EditActions.periodChange({dateArr: []}, progress - 1); }}
                 >
                   <Icon link name="x" />
-                  { periodProp.dateArr.map(d => Variable.customTimeStamp(d, "date")).join(", ") }
+                  { periods.dateArr.map(d => customTimeStamp(d, "date")).join(", ") }
                 </Button>
               </p>
               From{' '}
@@ -138,11 +147,11 @@ class TimeComponent extends Reflux.Component {
               <Button
                 content="ok"
                 disabled={!this.isTimeFilledIn()}
-                onClick={() => { if (this.isTimeFilledIn()) this.onChange(null, progress + 1); }}
+                onClick={() => { if (this.isTimeFilledIn()) EditActions.periodChange(null, progress + 1); }}
               />
               <Button
                 content="no time"
-                onClick={() => { this.onChange({startTimeHour: "", startTimeMinute: "", endTimeHour: "", endTimeMinute: ""}, progress + 1); }}
+                onClick={() => { EditActions.periodChange({startTimeHour: "", startTimeMinute: "", endTimeHour: "", endTimeMinute: ""}, progress + 1); }}
               />
             </div>
         }
@@ -154,21 +163,21 @@ class TimeComponent extends Reflux.Component {
                   key="progress-2-chosen-dates-button"
                   size="medium"
                   className="chosen-bubble"
-                  onClick={() => { this.onChange({dateArr: [], startTimeHour: "", startTimeMinute: "", endTimeHour: "", endTimeMinute: ""}, progress - 2); }}
+                  onClick={() => { EditActions.periodChange({dateArr: [], startTimeHour: "", startTimeMinute: "", endTimeHour: "", endTimeMinute: ""}, progress - 2); }}
                 >
                   <Icon link name="x" />
-                  { periodProp.dateArr.map(d => Variable.customTimeStamp(d, "date")).join(", ") }
+                  { periods.dateArr.map(d => customTimeStamp(d, "date")).join(", ") }
                 </Button>
                 <Button
                   key="progress-2-chosen-time-button"
                   size="medium"
                   className="chosen-bubble"
-                  onClick={() => { this.onChange({startTimeHour: "", startTimeMinute: "", endTimeHour: "", endTimeMinute: ""}, progress - 1); }}
+                  onClick={() => { EditActions.periodChange({startTimeHour: "", startTimeMinute: "", endTimeHour: "", endTimeMinute: ""}, progress - 1); }}
                 >
                   <Icon link name="x" />
                   {
                     this.isTimeFilledIn() ?
-                      <span>{periodProp.startTimeHour}:{periodProp.startTimeMinute} to {periodProp.endTimeHour}:{periodProp.endTimeMinute}</span>
+                      <span>{periods.startTimeHour}:{periods.startTimeMinute} to {periods.endTimeHour}:{periods.endTimeMinute}</span>
                       :
                       "no time"
                   }
@@ -180,14 +189,5 @@ class TimeComponent extends Reflux.Component {
     );
   }
 }
-
-TimeComponent.propTypes = {
-  jobType: React.PropTypes.string,
-  type: React.PropTypes.string.isRequired, // unused
-  onChange: React.PropTypes.func.isRequired,
-  noDates: React.PropTypes.func,
-  data: React.PropTypes.any.isRequired,
-  progress: React.PropTypes.number.isRequired
-};
 
 export default TimeComponent;

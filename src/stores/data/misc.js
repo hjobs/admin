@@ -12,7 +12,7 @@ export const salaryChoices = {
       prevPointer: null,
       selfPointer: "root",
       nextPointer: "monetary1"
-    },
+    }
     // {
     //   name: "Certification",
     //   value: "cert",
@@ -20,13 +20,13 @@ export const salaryChoices = {
       // selfPointer: "root",
     //   nextPointer: "cert1"
     // },
-    {
-      name: "Others",
-      value: "others",
-      prevPointer: null,
-      selfPointer: "root",
-      nextPointer: "others"
-    }
+    // {
+    //   name: "Others",
+    //   value: "others",
+    //   prevPointer: null,
+    //   selfPointer: "root",
+    //   nextPointer: "others"
+    // }
   ],
   monetary1: [
     {
@@ -58,6 +58,8 @@ export const salaryChoices = {
   moneySpecific: {customRender: true, value: "moneySpecific"},
   others: {customRender: true, value: "others"}
 }
+
+export const jobSalaryFields = ["salary_high", "salary_low", "salary_value", "salary_unit", "salary_type"];
 
 export const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 

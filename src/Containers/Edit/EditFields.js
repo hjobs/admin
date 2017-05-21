@@ -1,20 +1,20 @@
 const fieldObjects = [
   {
-    id: "title",
+    key: "title",
     label: "Job Title",
-    type: "text",
+    inputType: "text",
     placeholder: "e.g. Bartender"
   },
   {
-    id: "description",
+    key: "description",
     label: "Description",
-    type: "textarea",
+    inputType: "textarea",
     placeholder: "Get creative!"
   },
   {
-    id: "attachment_url",
+    key: "attachment_url",
     label: "Attachment Link (Dropbox)",
-    type: "text",
+    inputType: "text",
     placeholder: "e.g. https://www.dropbox.com/s/mv7h76ivci2/VTafwn.pdf?dl=0"
   }
 ]

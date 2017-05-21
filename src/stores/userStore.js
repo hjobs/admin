@@ -3,13 +3,16 @@ import Reflux from 'reflux';
 // import { withRouter, matchPath } from 'react-router-dom';
 // const queryString = require("query-string");
 
-import Http from '../services/http';
+import { request } from '../services/http';
 
 export const UserActions = Reflux.createActions([
   "refreshUser",
   "logout",
   "setUser",
-  "deleteEmployer"
+  "editUser",
+  "editOrg",
+  "deleteEmployer",
+  "setLoading"
 ]);
 // ({
 //   refreshUser: {asyncResult: true},
@@ -53,11 +56,29 @@ class UserStore extends Reflux.Store {
     }
   }
 
+  editUser(obj) {
+    // this.setLoading();
+    request("employers/" + this.state.me.id, "PATCH", {employee: obj}).then(res => res.json()).then(d => {
+      if (!d || !!d.errors) throw Error("Unprocessable edit data");
+      this.setUser({me: d});
+    })
+  }
+
+  editOrg(obj) {
+    // this.setLoading();
+    request("orgs/" + this.state.org.id, "PATCH", {org: obj}).then(res => res.json()).then(d => {
+      if (!d || !!d.errors) throw Error("Unprocessable edit data");
+      this.setUser({org: d});
+    })
+  }
+
+  setLoading() { this.setState({userStoreLoading: true}); }
+
   
 
   getUserFromAuthToken() {
     this.setState({userStoreLoading: true});
-    Http.request('orgs/whoAreWe').then(res => res.json()).then(d => {
+    request('orgs/whoAreWe').then(res => res.json()).then(d => {
       if (!!d && !d.error) {
         this.setUser(d);
       } else {
@@ -68,7 +89,7 @@ class UserStore extends Reflux.Store {
 
   deleteEmployer(employer) {
     this.setState({userStoreLoading: true});
-    Http.request("employers/" + employer.id, "DELETE").then(res => {
+    request("employers/" + employer.id, "DELETE").then(res => {
       if (res.ok) return {error: null};
       return {error: res.statusText};
     })

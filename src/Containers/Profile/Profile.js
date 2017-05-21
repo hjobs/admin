@@ -5,7 +5,7 @@ let Loading = require('react-loading');
 import Themes from '../../styles/theme';
 
 import Field from './Field';
-import EditLocation from '../../Components/Profile/EditLocation/EditLocation';
+import Locations from '../../Components/Misc/Locations';
 
 import UserStore, { UserActions } from '../../stores/userStore';
 
@@ -176,14 +176,14 @@ class Profile extends Reflux.Component {
       <section className="profile">
         <Grid fluid>
           <Row>
-            <Col xs={24}>
+            <Col xs={24} style={{padding: 10}}>
               <h2>Your Organisation</h2>
               <p className="helpText">Only admin can edit.</p>
             </Col>
           </Row>
           <Row>
-            <Col xs={12} sm={4} className="flex-row flex-vhCenter" style={{padding: "10px"}}>
-              <Image src={this.state.org.logo} responsive style={{maxHeight: "150px"}} />
+            <Col xs={12} sm={4} className="flex-row flex-vhCenter" style={{padding: 10}}>
+              <Image src={this.state.org.logo} responsive style={{maxHeight: 150}} />
             </Col>
             <Col xs={12} sm={8}>
               <ListGroup>
@@ -210,11 +210,21 @@ class Profile extends Reflux.Component {
                   title: "Company description",
                   optional: false
                 })}
-                <EditLocation
-                  editTarget={this.state.editTarget}
-                  toggleEdit={(str) => this.toggleEdit(str)}
-                  finishSubmit={(data) => this.handleSubmit({key: ["org"], data})}
-                />
+                <ListGroupItem className="flex-row">
+                  <div style={{paddingRight: "1em"}}>
+                    Locations:
+                  </div>
+                  <div style={{flexGrow: 1}}>
+                    <Locations
+                      locations={this.state.org.locations}
+                      locationKeyToDisplay={"city"}
+                      onChange={(data) => UserActions.editOrg({locations: data})}
+                    />
+                    <div>
+                      <span className="help-text">Specify work location(s) here.</span>
+                    </div>
+                  </div>
+                </ListGroupItem>
               </ListGroup>
               <hr />
             </Col>

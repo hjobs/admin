@@ -2,6 +2,7 @@ const theme = {
   colors: {
     yellow: "#f0ce00",
     black: "#101010",
+    gray: "#777777",
     white: "#FDFDFD",
     offWhite: "#F0F0F0",
     lightGray: "#CCCCCC",
@@ -18,8 +19,8 @@ const theme = {
   },
   fontSizes: {
     xl: "28px",
-    l: "24px",
-    m: "18px",
+    l: "22px",
+    m: "16px",
     s: "14px",
     xs: "12px"
   }
