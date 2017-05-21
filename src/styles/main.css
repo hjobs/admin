@@ -129,19 +129,16 @@ h1, h2, h3, h4, h5, h6 {
   min-height: 100vh;
   height: 100%;
   margin-top: 0px; }
-
-.sign section {
-  background-color: #f0ce00;
-  margin-top: 0px;
-  min-width: 200px;
-  max-width: 500px;
-  width: 80%; }
-
-.sign h1, .sign h2, .sign h3, .sign h4, .sign h5, .sign h6, .sign p, .sign label {
-  color: #101010; }
-
-.sign .logo-button {
-  margin-left: 10px; }
+  .sign section {
+    background-color: #f0ce00;
+    margin-top: 0px;
+    min-width: 200px;
+    max-width: 500px;
+    width: 80%; }
+  .sign h1, .sign h2, .sign h3, .sign h4, .sign h5, .sign h6, .sign p, .sign label {
+    color: #101010; }
+  .sign .logo-button {
+    margin-left: 10px; }
 
 .padded-side {
   padding: 0px 7px; }
