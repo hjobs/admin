@@ -36,7 +36,7 @@ class Board extends Reflux.Component {
   render() {
     if (!!this.state.jobs.errorMsg) return <ErrorMessage reason={this.state.jobs.errorMsg} />;
     if (!!this.state.jobs.loading) return <ErrorMessage reason={<Loading type="bubbles" color="#337ab7" />}/>;
-    if (!this.state.jobs) return null;
+    // if (!this.state.jobs) return null;
 
     return (
       <section style={{marginTop: -20, paddingTop: 0}}>
