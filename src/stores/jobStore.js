@@ -56,7 +56,7 @@ class JobStore extends Reflux.Store {
       if (d === null || d === undefined || !!d.error) throw Error("There has been an error");
       this.loadCompleted("jobs", processJobsDataFromHttp(d));
     })
-    .catch(err => this.loadFailed("jobs", err));
+    .catch(err => this.loadFailed("jobs", err.toString()));
   }
 
   /** @param {number} id */
