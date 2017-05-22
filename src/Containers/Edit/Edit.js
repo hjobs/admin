@@ -102,7 +102,7 @@ class Edit extends Reflux.Component {
                     onChange={(locations) => EditActions.editJob("job", "locations", locations)}
                   />
                 }
-                  
+                <br /> 
                 <label style={{marginTop: "15px"}}>Additional Info</label>
                 <Event />
                 <Langs scrollBottom={() => this.scrollBottom()} />
