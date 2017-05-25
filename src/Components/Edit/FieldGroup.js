@@ -27,6 +27,7 @@ class FieldGroup extends Reflux.Component {
               value={job[context.key]}
               placeholder={context.placeholder}
               type={context.inputType || "text"}
+              onKeyDown={(evt) => { if (evt.keyCode === 13) evt.preventDefault(); }}
               onChange={(event) => { const val = event.target.value; this.handleChange(val); }}
             />
             :

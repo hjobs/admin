@@ -69,6 +69,7 @@ class UserStore extends Reflux.Store {
     request("orgs/" + this.state.org.id, "PATCH", {org: obj}).then(res => res.json()).then(d => {
       if (!d || !!d.errors) throw Error("Unprocessable edit data");
       this.setUser({org: d});
+      return {success: true};
     })
   }
 
@@ -121,4 +122,7 @@ class UserStore extends Reflux.Store {
   userObjectIsValid(userObject) { return !!userObject.org; }
 }
 
+UserStore.id = 'userStore';
+
 export default UserStore;
+

@@ -1,6 +1,6 @@
 import React from 'react';
 import Reflux from 'reflux';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Redirect } from 'react-router-dom';
 import { Button, Form, Checkbox } from 'semantic-ui-react';
 // import queryString from 'query-string';
 import './edit.css';
@@ -13,15 +13,19 @@ import fieldObjects from './EditFields';
 import Event from '../../Components/Edit/Event';
 import Langs from '../../Components/Edit/Langs';
 import Locations from '../../Components/Misc/Locations';
+import FileInput from '../../Components/Misc/FileInput';
 
+import UserStore from '../../stores/userStore'
 import EditStore, { EditActions } from '../../stores/editStore';
 import { jobType } from '../../stores/data/misc'
+
+import { checkError } from '../../services/upload';
 
 class Edit extends Reflux.Component {
   constructor(props) {
     super(props);
-    this.store = EditStore;
-    this.storeKeys = ["loading", "editError", "loadError", "job_type", "job"];
+    this.stores = [EditStore, UserStore];
+    this.storeKeys = ["job", "photo", "loading", "editError", "loadError", "job_type", "returnToBoard", "org"];
   }
 
   componentWillMount() {
@@ -46,8 +50,8 @@ class Edit extends Reflux.Component {
   }
 
   render() {
+    if (this.state.returnToBoard === true) return <Redirect to="/board?successShown=true" />
     if (this.state.loadError) return <ErrorMessage reason={this.state.loadError === true ? null : this.state.loadError} />
-
     return (
       <section className="edit-page">
         <div className="text-center" style={{marginBottom: "15px", overflowY: "scroll"}}>
@@ -86,6 +90,7 @@ class Edit extends Reflux.Component {
                 <TimeComponent />
                 
                 <label style={{marginTop: 15}}>Work Location</label>
+                <br />
                 <Checkbox
                   checked={this.state.job.default_location}
                   label="Use my default location (can be set in your profile page)"
@@ -102,8 +107,32 @@ class Edit extends Reflux.Component {
                     onChange={(locations) => EditActions.editJob("job", "locations", locations)}
                   />
                 }
-                  
+
+                <br />
                 <label style={{marginTop: "15px"}}>Additional Info</label>
+                <div>
+                  <Checkbox
+                    checked={this.state.photo.default}
+                    label="Use default photo (can be set in your profile page)"
+                    onChange={(e, d) => EditActions.editJob("photo", "default", d.checked)}
+                  />{" "}
+                  {
+                    this.state.photo.default ? null :
+                    <div style={{marginLeft: "3em"}}>
+                      <FileInput
+                        handleChange={(file) => {
+                          const error = checkError(file);
+                          if (!!error) {
+                            EditActions.editJob("photo", "file", null);
+                            alert(error);
+                          } else {
+                            EditActions.editJob("photo", "file", file)
+                          }
+                        }}
+                      />
+                    </div>
+                  }
+                </div>
                 <Event />
                 <Langs scrollBottom={() => this.scrollBottom()} />
               </div>
@@ -122,11 +151,14 @@ class Edit extends Reflux.Component {
             onClick={() => { this.props.history.push('/board'); }} >
             Cancel
           </Button>
-          <Button
-            color="green"
-            onClick={() => { EditActions.save(); }} >
-            Submit
-          </Button>
+          {
+            !this.state.job_type ? null :
+            <Button
+              color="green"
+              onClick={() => { EditActions.save(); }} >
+              Submit
+            </Button>
+          }
         </div>
       </section>
     );

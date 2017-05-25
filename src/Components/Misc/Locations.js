@@ -20,6 +20,7 @@ class Locations extends Reflux.Component {
 
   listenKeyDown(event) {
     if (event.keyCode === 13) {
+      event.preventDefault();
       this.addNew();
     }
   }
