@@ -27,6 +27,7 @@ class Event extends Reflux.Component {
               style={{display: "inline-block", width: "20rem"}}
               value={event.event}
               maxLength={20}
+              onKeyDown={(evt) => { if (evt.keyCode === 13) evt.preventDefault(); }}
               onChange={(event) => { const val = event.target.value; EditActions.editJob("event", "event", val); }}
               placeholder="Event name here"
             />

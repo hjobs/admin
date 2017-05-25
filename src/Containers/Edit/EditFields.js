@@ -13,7 +13,7 @@ const fieldObjects = [
   },
   {
     key: "attachment_url",
-    label: "Attachment Link (Dropbox)",
+    label: "Attachment Link",
     inputType: "text",
     placeholder: "e.g. https://www.dropbox.com/s/mv7h76ivci2/VTafwn.pdf?dl=0"
   }

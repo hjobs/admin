@@ -1,11 +1,11 @@
 import React from 'react';
-import Reflux from 'reflux';
+// import Reflux from 'reflux';
 import { Button, ListGroupItem } from 'react-bootstrap';
 // let Loading = require('react-loading');
 
 import { request } from '../../services/http';
 
-class Field extends Reflux.Component {
+class Field extends React.Component {
   constructor(props) {
     super(props);
     this.state = {

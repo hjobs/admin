@@ -1,15 +1,21 @@
 import React from 'react';
 import Reflux from 'reflux';
-import { Button, Grid, Row, Col, Image, ListGroup, ListGroupItem, Fade, Well, Modal, FormGroup, ControlLabel, FormControl, HelpBlock, Checkbox } from 'react-bootstrap';
+import S3 from 'aws-sdk/clients/s3';
+import { Button, Grid, Row, Col, Image, ListGroup, ListGroupItem, Modal, FormGroup, ControlLabel, FormControl, HelpBlock } from 'react-bootstrap';
+import { Dimmer, Loader } from 'semantic-ui-react';
 let Loading = require('react-loading');
-import Themes from '../../styles/theme';
+// import Themes from '../../styles/theme';
 
 import Field from './Field';
 import Locations from '../../Components/Misc/Locations';
+import FileInput from '../../Components/Misc/FileInput';
+import SuccessFade from '../../Components/Misc/SuccessFade';
 
 import UserStore, { UserActions } from '../../stores/userStore';
 
-import Http from "../../services/http";
+import { yyyymmddhhmmss } from "../../services/var";
+import { request } from "../../services/http";
+import { checkError, s3DefaultObject, deletePhoto } from '../../services/upload';
 
 class Profile extends Reflux.Component {
   constructor(props) {
@@ -27,6 +33,7 @@ class Profile extends Reflux.Component {
       }
     };
     this.store = UserStore;
+    this.s3 = new S3(s3DefaultObject);
   }
 
   handleSubmit({key, data}) {
@@ -73,7 +80,7 @@ class Profile extends Reflux.Component {
   submitAddEmployer() {
     const data = {employer: this.state.addAdminData};
     data.employer.org_id = this.state.org.id;
-    Http.request("employers", "POST", data).then(res => {
+    request("employers", "POST", data).then(res => {
       if (res.ok) return res.json();
       return {error: res.statusText};
     })
@@ -94,7 +101,7 @@ class Profile extends Reflux.Component {
   }
 
   deleteEmployer(employer) {
-    Http.request("employers/" + employer.id, "DELETE").then(res => {
+    request("employers/" + employer.id, "DELETE").then(res => {
       if (res.ok) return {error: null};
       return {error: res.statusText};
     })
@@ -174,6 +181,7 @@ class Profile extends Reflux.Component {
 
     return this.state.userStoreLoading ? <div className="flex-row flex-vhCenter"><Loading type='bubbles' color='#337ab7' /></div> : (
       <section className="profile">
+        <Dimmer active={this.state.loading} page children={<Loader />} />
         <Grid fluid>
           <Row>
             <Col xs={24} style={{padding: 10}}>
@@ -187,6 +195,48 @@ class Profile extends Reflux.Component {
             </Col>
             <Col xs={12} sm={8}>
               <ListGroup>
+                <ListGroupItem>
+                  Change logo:{" "}
+                  <div className="inline-block">
+                    <FileInput
+                      handleChange={(file) => {
+                        const err = checkError(file);
+                        if (!!err) return window.alert(err);
+                        // set loading
+                        this.setState({loading: true})
+                        // upload
+                        const keyPrefix = (
+                          "Companies/" +
+                          (this.state.org.name || "default") +
+                          "/logo" +
+                          yyyymmddhhmmss(new Date())
+                        );
+                        const prevLogo = this.state.org.logo;
+                        const key = keyPrefix + "." + file.type.split("/")[1]
+                        this.s3.putObject({
+                          Bucket: "assets.hjobs.hk",
+                          Key: key,
+                          ACL: "public-read-write",
+                          Body: file,
+                          ContentType: file.type,
+                          ContentEncoding: "Base64"
+                        }, (err, data) => {
+                          console.log({err, data});
+                          if (err) return alert("Something went wrong with your upload");
+                          request("orgs/" + this.state.org.id, "PATCH", {org: {
+                            logo: "https://assets.hjobs.hk/" + key
+                          }}).then(res => res.json()).then(data => {
+                            if (!!data && !data.errors) {
+                              UserActions.setUser({org: data});
+                              this.setState(s => { s.loading = false; return s; })
+                              deletePhoto(prevLogo);
+                            }
+                          })
+                        })
+                      }}
+                    />
+                  </div>
+                </ListGroupItem>
                 {generateField({
                   identity: "org-orgs-org-logo",
                   title: "Change the logo of your organisation",
@@ -337,15 +387,9 @@ class Profile extends Reflux.Component {
           </Modal.Footer>
         </Modal>
 
-        <Fade
-          in={this.state.successShown}
-          style={{top: 60, position: "fixed"}}>
-          <div className="flex-row flex-vhCenter full-width">
-            <Well bsSize="small" className="text-center" style={{backgroundColor: Themes.colors.green, color: Themes.colors.white}}>
-              Successful!
-            </Well>
-          </div>
-        </Fade>
+        <SuccessFade
+          successShown={this.state.successShown}
+        />
       </section>
     );
   }

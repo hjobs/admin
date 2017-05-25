@@ -3,6 +3,8 @@ import clone from 'clone';
 
 // import Var from '../services/var';
 import { request } from '../services/http';
+import { yyyymmddhhmmss } from '../services/var';
+import { uploadPhoto } from '../services/upload';
 import { salaryChoices, jobSalaryFields } from './data/misc';
 
 export const EditActions = Reflux.createActions({
@@ -14,7 +16,8 @@ export const EditActions = Reflux.createActions({
   periodChange: {},
   toggleEvent: {},
   toggleLangs: {},
-  save: {asyncResult: true}
+  save: {asyncResult: true},
+  reset: {}
 });
 
 /** @return {[string]} */
@@ -135,7 +138,9 @@ export const httpToJob = {
 
 export const getStateFromJob = (job, loading = false) => {
   const hasJob = !!job;
+  const org = Reflux.GlobalState.userStore.org;
   return {
+    returnToBoard: false,
     loadError: false,
     editError: null,
     loading: loading,
@@ -189,6 +194,10 @@ export const getStateFromJob = (job, loading = false) => {
     progress: hasJob ? httpToJob.progressReducer(job) : {
       // reward: 0,
       period: 0
+    },
+    photo: {
+      file: null,
+      default: hasJob ? (org ? org.logo === job.photo : true) : true
     }
   }
 }
@@ -198,6 +207,10 @@ class EditStore extends Reflux.Store {
     super();
     this.state = getStateFromJob(null);
     this.listenables = EditActions;
+  }
+
+  reset() {
+    this.setState(getStateFromJob());
   }
 
   onHttpError(errorKey, error) {
@@ -210,13 +223,27 @@ class EditStore extends Reflux.Store {
   /** @param {number} id */
   loadJob(id = null) {
     if (!id) return this.setState(getStateFromJob())
-    request("jobs/" + id).then(res => res.json()).then(d => {
-      if (!d || !!d.errors) this.onHttpError("loadError", !!d ? d.errors : "Job is not properly loaded");
-      else {
-        const nextState = getStateFromJob(d, false);
-        this.setState(nextState);
+    const load = () => {
+      request("jobs/" + id).then(res => res.json()).then(d => {
+        if (!d || !!d.errors) this.onHttpError("loadError", !!d ? d.errors : "Job is not properly loaded");
+        else {
+          const nextState = getStateFromJob(d, false);
+          this.setState(nextState);
+        }
+      }).catch(err => this.onHttpError("loadError", err.toString()));
+    }
+
+    const waitToLoad = () => {
+      if (!Reflux.GlobalState.userStore.org) {
+        window.setTimeout(() => {
+          waitToLoad()
+        }, 300)
+      } else {
+        load();
       }
-    }).catch(err => this.onHttpError("loadError", err.toString()));
+    }
+
+    waitToLoad();
   }
 
   setLoading(loading = true) { this.setState({loading}); }
@@ -225,20 +252,47 @@ class EditStore extends Reflux.Store {
     const isNew = !this.state.job.id;
     const method = isNew ? "POST" : "PATCH";
     const processData = getJobHttpObject(this.state);
+
     console.log(processData);
     if (!!processData.error && processData.error.length > 0) {
       const nextState = this.state;
       nextState.editError = processData.error.join("\n ");
-      return this.setState(nextState, () => this.scrollToBottom());
+      return this.setState(nextState);
     }
     const url = "jobs" + (isNew ? "" : "/" + processData.data.id);
     this.setState({loading: true})
 
-    request(url, method, {job: processData.data}).then(res => res.json()).then(d => {
-      console.log(d);
-      if (!d) return;
-      this.setState(getStateFromJob(d, false));
-    }).catch(err => this.onHttpError("editError", err.toString()));
+    const patchJob = (patchData) => {
+      request(url, method, {job: patchData.data}).then(res => res.json()).then(d => {
+        console.log(d);
+        if (!d) return;
+        const nextState = getStateFromJob(d, false);
+        nextState.returnToBoard = true;
+        this.setState(nextState);
+        window.setTimeout(() => this.setState({returnToBoard: false}), 150);
+      });
+    }
+
+    if (this.state.photo.default) {
+      processData.data.photo = "";
+      patchJob(processData);
+    } else {
+      uploadPhoto({
+        keyPrefix: (
+          "Companies/" +
+          (Reflux.GlobalState.userStore.org.name || "default") +
+          "/logo" +
+          yyyymmddhhmmss(new Date())
+        ),
+        file: this.state.photo.file
+      }).then(photoUrl => {
+        if (!!photoUrl) processData.data.photo = photoUrl;
+        else processData.data.photo = this.state.job.photo;
+        patchJob(processData);
+      }).catch(err => 
+        this.onHttpError("editError", err.toString())
+      )
+    }
   }
 
   changeEmploymentType(value) {

@@ -3,13 +3,16 @@ import Reflux from 'reflux';
 import { Grid, Row, Clearfix } from 'react-bootstrap';
 import { Icon } from 'semantic-ui-react';
 import 'whatwg-fetch';
+const queryString = require("query-string");
 let Loading = require('react-loading');
 import Themes from '../../styles/theme';
 
 import Job from './Job';
 import ErrorMessage from '../../Components/Misc/ErrorMessage';
+import SuccessFade from '../../Components/Misc/SuccessFade';
 
 import JobStore, { JobActions } from '../../stores/jobStore';
+import { EditActions } from '../../stores/editStore';
 
 // import Variable from '../../services/var';
 // import Http from '../../services/http';
@@ -22,11 +25,24 @@ class Board extends Reflux.Component {
         show: false,
         isNew: true,
         data: null
-      }
+      },
+      successShown: false
     };
     this.store = JobStore;
     this.storeKeys= ["jobs"];
     this.refresh();
+  }
+
+  componentWillMount() {
+    super.componentWillMount.call(this);
+    const queryObj = queryString.parse(this.props.location.search);
+    if (queryObj && !!queryObj.successShown) {
+      this.setState({successShown: true}, () => {
+        window.setTimeout(() => this.setState({successShown: false}), 3000);
+        this.props.history.replace('/board')
+      });
+    }
+    EditActions.reset();
   }
 
   refresh() {
@@ -73,8 +89,12 @@ class Board extends Reflux.Component {
               </Row>
             </Grid>
             :
-            <ErrorMessage reason={this.state.jobs.error || "You don't yet have job postings. Post a new job!"} />
+            <ErrorMessage reason={this.state.jobs.errorMsg || "You don't yet have job postings. Post a new job!"} />
         }
+
+        <SuccessFade
+          successShown={this.state.successShown}
+        />
       </section>
     ); // end render return()
   } // end render
