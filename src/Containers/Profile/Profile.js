@@ -37,10 +37,18 @@ class Profile extends Reflux.Component {
   }
 
   handleSubmit({key, data}) {
-    console.log("going to log key and data in Profile.js handleSubmit()");
+    /** quick hack to refresh edits */
+    console.log(["key and data in handleSubmit profile.js", key, data])
+    const userObj = {};
+    if (key.length > 1) {
+      userObj[key[0]] = this.state[key[0]];
+      userObj[key[0]][key[1]] = data;
+    } else {
+      userObj[key[0]] = data;
+    }
+    UserActions.setUser(userObj);
+    /** success popup */
     const obj = {editTarget: null, successShown: true};
-    obj[key[0]] = this.state[key[0]];
-    if (key.length > 1) obj[key[0]][key[1]] = data;
     this.setState(obj, () => {
       window.setTimeout(() => { this.setState({successShown: false}); }, 2000);
     });
@@ -237,13 +245,6 @@ class Profile extends Reflux.Component {
                     />
                   </div>
                 </ListGroupItem>
-                {generateField({
-                  identity: "org-orgs-org-logo",
-                  title: "Change the logo of your organisation",
-                  heplText: "Ideally: a square logo, with transparent background",
-                  optional: true,
-                  hideValue: true
-                })}
                 {generateField({
                   identity: "org-orgs-org-name",
                   title: "Company Name",

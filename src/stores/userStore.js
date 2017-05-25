@@ -119,7 +119,7 @@ class UserStore extends Reflux.Store {
     this.setState(this.getInitialState());
   }
 
-  userObjectIsValid(userObject) { return !!userObject.org; }
+  userObjectIsValid(userObject) { return !!userObject; }
 }
 
 UserStore.id = 'userStore';
