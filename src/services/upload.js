@@ -1,4 +1,3 @@
-import { yyyymmddhhmmss } from './var';
 import S3 from 'aws-sdk/clients/s3';
 
 export const hjobsAssetsUrlPrefix = "https://assets.hjobs.hk/"
@@ -25,11 +24,14 @@ export const s3DefaultObject = {
 
 const s3 = new S3(s3DefaultObject);
 
-/** @param {string} keyPrefix @return {string|null} - if there is no file, will return empty value of promise. */
-export const uploadPhoto = ({keyPrefix, file}) => {
+/** if there is no file, will return empty value of promise. */
+export const uploadPhoto = ({uriComponents, file}) => {
   return new Promise((resolve, reject) => {
     if (!file) resolve();
-    const key = keyPrefix + "." + file.type.split("/")[1]
+    const keyExtension = "." + file.type.split("/")[1];
+    const key = uriComponents.join("/") + keyExtension;
+    const encodedKey = uriComponents.map(comp => encodeURIComponent(comp)).join("/") + keyExtension;
+    console.log(["keys...", key, encodedKey])
     s3.putObject({
       Bucket: "assets.hjobs.hk",
       Key: key,
@@ -39,7 +41,7 @@ export const uploadPhoto = ({keyPrefix, file}) => {
       ContentEncoding: "Base64"
     }, (err, data) => {
       if (err) reject(err.toString());
-      resolve(encodeURI("https://assets.hjobs.hk/" + key));
+      resolve("https://assets.hjobs.hk/" + encodedKey);
     })
   })
 }

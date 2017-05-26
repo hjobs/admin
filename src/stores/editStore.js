@@ -278,12 +278,12 @@ class EditStore extends Reflux.Store {
       patchJob(processData);
     } else {
       uploadPhoto({
-        keyPrefix: (
-          "Companies/" +
-          (Reflux.GlobalState.userStore.org.name || "default") +
-          "/logo" +
+        uriComponents: [
+          "Companies",
+          (Reflux.GlobalState.userStore.org.name || "default").replace(" ", ""),
+          "logo",
           yyyymmddhhmmss(new Date())
-        ),
+        ],
         file: this.state.photo.file
       }).then(photoUrl => {
         if (!!photoUrl) processData.data.photo = photoUrl;

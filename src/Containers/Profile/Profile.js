@@ -15,7 +15,7 @@ import UserStore, { UserActions } from '../../stores/userStore';
 
 import { yyyymmddhhmmss } from "../../services/var";
 import { request } from "../../services/http";
-import { checkError, s3DefaultObject, deletePhoto } from '../../services/upload';
+import { checkError, deletePhoto, uploadPhoto } from '../../services/upload';
 
 class Profile extends Reflux.Component {
   constructor(props) {
@@ -33,7 +33,6 @@ class Profile extends Reflux.Component {
       }
     };
     this.store = UserStore;
-    this.s3 = new S3(s3DefaultObject);
   }
 
   handleSubmit({key, data}) {
@@ -209,30 +208,25 @@ class Profile extends Reflux.Component {
                     <FileInput
                       handleChange={(file) => {
                         const err = checkError(file);
+                        console.log(["check file err", err]);
                         if (!!err) return window.alert(err);
                         // set loading
                         this.setState({loading: true})
                         // upload
-                        const keyPrefix = (
-                          "Companies/" +
-                          (this.state.org.name || "default") +
-                          "/logo" +
-                          yyyymmddhhmmss(new Date())
-                        );
                         const prevLogo = this.state.org.logo;
-                        const key = keyPrefix + "." + file.type.split("/")[1]
-                        this.s3.putObject({
-                          Bucket: "assets.hjobs.hk",
-                          Key: key,
-                          ACL: "public-read-write",
-                          Body: file,
-                          ContentType: file.type,
-                          ContentEncoding: "Base64"
-                        }, (err, data) => {
-                          console.log({err, data});
-                          if (err) return alert("Something went wrong with your upload");
+                        
+                        uploadPhoto({
+                          uriComponents: [
+                            "Companies",
+                            (this.state.org.name || "default").replace(" ", ""),
+                            "logo",
+                            yyyymmddhhmmss(new Date())
+                          ],
+                          file: file
+                        }).then(res => {
+                          if (!res) throw Error("No file detected")
                           request("orgs/" + this.state.org.id, "PATCH", {org: {
-                            logo: "https://assets.hjobs.hk/" + key
+                            logo: res
                           }}).then(res => res.json()).then(data => {
                             if (!!data && !data.errors) {
                               UserActions.setUser({org: data});
@@ -240,6 +234,8 @@ class Profile extends Reflux.Component {
                               deletePhoto(prevLogo);
                             }
                           })
+                        }).catch(reason => {
+
                         })
                       }}
                     />
