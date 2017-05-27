@@ -13,12 +13,14 @@ export const customTimeStamp = (date, format = 'date')  => {
   );
 }
 /** @param {Date} date @return {string} */
-export const yyyymmddhhmmss = date => date.getFullYear() +
-pad2(date.getMonth() + 1) + 
-pad2(date.getDate()) +
-pad2(date.getHours()) +
-pad2(date.getMinutes()) +
-pad2(date.getSeconds());
+export const yyyymmddhhmmss = date => (
+  date.getFullYear() +
+  pad2(date.getMonth() + 1) + 
+  pad2(date.getDate()) +
+  pad2(date.getHours()) +
+  pad2(date.getMinutes()) +
+  pad2(date.getSeconds())
+);
 
 /** @return {string} @param {string} word */
 export const capitalize = (word) => { const arr = word.split(""); arr[0].toUpperCase(); return arr.join(""); };
