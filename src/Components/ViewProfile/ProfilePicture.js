@@ -1,16 +1,21 @@
 import React from 'react';
 
-const EmployeeProfilePicture = (props) => {
-  const imageSize = props.imageSize || "100px";
+const EmployeeProfilePicture = ({user, imageSize}) => {
+  imageSize = imageSize || "100px";
   return (
-    <img
-      src={props.user.image}
+    <div
+      className="job-thumbnail"
       style={{
-        height: imageSize,
+        backgroundImage: "url('" + user.image + "')",
         width: imageSize,
-        borderRadius: "50%"
+        height: imageSize,
+        maxWidth: imageSize,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+        borderRadius: "50%",
+        border: 0
       }}
-      alt="profile"
     />
   );
 }
