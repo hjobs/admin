@@ -65,7 +65,8 @@ class Job extends Reflux.Component {
       <div className="job-container flex-row">
         <div
           className="job-thumbnail"
-          style={{backgroundImage: "url('" + imgSrc + "')"}} />
+          style={{backgroundImage: "url('" + imgSrc + "')"}}
+        />
         <div className="detail-container">
           <div className="flex-row flex-hStart flex-vCenter">
             <div className="job-title full-width">
