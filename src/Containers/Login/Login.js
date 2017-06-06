@@ -115,6 +115,7 @@ class Login extends Reflux.Component {
             type !== "textarea" ?
               <FormControl
                 value={value}
+                style={{fontSize: 16}}
                 {...props}
                 placeholder={placeholder}
                 type={type}
@@ -122,6 +123,7 @@ class Login extends Reflux.Component {
               :
               <FormControl
                 componentClass={type}
+                style={{fontSize: 16}}
                 value={value}
                 onChange={(event) => { this.handleFormChange(id, event.target.value); }} />
           }
