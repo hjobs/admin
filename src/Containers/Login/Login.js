@@ -14,12 +14,10 @@ class Login extends Reflux.Component {
       signInUp: "up",
       signInLoading: false,
       signUpLoading: false,
-      logoUnderstood: false,
       errorMsg: null,
       up: {
         name: "",
         description: "",
-        logo: "",
         email: "",
         password: ""
       },
@@ -85,8 +83,6 @@ class Login extends Reflux.Component {
       }
     }).catch(err => onError(err.toString()));
   }
-
-  logoUnderstood() { this.setState({logoUnderstood: true}); }
 
   toggleInUp() {
     const data = {};
@@ -186,19 +182,6 @@ class Login extends Reflux.Component {
               type: "password",
               label: "Enter a password"
             })}
-            {
-              this.state.logoUnderstood ?
-                fieldGroup({
-                  id: "up-logo",
-                  type: "text",
-                  label: "Logo (Dropbox Link)",
-                  help: "Please upload your company's logo in square to dropbox, and attach a download link here. Or send us an email to info@hjobs.hk with the attached photo"
-                }) :
-                <div className="flex-row flex-vEnd">
-                  <Button type="submit" bsStyle="primary" className="logo-button" onClick={() => { this.logoUnderstood(); }} bsSize="small">Add a logo</Button>
-                  <span style={{color: "#404040", padding: "3px"}}> This would make your posting much more attractive</span>
-                </div>
-            }
             <p className="error">{this.state.errorMsg}</p>
             <div className="flex-row flex-vhCenter">
               <Button type="submit" bsStyle="primary">Submit</Button>
