@@ -18,6 +18,15 @@ class Locations extends Reflux.Component {
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.loading !== this.props.loading) {
+      this.setState(s => {
+        s.loading = true;
+        return s;
+      });
+    }
+  }
+
   listenKeyDown(event) {
     if (event.keyCode === 13) {
       event.preventDefault();
@@ -37,14 +46,14 @@ class Locations extends Reflux.Component {
     const streetName = this.state.inputValue
     if (!streetName) return;
     this.setLoading();
-    const locations = clone(this.props.locations);
+    const locations = clone(this.props.locations) || [];
     getGoogleLocationData(streetName).then(res => res.json()).then(d => {
       if (!d || d.status !== "OK") throw Error("Unprocessable location data");
       const locationObj = getLocationObject(d, streetName);
       locations.push(locationObj);
       this.setState(s => {
         s.inputValue = "";
-        s.errorMsg = null
+        s.errorMsg = null;
         return s;
       }, () => this.props.onChange(locations))
     }).catch(err => {
