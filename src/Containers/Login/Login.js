@@ -11,7 +11,7 @@ class Login extends Reflux.Component {
   constructor(props) {
     super(props);
     this.state = {
-      signInUp: "up",
+      signInUp: "in",
       signInLoading: false,
       signUpLoading: false,
       errorMsg: null,
@@ -97,7 +97,7 @@ class Login extends Reflux.Component {
     const idArr = id.split("-");
     const data = this.state[idArr[0]];
     data[idArr[1]] = value;
-    
+
     this.setState(data, () => {
       // console.log("logging this.state"); console.log(this.state);
     });
