@@ -278,9 +278,9 @@ class EditStore extends Reflux.Store {
       patchJob(processData);
     } else {
       uploadPhoto({
-        uriComponents: [
+        nameComponents: [
           "Companies",
-          encodeURIComponent((Reflux.GlobalState.userStore.org.name || "default").replace(" ", "")),
+          (Reflux.GlobalState.userStore.org.name || "default").replace(" ", ""),
           "logo",
           yyyymmddhhmmss(new Date())
         ],

@@ -25,12 +25,12 @@ export const s3DefaultObject = {
 const s3 = new S3(s3DefaultObject);
 
 /** if there is no file, will return empty value of promise. */
-export const uploadPhoto = ({uriComponents, file}) => {
+export const uploadPhoto = ({nameComponents, file}) => {
   return new Promise((resolve, reject) => {
     if (!file) resolve();
     const keyExtension = "." + file.type.split("/")[1];
-    const key = uriComponents.join("/") + keyExtension;
-    const encodedKey = uriComponents.map(comp => encodeURIComponent(comp)).join("/") + keyExtension;
+    const key = nameComponents.join("/") + keyExtension;
+    const encodedKey = nameComponents.map(comp => escape(comp)).join("/") + keyExtension;
     console.log(["keys...", key, encodedKey])
     s3.putObject({
       Bucket: "assets.hjobs.hk",
