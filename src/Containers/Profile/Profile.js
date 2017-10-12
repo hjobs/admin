@@ -220,7 +220,7 @@ class Profile extends Reflux.Component {
                           const prevLogo = this.state.org.logo;
 
                           uploadPhoto({
-                            uriComponents: [
+                            nameComponents: [
                               "Companies",
                               (this.state.org.name || "default").replace(" ", ""),
                               "logo",
