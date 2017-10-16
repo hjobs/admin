@@ -222,7 +222,7 @@ class Profile extends Reflux.Component {
                           uploadPhoto({
                             nameComponents: [
                               "Companies",
-                              (this.state.org.name || "default").replace(" ", ""),
+                              (this.state.org.name || "default").replace(/ /g, "").replace(/\+/g, "%2B"),
                               "logo",
                               yyyymmddhhmmss(new Date())
                             ],
