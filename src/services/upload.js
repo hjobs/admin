@@ -41,7 +41,8 @@ export const uploadPhoto = ({nameComponents, file}) => {
       ContentEncoding: "Base64"
     }, (err, data) => {
       if (err) reject(err.toString());
-      resolve("https://assets.hjobs.hk/" + encodedKey);
+      resolve("https://assets.hjobs.hk/" + data.Key)
+      // resolve("https://assets.hjobs.hk/" + encodedKey);
     })
   })
 }
