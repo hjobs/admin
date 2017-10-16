@@ -4,7 +4,7 @@ import clone from 'clone';
 // import Var from '../services/var';
 import { request } from '../services/http';
 import { yyyymmddhhmmss } from '../services/var';
-import { uploadPhoto } from '../services/upload';
+import { uploadPhoto, strip } from '../services/upload';
 import { salaryChoices, jobSalaryFields } from './data/misc';
 
 export const EditActions = Reflux.createActions({
@@ -280,7 +280,7 @@ class EditStore extends Reflux.Store {
       uploadPhoto({
         nameComponents: [
           "Companies",
-          (Reflux.GlobalState.userStore.org.name || "default").replace(" ", ""),
+          strip(Reflux.GlobalState.userStore.org.name || "default"),
           "logo",
           yyyymmddhhmmss(new Date())
         ],

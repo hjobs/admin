@@ -15,7 +15,7 @@ import UserStore, { UserActions } from '../../stores/userStore';
 
 import { yyyymmddhhmmss } from "../../services/var";
 import { request } from "../../services/http";
-import { checkError, deletePhoto, uploadPhoto } from '../../services/upload';
+import { checkError, deletePhoto, uploadPhoto, strip } from '../../services/upload';
 
 class Profile extends Reflux.Component {
   constructor(props) {
@@ -222,7 +222,7 @@ class Profile extends Reflux.Component {
                           uploadPhoto({
                             nameComponents: [
                               "Companies",
-                              (this.state.org.name || "default").replace(/ /g, "").replace(/\+/g, "%2B"),
+                              strip(this.state.org.name || "default"),
                               "logo",
                               yyyymmddhhmmss(new Date())
                             ],

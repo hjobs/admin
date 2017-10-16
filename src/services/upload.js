@@ -2,6 +2,15 @@ import S3 from 'aws-sdk/clients/s3';
 
 export const hjobsAssetsUrlPrefix = "https://assets.hjobs.hk/"
 
+/** @param {str} str @return {str} */
+export const encode = (str) => (
+  str.replace(/ /g, "%20").replace(/\+/g, "%2B")
+);
+
+export const strip = (str) => (
+  str.replace(/ /g, "").replace(/\+/g, "")
+);
+
 /** @param {File} file */
 export const checkError = (file) => {
   if (!file) return "Please choose a file"
@@ -30,7 +39,7 @@ export const uploadPhoto = ({nameComponents, file}) => {
     if (!file) resolve();
     const keyExtension = "." + file.type.split("/")[1];
     const key = nameComponents.join("/") + keyExtension;
-    const encodedKey = nameComponents.map(comp => escape(comp)).join("/") + keyExtension;
+    const encodedKey = nameComponents.map(comp => encode(comp)).join("/") + keyExtension;
     console.log(["keys...", key, encodedKey])
     s3.putObject({
       Bucket: "assets.hjobs.hk",
