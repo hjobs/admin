@@ -4,11 +4,11 @@ export const hjobsAssetsUrlPrefix = "https://assets.hjobs.hk/"
 
 /** @param {str} str @return {str} */
 export const encode = (str) => (
-  str.replace(/ /g, "%20").replace(/\+/g, "%2B").replace(/'/g, "")
+  str.replace(/ /g, "%20").replace(/\+/g, "%2B")
 );
 
 export const strip = (str) => (
-  str.replace(/ /g, "").replace(/\+/g, "")
+  str.replace(/ /g, "").replace(/\+/g, "").replace(/'/g, "")
 );
 
 /** @param {File} file */
