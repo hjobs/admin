@@ -4,7 +4,7 @@ export const hjobsAssetsUrlPrefix = "https://assets.hjobs.hk/"
 
 /** @param {str} str @return {str} */
 export const encode = (str) => (
-  str.replace(/ /g, "%20").replace(/\+/g, "%2B")
+  str.replace(/ /g, "%20").replace(/\+/g, "%2B").replace(/'/g, "")
 );
 
 export const strip = (str) => (
@@ -38,7 +38,9 @@ export const uploadPhoto = ({nameComponents, file}) => {
   return new Promise((resolve, reject) => {
     if (!file) resolve();
     const keyExtension = "." + file.type.split("/")[1];
+    // key is the file name sent to AWS to upload
     const key = nameComponents.join("/") + keyExtension;
+    // encodedKey is the predicted resultant file name
     const encodedKey = nameComponents.map(comp => encode(comp)).join("/") + keyExtension;
     console.log(["keys...", key, encodedKey])
     s3.putObject({
