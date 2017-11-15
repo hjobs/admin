@@ -219,6 +219,7 @@ class Profile extends Reflux.Component {
                           // upload
                           const prevLogo = this.state.org.logo;
 
+                          console.log("upload photo going to initiated");
                           uploadPhoto({
                             nameComponents: [
                               "Companies",

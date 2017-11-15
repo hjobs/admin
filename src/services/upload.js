@@ -1,4 +1,5 @@
 import S3 from 'aws-sdk/clients/s3';
+// import { Component } from '../../../../../Library/Caches/typescript/2.6/node_modules/@types/react';
 
 export const hjobsAssetsUrlPrefix = "https://assets.hjobs.hk/"
 
@@ -36,6 +37,7 @@ const s3 = new S3(s3DefaultObject);
 /** if there is no file, will return empty value of promise. */
 export const uploadPhoto = ({nameComponents, file}) => {
   return new Promise((resolve, reject) => {
+    console.log(["file = ", file, "componenets = ", nameComponents]);
     if (!file) resolve();
     const keyExtension = "." + file.type.split("/")[1];
     // key is the file name sent to AWS to upload
