@@ -31,7 +31,7 @@ const inspectJobError = (state) => {
   const { job, reward, event, langs, progress } = state;
   if (!job.title) errors.push("Please input title");
   if (!job.description) errors.push("Please input description");
-  switch (inputIsEmpty(reward.salary_type)) {
+  switch (reward.salary_type) {
     case "specific":
       if (inputIsEmpty(reward.salary_value) || inputIsEmpty(reward.salary_value)) errors.push("Salary information is incomplete");
       break;

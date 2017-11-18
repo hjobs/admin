@@ -101,7 +101,7 @@ class Login extends Reflux.Component {
     data[idArr[1]] = value;
 
     this.setState(data, () => {
-      // console.log("logging this.state"); console.log(this.state);
+      console.log("Form change, logging this.state"); console.log(this.state);
     });
   }
 
