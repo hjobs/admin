@@ -20,18 +20,23 @@ export const EditActions = Reflux.createActions({
   reset: {}
 });
 
+const inputIsEmpty = (val) => {
+  if (val === "" || val == null) return true;
+  return false;
+}
+
 /** @return {[string]} */
 const inspectJobError = (state) => {
   const errors = [];
   const { job, reward, event, langs, progress } = state;
   if (!job.title) errors.push("Please input title");
   if (!job.description) errors.push("Please input description");
-  switch (reward.salary_type) {
+  switch (inputIsEmpty(reward.salary_type)) {
     case "specific":
-      if (!reward.salary_value) errors.push("Salary information is incomplete");
+      if (inputIsEmpty(reward.salary_value) || inputIsEmpty(reward.salary_value)) errors.push("Salary information is incomplete");
       break;
     case "range":
-      if (!reward.salary_high || !reward.salary_low) errors.push("Please specify the salary");
+      if (inputIsEmpty(reward.salary_high) || inputIsEmpty(reward.salary_low)) errors.push("Please specify the salary");
       break;
     case "negotiable": break;
     default:

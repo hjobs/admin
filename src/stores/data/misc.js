@@ -75,9 +75,9 @@ export const jobType = [
   {
     name: "Internship",
     value: 'intern'
-  },
-  {
-    name: "Project",
-    value: 'project'
   }
+  // {
+  //   name: "Project",
+  //   value: 'project'
+  // }
 ]

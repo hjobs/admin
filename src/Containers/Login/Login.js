@@ -68,6 +68,8 @@ class Login extends Reflux.Component {
       window.alert("Sorry, there is an error, please contact admin if problem persists");
     }
 
+    console.log(bodyData);
+
     Http.request(urlSuffix, "POST", bodyData).then(res => {
       console.log(res);
       if (!res.ok) return this.setState(s => { s.errorMsg = res.statusText; return s; });
