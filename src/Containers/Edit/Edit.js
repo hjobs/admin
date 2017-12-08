@@ -88,9 +88,7 @@ class Edit extends Reflux.Component {
                 ))}
                 <RewardComponent />
                 <TimeComponent />
-                
-                <label style={{marginTop: 15}}>Work Location</label>
-                <br />
+
                 <Checkbox
                   checked={this.state.job.default_location}
                   label="Use my default location (can be set in your profile page)"
@@ -133,6 +131,23 @@ class Edit extends Reflux.Component {
                     </div>
                   }
                 </div>
+                <Checkbox
+                  checked={this.state.job.default_location}
+                  label="Use my default location (can be set in your profile page)"
+                  onChange={(e, d) => EditActions.editJob("job", "default_location", d.checked)}
+                />
+                {
+                  this.state.job.default_location === true ? null :
+                  <Locations
+                    style={{flexGrow: 1, "padding-left": "2em"}}
+                    locations={this.state.job.locations}
+                    setLoading={(loading = true) => EditActions.setLoading(loading)}
+                    loading={this.state.loading}
+                    placeholder={"Specify your work location"}
+                    onChange={(locations) => EditActions.editJob("job", "locations", locations)}
+                  />
+                }
+                <br />
                 <Event />
                 <Langs scrollBottom={() => this.scrollBottom()} />
               </div>
