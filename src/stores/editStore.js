@@ -80,6 +80,13 @@ export const getJobHttpObject = (state) => {
   jobSalaryFields.forEach(key => {
     job[key] = state.reward[key];
   })
+  job.job_tags_attributes = job.jobTags.map((t => {
+    const tObj = {tag_id: t.tag_id};
+    if (t["_destroy"] === 1 || t["_destroy"] === 0) tObj["_destroy"] = t["_destroy"];
+    if (t.id === 0 || !!t.id) tObj.id = t.id;
+    return tObj;
+  }))
+  delete job.jobTags;
   returnObject.data = job;
   return returnObject;
 }
@@ -176,7 +183,8 @@ export const getStateFromJob = (job, loading = false) => {
       bonus_value: hasJob ? job.bonus_value || "" : "",
       attachment_url: hasJob ? job.attachment_url || [] : "",
       event: hasJob ? job.event || "" :"",
-      langs: hasJob ? job.langs.map(lang =>  lang.code) || [] : []
+      langs: hasJob ? job.langs.map(lang =>  lang.code) || [] : [],
+      jobTags: hasJob ? job.job_tags || [] : []
     },
     reward: hasJob ? httpToJob.rewardReducer(job) : {
       chosen: [],
@@ -313,7 +321,7 @@ class EditStore extends Reflux.Store {
     // console.log(document.getElementById('job-employment_type').value);
   }
 
-  /** @param {'job'|'reward'|'periods'|'locations'} objectName @param {string} value @param {'title'|'description'|'attachment_url'|'employment_type'|'salary_type'|'salary_high'|'salary_low'|'salary_value'|'has_bonus'|'bonus_value'} key */
+  /** @param {'job'|'reward'|'periods'|'locations'} objectName @param {string} value @param {'title'|'description'|'attachment_url'|'employment_type'|'salary_type'|'salary_high'|'salary_low'|'salary_value'|'has_bonus'|'bonus_value'|'tags'} key */
   editJob(objectName, key, value) {
     const nextState = this.state;
     nextState[objectName][key] = value;

@@ -14,6 +14,7 @@ import Event from '../../Components/Edit/Event';
 import Langs from '../../Components/Edit/Langs';
 import Locations from '../../Components/Misc/Locations';
 import FileInput from '../../Components/Misc/FileInput';
+import TagComponent from "../../Components/Edit/TagComponent";
 
 import UserStore from '../../stores/userStore'
 import EditStore, { EditActions } from '../../stores/editStore';
@@ -88,7 +89,10 @@ class Edit extends Reflux.Component {
                 ))}
                 <RewardComponent />
                 <TimeComponent />
+                <TagComponent />
 
+                
+                <label style={{marginTop: "15px"}}>Additional Info</label><br />
                 <Checkbox
                   checked={this.state.job.default_location}
                   label="Use my default location (can be set in your profile page)"
@@ -105,9 +109,6 @@ class Edit extends Reflux.Component {
                     onChange={(locations) => EditActions.editJob("job", "locations", locations)}
                   />
                 }
-
-                <br />
-                <label style={{marginTop: "15px"}}>Additional Info</label>
                 <div>
                   <Checkbox
                     checked={this.state.photo.default}
