@@ -8,7 +8,8 @@ export const jobTags = [
       {id: 1004, code: "clubnight"},
       {id: 1005, code: "clubmembers"},
       {id: 1006, code: "tourism"},
-      {id: 1007, code: "academic"}
+      {id: 1007, code: "academic"},
+      {id: 1999, code: "other"}
     ]
   },
   // {
@@ -21,7 +22,8 @@ export const jobTags = [
       {id: 3000, code: "parttime"},
       {id: 3001, code: "fulltime"},
       {id: 3002, code: "casual"}, 
-      {id: 3003, code: "freelance"}
+      {id: 3003, code: "freelance"},
+      {id: 3004, code: "volunteer"}
     ] 
   }
 ];
@@ -70,6 +72,10 @@ export const jobTagTranslations = {
       "en": "Academic",
       "zh-HK": "學術研究"
     },
+    "other": {
+      "en": "Other",
+      "zh-HK": "其他"
+    },
     "fulltime": {
       "en": "FullTime",
       "zh-HK": "全職"
@@ -85,6 +91,10 @@ export const jobTagTranslations = {
     "freelance": {
       "en": "FreeLance",
       "zh-HK": "FreeLance"
+    },
+    "volunteer": {
+      "en": "Volunteer",
+      "zh-HK": "義務工作"
     }
   }
 };
