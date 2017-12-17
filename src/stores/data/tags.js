@@ -86,7 +86,7 @@ export const jobTagTranslations = {
     },
     "casual": {
       "en": "Casual",
-      "zh-HK": "欺工"
+      "zh-HK": "散工"
     },
     "freelance": {
       "en": "FreeLance",
